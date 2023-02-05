@@ -1,0 +1,118 @@
+package redash
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/winebarrel/redash-go/internal/util"
+)
+
+type UserPage struct {
+	Count    int    `json:"count"`
+	Page     int    `json:"page"`
+	PageSize int    `json:"page_size"`
+	Results  []User `json:"results"`
+}
+
+type User struct {
+	ActiveAt            time.Time `json:"active_at"`
+	APIKey              string    `json:"api_key"`
+	AuthType            string    `json:"auth_type"`
+	CreatedAt           time.Time `json:"created_at"`
+	DisabledAt          time.Time `json:"disabled_at"`
+	Email               string    `json:"email"`
+	Groups              []any     `json:"groups"`
+	ID                  int       `json:"id"`
+	IsDisabled          bool      `json:"is_disabled"`
+	IsEmailVerified     bool      `json:"is_email_verified"`
+	IsInvitationPending bool      `json:"is_invitation_pending"`
+	Name                string    `json:"name"`
+	ProfileImageURL     string    `json:"profile_image_url"`
+	UpdatedAt           time.Time `json:"updated_at"`
+}
+
+type ListUsersInput struct {
+	Page     int
+	PageSize int
+}
+
+// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L17
+func (client *Client) ListUsers(ctx context.Context, input *ListUsersInput) (*UserPage, error) {
+	params := map[string]string{}
+
+	if input != nil {
+		params["page"] = strconv.Itoa(input.Page)
+		params["page_size"] = strconv.Itoa(input.PageSize)
+	}
+
+	res, err := client.Get(ctx, "api/users", params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	page := &UserPage{}
+
+	if err := util.UnmarshalBody(res, &page); err != nil {
+		return nil, err
+	}
+
+	return page, nil
+}
+
+func (client *Client) GetUser(ctx context.Context, id int) (*User, error) {
+	res, err := client.Get(ctx, fmt.Sprintf("api/users/%d", id), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+
+	if err := util.UnmarshalBody(res, &user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+type CreateUsersInput struct {
+	AuthType string `json:"auth_type"`
+	Email    string `json:"email"`
+	Name     string `json:"name"`
+}
+
+func (client *Client) CreateUser(ctx context.Context, input *CreateUsersInput) (*User, error) {
+	res, err := client.Post(ctx, "api/users", input)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+
+	if err := util.UnmarshalBody(res, &user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#LL47C8-L47C21
+func (client *Client) DisableUser(ctx context.Context, id int) (*User, error) {
+	res, err := client.Post(ctx, fmt.Sprintf("api/users/%d/disable", id), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+
+	if err := util.UnmarshalBody(res, &user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
