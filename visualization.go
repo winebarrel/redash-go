@@ -1,4 +1,3 @@
-// TODO: This API is not well tested :_(
 package redash
 
 import (
@@ -44,3 +43,5 @@ func (client *Client) UpdateVisualization(ctx context.Context, id int, input *Up
 
 	return viz, nil
 }
+
+// TODO: This API is not well tested :_(

@@ -1,4 +1,3 @@
-// TODO: This API is not well tested :_(
 package redash
 
 import (
@@ -44,3 +43,5 @@ func (client *Client) CreateWidget(ctx context.Context, input *CreateWidgetInput
 
 	return widget, nil
 }
+
+// TODO: This API is not well tested :_(
