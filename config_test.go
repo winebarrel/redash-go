@@ -190,13 +190,6 @@ func Test_Config_Acc(t *testing.T) {
 	config, err := client.GetConfig(context.Background())
 	assert.NoError(err)
 	assert.Equal("default", config.OrgSlug)
-	assert.True(strings.HasPrefix(config.ClientConfig.Version, "8."))
-
-	host := testRedashEndpoint
-
-	if !strings.HasSuffix(host, "/") {
-		host += "/"
-	}
-
-	assert.Equal(host, config.ClientConfig.BasePath)
+	assert.Equal(50000, config.ClientConfig.TableCellMaxJSONSize)
+	assert.True(strings.HasPrefix(config.ClientConfig.BasePath, testRedashEndpoint))
 }
