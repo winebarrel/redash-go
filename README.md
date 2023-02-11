@@ -1,9 +1,10 @@
 # redash-go
 
-Redash API client in Go.
-
 [![test](https://github.com/winebarrel/redash-go/actions/workflows/test.yml/badge.svg)](https://github.com/winebarrel/redash-go/actions/workflows/test.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/winebarrel/redash-go.svg)](https://pkg.go.dev/github.com/winebarrel/redash-go)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/winebarrel/redash-go)
+
+Redash API client in Go.
 
 ## Usage
 
