@@ -101,11 +101,11 @@ func Test_CloseResponse_OK(t *testing.T) {
 	assert.Equal(0, buf.Len())
 }
 
-func Test_CloseResponse_Nil(t *testing.T) {
+func Test_CloseResponse_WithNil(t *testing.T) {
 	util.CloseResponse(nil)
 }
 
-func Test_CloseResponse_BodyNil(t *testing.T) {
+func Test_CloseResponse_WithBodyNil(t *testing.T) {
 	res := &http.Response{}
 	util.CloseResponse(res)
 }
