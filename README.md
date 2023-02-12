@@ -12,6 +12,7 @@ Redash API client in Go.
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"time"
@@ -21,26 +22,63 @@ import (
 
 func main() {
 	client, _ := redash.NewClient("https://redash.example.com", "<secret>")
+
+	if err != nil {
+		panic(err)
+	}
+
 	//client.Debug = true
 
 	ctx := context.Background()
 
-	query, _ := client.CreateQuery(ctx, &redash.CreateQueryInput{
-		DataSourceID: 1,
+	ds, err := client.CreateDataSource(ctx, &redash.CreateDataSourceInput{
+		Name: "postgres",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	query, err := client.CreateQuery(ctx, &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
 		Name:         "my-query1",
 		Query:        "select 1",
 	})
 
+	if err != nil {
+		panic(err)
+	}
+
 	var buf bytes.Buffer
-	job, _ := client.ExecQueryJSON(ctx, query.ID, &buf)
+	job, err := client.ExecQueryJSON(ctx, query.ID, &buf)
+
+	if err != nil {
+		panic(err)
+	}
 
 	if job != nil {
 		for {
-			job, _ := client.GetJob(ctx, job.Job.ID)
+			job, err := client.GetJob(ctx, job.Job.ID)
+
+			if err != nil {
+				panic(err)
+			}
 
 			if job.Job.Status >= 3 {
 				buf = bytes.Buffer{}
-				client.GetQueryResultsJSON(ctx, query.ID, &buf)
+				err := client.GetQueryResultsJSON(ctx, query.ID, &buf)
+
+				if err != nil {
+					panic(err)
+				}
+
 				break
 			}
 
