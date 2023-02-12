@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -237,7 +238,7 @@ func (client *Client) GetQueryResultsCSV(ctx context.Context, id int, out io.Wri
 
 func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, out io.Writer) error {
 	if out == nil {
-		return fmt.Errorf("out(io.Writer) is nil")
+		return errors.New("out(io.Writer) is nil")
 	}
 
 	res, close, err := client.Get(ctx, fmt.Sprintf("api/queries/%d/results.%s", id, ext), nil)
