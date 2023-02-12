@@ -730,9 +730,40 @@ func Test_ExecQueryJSON_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, _, err := client.ExecQueryJSON(context.Background(), 1)
+	res, jobId, err := client.ExecQueryJSON(context.Background(), 1)
 	assert.NoError(err)
 	assert.Equal(`{"foo":"bar"}`, string(res))
+	assert.Empty(jobId)
+}
+
+func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"filetype":"json"}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"job": {"status": 1, "error": "", "id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51", "query_result_id": null,	"status": 1, "updated_at": 0}}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, jobId, err := client.ExecQueryJSON(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal("623b290a-7fd9-4ea6-a2a6-96f9c9101f51", jobId)
 }
 
 func Test_Query_Acc(t *testing.T) {

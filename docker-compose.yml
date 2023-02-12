@@ -18,7 +18,7 @@ services:
       redis:
         condition: service_started
     ports:
-      - "5000:5000"
+      - "5001:5000"
       - "5678:5678"
     environment:
       <<: *redash-environment

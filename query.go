@@ -251,11 +251,11 @@ func (client *Client) ExecQueryJSON(ctx context.Context, id int) ([]byte, string
 		return nil, "", err
 	}
 
-	if bytes.HasPrefix(body, []byte(`{"job": {"status": 1, "error": "", "id": "`)) {
+	if bytes.HasPrefix(body, []byte(`{"job":`)) {
 		var job JobResponse
 		err := json.Unmarshal(body, &job)
 
-		if err == nil {
+		if err == nil && job.Job.ID != "" {
 			return body, job.Job.ID, nil
 		}
 	}
