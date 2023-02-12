@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 
@@ -851,7 +852,7 @@ func Test_Query_Acc(t *testing.T) {
 		}
 	}
 
-	assert.NotEmpty(buf.String())
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
 	assert.NoError(err)
