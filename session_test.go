@@ -58,3 +58,58 @@ func Test_TestCredentials_Acc(t *testing.T) {
 	err := client.TestCredentials(context.Background())
 	assert.NoError(err)
 }
+
+func Test_GetSession_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/session", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"client_config": {},
+				"messages": [
+					"email-not-verified",
+					"using-deprecated-embed-feature"
+				],
+				"org_slug": "default",
+				"user": {}
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.GetSession(context.Background())
+	assert.NoError(err)
+	assert.Equal(&redash.Session{
+		ClientConfig: redash.ClientConfig{},
+		Messages: []string{
+			"email-not-verified",
+			"using-deprecated-embed-feature",
+		},
+		OrgSlug: "default",
+		User:    redash.User{},
+	}, res)
+}
+
+func Test_GetSession_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	session, err := client.GetSession(context.Background())
+	assert.NoError(err)
+	assert.Equal("admin", session.User.Name)
+}
