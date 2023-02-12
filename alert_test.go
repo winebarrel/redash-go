@@ -432,7 +432,7 @@ func Test_Alert_Acc(t *testing.T) {
 
 	assert := assert.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
-	ds, _ := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
 		Name: "test-postgres-1",
 		Type: "pg",
 		Options: map[string]any{
@@ -442,6 +442,9 @@ func Test_Alert_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
 
 	defer func() {
 		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
@@ -457,7 +460,7 @@ func Test_Alert_Acc(t *testing.T) {
 		client.ArchiveQuery(context.Background(), query.ID) //nolint:errcheck
 	}()
 
-	_, err := client.ListAlerts(context.Background())
+	_, err = client.ListAlerts(context.Background())
 	assert.NoError(err)
 
 	alert, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
