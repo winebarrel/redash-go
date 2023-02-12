@@ -63,3 +63,5 @@ docker compose up -d
 make redash-setup
 make testacc
 ```
+
+**NOTE:** local Redash URL: http://localhost:5001
