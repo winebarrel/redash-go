@@ -43,34 +43,36 @@ func NewClient(endpoint string, apiKey string) (*Client, error) {
 	return client, nil
 }
 
-func (client *Client) Get(ctx context.Context, path string, params map[string]string) (*http.Response, error) {
+type ResponseCloser func()
+
+func (client *Client) Get(ctx context.Context, path string, params map[string]string) (*http.Response, ResponseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodGet, path, params, nil)
 
 	if err != nil {
-		return nil, fmt.Errorf("GET %s failed: %w", path, err)
+		return nil, func() {}, fmt.Errorf("GET %s failed: %w", path, err)
 	}
 
-	return res, nil
+	return res, func() { util.CloseResponse(res) }, nil
 }
 
-func (client *Client) Post(ctx context.Context, path string, body any) (*http.Response, error) {
+func (client *Client) Post(ctx context.Context, path string, body any) (*http.Response, ResponseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodPost, path, nil, body)
 
 	if err != nil {
-		return nil, fmt.Errorf("POST %s failed: %w", path, err)
+		return nil, func() {}, fmt.Errorf("POST %s failed: %w", path, err)
 	}
 
-	return res, nil
+	return res, func() { util.CloseResponse(res) }, nil
 }
 
-func (client *Client) Delete(ctx context.Context, path string) (*http.Response, error) {
+func (client *Client) Delete(ctx context.Context, path string) (*http.Response, ResponseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodDelete, path, nil, nil)
 
 	if err != nil {
-		return nil, fmt.Errorf("DELETE %s failed: %w", path, err)
+		return nil, func() {}, fmt.Errorf("DELETE %s failed: %w", path, err)
 	}
 
-	return res, nil
+	return res, func() { util.CloseResponse(res) }, nil
 }
 
 func (client *Client) sendRequest(ctx context.Context, method string, path string, params map[string]string, body any) (*http.Response, error) {

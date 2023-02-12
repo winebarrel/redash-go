@@ -17,7 +17,8 @@ type Group struct {
 }
 
 func (client *Client) ListGroups(ctx context.Context) ([]Group, error) {
-	res, err := client.Get(ctx, "api/groups", nil)
+	res, close, err := client.Get(ctx, "api/groups", nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -33,7 +34,8 @@ func (client *Client) ListGroups(ctx context.Context) ([]Group, error) {
 }
 
 func (client *Client) GetGroup(ctx context.Context, id int) (*Group, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/groups/%d", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/groups/%d", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -54,7 +56,8 @@ type CreateGroupInput struct {
 }
 
 func (client *Client) CreateGroup(ctx context.Context, input *CreateGroupInput) (*Group, error) {
-	res, err := client.Post(ctx, "api/groups", input)
+	res, close, err := client.Post(ctx, "api/groups", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -70,7 +73,8 @@ func (client *Client) CreateGroup(ctx context.Context, input *CreateGroupInput) 
 }
 
 func (client *Client) DeleteGroup(ctx context.Context, id int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d", id))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d", id))
+	defer close()
 
 	if err != nil {
 		return err
@@ -80,7 +84,8 @@ func (client *Client) DeleteGroup(ctx context.Context, id int) error {
 }
 
 func (client *Client) ListGroupMembers(ctx context.Context, id int) ([]User, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/groups/%d/members", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/groups/%d/members", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -96,7 +101,8 @@ func (client *Client) ListGroupMembers(ctx context.Context, id int) ([]User, err
 }
 
 func (client *Client) AddGroupMember(ctx context.Context, id int, userId int) (*User, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/groups/%d/members", id), map[string]int{"user_id": userId})
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/groups/%d/members", id), map[string]int{"user_id": userId})
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -112,7 +118,8 @@ func (client *Client) AddGroupMember(ctx context.Context, id int, userId int) (*
 }
 
 func (client *Client) RemoveGroupMember(ctx context.Context, id int, userId int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d/members/%d", id, userId))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d/members/%d", id, userId))
+	defer close()
 
 	if err != nil {
 		return err
@@ -122,7 +129,8 @@ func (client *Client) RemoveGroupMember(ctx context.Context, id int, userId int)
 }
 
 func (client *Client) ListGroupDataSources(ctx context.Context, id int) ([]DataSource, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/groups/%d/data_sources", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/groups/%d/data_sources", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -138,7 +146,8 @@ func (client *Client) ListGroupDataSources(ctx context.Context, id int) ([]DataS
 }
 
 func (client *Client) AddGroupDataSource(ctx context.Context, id int, dsId int) (*DataSource, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/groups/%d/data_sources", id), map[string]int{"data_source_id": dsId})
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/groups/%d/data_sources", id), map[string]int{"data_source_id": dsId})
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -154,7 +163,8 @@ func (client *Client) AddGroupDataSource(ctx context.Context, id int, dsId int) 
 }
 
 func (client *Client) RemoveGroupDataSource(ctx context.Context, id int, dsId int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d/data_sources/%d", id, dsId))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d/data_sources/%d", id, dsId))
+	defer close()
 
 	if err != nil {
 		return err
@@ -169,7 +179,8 @@ type UpdateGroupDataSourceInput struct {
 }
 
 func (client *Client) UpdateGroupDataSource(ctx context.Context, id int, dsId int, input *UpdateGroupDataSourceInput) (*DataSource, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/groups/%d/data_sources/%d", id, dsId), input)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/groups/%d/data_sources/%d", id, dsId), input)
+	defer close()
 
 	if err != nil {
 		return nil, err

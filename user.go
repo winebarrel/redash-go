@@ -47,7 +47,8 @@ func (client *Client) ListUsers(ctx context.Context, input *ListUsersInput) (*Us
 		params["page_size"] = strconv.Itoa(input.PageSize)
 	}
 
-	res, err := client.Get(ctx, "api/users", params)
+	res, close, err := client.Get(ctx, "api/users", params)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -63,7 +64,8 @@ func (client *Client) ListUsers(ctx context.Context, input *ListUsersInput) (*Us
 }
 
 func (client *Client) GetUser(ctx context.Context, id int) (*User, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/users/%d", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/users/%d", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -85,7 +87,8 @@ type CreateUsersInput struct {
 }
 
 func (client *Client) CreateUser(ctx context.Context, input *CreateUsersInput) (*User, error) {
-	res, err := client.Post(ctx, "api/users", input)
+	res, close, err := client.Post(ctx, "api/users", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -102,7 +105,8 @@ func (client *Client) CreateUser(ctx context.Context, input *CreateUsersInput) (
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#LL47C8-L47C21
 func (client *Client) DisableUser(ctx context.Context, id int) (*User, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/users/%d/disable", id), nil)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/users/%d/disable", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err

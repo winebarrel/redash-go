@@ -36,7 +36,8 @@ type AlertSubscription struct {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L157
 func (client *Client) ListAlerts(ctx context.Context) ([]Alert, error) {
-	res, err := client.Get(ctx, "api/alerts", nil)
+	res, close, err := client.Get(ctx, "api/alerts", nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -53,7 +54,8 @@ func (client *Client) ListAlerts(ctx context.Context) ([]Alert, error) {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L162
 func (client *Client) GetAlert(ctx context.Context, id int) (*Alert, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/alerts/%d", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/alerts/%d", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -82,7 +84,8 @@ type CreateAlertOptions struct {
 }
 
 func (client *Client) CreateAlert(ctx context.Context, input *CreateAlertInput) (*Alert, error) {
-	res, err := client.Post(ctx, "api/alerts", input)
+	res, close, err := client.Post(ctx, "api/alerts", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -112,7 +115,8 @@ type UpdateAlertOptions struct {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L176
 func (client *Client) UpdateAlert(ctx context.Context, id int, input *UpdateAlertInput) (*Alert, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/alerts/%d", id), input)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/alerts/%d", id), input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -128,7 +132,8 @@ func (client *Client) UpdateAlert(ctx context.Context, id int, input *UpdateAler
 }
 
 func (client *Client) DeleteAlert(ctx context.Context, id int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/alerts/%d", id))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/alerts/%d", id))
+	defer close()
 
 	if err != nil {
 		return err
@@ -138,7 +143,8 @@ func (client *Client) DeleteAlert(ctx context.Context, id int) error {
 }
 
 func (client *Client) ListAlertSubscriptions(ctx context.Context, id int) ([]AlertSubscription, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/alerts/%d/subscriptions", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/alerts/%d/subscriptions", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -154,7 +160,8 @@ func (client *Client) ListAlertSubscriptions(ctx context.Context, id int) ([]Ale
 }
 
 func (client *Client) AddAlertSubscription(ctx context.Context, id int, destinationId int) (*AlertSubscription, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/alerts/%d/subscriptions", id), map[string]int{"destination_id": destinationId})
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/alerts/%d/subscriptions", id), map[string]int{"destination_id": destinationId})
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -170,7 +177,8 @@ func (client *Client) AddAlertSubscription(ctx context.Context, id int, destinat
 }
 
 func (client *Client) RemoveAlertSubscription(ctx context.Context, id int, subscriptionId int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/alerts/%d/subscriptions/%d", id, subscriptionId))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/alerts/%d/subscriptions/%d", id, subscriptionId))
+	defer close()
 
 	if err != nil {
 		return err

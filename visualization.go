@@ -29,7 +29,8 @@ type UpdateVisualizationInput struct {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L98
 func (client *Client) UpdateVisualization(ctx context.Context, id int, input *UpdateVisualizationInput) (*Visualization, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/visualizations/%d", id), input)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/visualizations/%d", id), input)
+	defer close()
 
 	if err != nil {
 		return nil, err

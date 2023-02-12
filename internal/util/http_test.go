@@ -80,3 +80,32 @@ func Test_CheckStatus_Err_WithBody(t *testing.T) {
 		assert.ErrorContains(err, fmt.Sprintf("HTTP status code not OK: STATUS CODE %d\nbody", t))
 	}
 }
+
+type testReadCloser struct {
+	io.Reader
+	isClosed bool
+}
+
+func (r *testReadCloser) Close() error {
+	r.isClosed = true
+	return nil
+}
+
+func Test_CloseResponse_OK(t *testing.T) {
+	assert := assert.New(t)
+	buf := strings.NewReader(`body`)
+	body := &testReadCloser{Reader: buf}
+	res := &http.Response{Body: body}
+	util.CloseResponse(res)
+	assert.True(body.isClosed)
+	assert.Equal(0, buf.Len())
+}
+
+func Test_CloseResponse_Nil(t *testing.T) {
+	util.CloseResponse(nil)
+}
+
+func Test_CloseResponse_BodyNil(t *testing.T) {
+	res := &http.Response{}
+	util.CloseResponse(res)
+}

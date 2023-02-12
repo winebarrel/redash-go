@@ -16,7 +16,8 @@ type Destination struct {
 }
 
 func (client *Client) ListDestinations(ctx context.Context) ([]Destination, error) {
-	res, err := client.Get(ctx, "api/destinations", nil)
+	res, close, err := client.Get(ctx, "api/destinations", nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -32,7 +33,8 @@ func (client *Client) ListDestinations(ctx context.Context) ([]Destination, erro
 }
 
 func (client *Client) GetDestination(ctx context.Context, id int) (*Destination, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/destinations/%d", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/destinations/%d", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -54,7 +56,8 @@ type CreateDestinationInput struct {
 }
 
 func (client *Client) CreateDestination(ctx context.Context, input *CreateDestinationInput) (*Destination, error) {
-	res, err := client.Post(ctx, "api/destinations", input)
+	res, close, err := client.Post(ctx, "api/destinations", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -70,7 +73,8 @@ func (client *Client) CreateDestination(ctx context.Context, input *CreateDestin
 }
 
 func (client *Client) DeleteDestination(ctx context.Context, id int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/destinations/%d", id))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/destinations/%d", id))
+	defer close()
 
 	if err != nil {
 		return err

@@ -19,7 +19,8 @@ type QuerySnippet struct {
 }
 
 func (client *Client) ListQuerySnippets(ctx context.Context) ([]QuerySnippet, error) {
-	res, err := client.Get(ctx, "api/query_snippets", nil)
+	res, close, err := client.Get(ctx, "api/query_snippets", nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -35,7 +36,8 @@ func (client *Client) ListQuerySnippets(ctx context.Context) ([]QuerySnippet, er
 }
 
 func (client *Client) GetQuerySnippet(ctx context.Context, id int) (*QuerySnippet, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/query_snippets/%d", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/query_snippets/%d", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -57,7 +59,8 @@ type CreateQuerySnippetInput struct {
 }
 
 func (client *Client) CreateQuerySnippet(ctx context.Context, input *CreateQuerySnippetInput) (*QuerySnippet, error) {
-	res, err := client.Post(ctx, "api/query_snippets", input)
+	res, close, err := client.Post(ctx, "api/query_snippets", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -79,7 +82,8 @@ type UpdateQuerySnippetInput struct {
 }
 
 func (client *Client) UpdateQuerySnippet(ctx context.Context, id int, input *UpdateQuerySnippetInput) (*QuerySnippet, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/query_snippets/%d", id), input)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/query_snippets/%d", id), input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -95,7 +99,8 @@ func (client *Client) UpdateQuerySnippet(ctx context.Context, id int, input *Upd
 }
 
 func (client *Client) DeleteQuerySnippet(ctx context.Context, id int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/query_snippets/%d", id))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/query_snippets/%d", id))
+	defer close()
 
 	if err != nil {
 		return err
