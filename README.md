@@ -21,7 +21,7 @@ import (
 )
 
 func main() {
-	client, _ := redash.NewClient("https://redash.example.com", "<secret>")
+	client, err := redash.NewClient("https://redash.example.com", "<secret>")
 
 	if err != nil {
 		panic(err)
