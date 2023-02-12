@@ -7,7 +7,7 @@ import (
 
 var (
 	testAcc            = false
-	testRedashEndpoint = "http://localhost:5000"
+	testRedashEndpoint = "http://localhost:5001"
 	testRedashAPIKey   = "G1LARLeRTzoWF7asyy32Qdvken2OZ2LhzoOzwA3r"
 	testRedashPgHost   = "postgres"
 )
