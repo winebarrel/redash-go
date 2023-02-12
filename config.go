@@ -37,7 +37,8 @@ type ClientConfig struct {
 }
 
 func (client *Client) GetConfig(ctx context.Context) (*Config, error) {
-	res, err := client.Get(ctx, "api/config", nil)
+	res, close, err := client.Get(ctx, "api/config", nil)
+	defer close()
 
 	if err != nil {
 		return nil, err

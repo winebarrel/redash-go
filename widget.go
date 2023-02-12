@@ -29,7 +29,8 @@ type CreateWidgetInput struct {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L98
 func (client *Client) CreateWidget(ctx context.Context, input *CreateWidgetInput) (*Widget, error) {
-	res, err := client.Post(ctx, "api/widgets", input)
+	res, close, err := client.Post(ctx, "api/widgets", input)
+	defer close()
 
 	if err != nil {
 		return nil, err

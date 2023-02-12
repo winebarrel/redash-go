@@ -74,7 +74,8 @@ func (client *Client) ListQueries(ctx context.Context, input *ListQueriesInput) 
 		params["only_favorites"] = strconv.FormatBool(input.OnlyFavorites)
 	}
 
-	res, err := client.Get(ctx, "api/queries", params)
+	res, close, err := client.Get(ctx, "api/queries", params)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -91,7 +92,8 @@ func (client *Client) ListQueries(ctx context.Context, input *ListQueriesInput) 
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L36
 func (client *Client) GetQuery(ctx context.Context, id int) (*Query, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/queries/%d", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/queries/%d", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -108,7 +110,8 @@ func (client *Client) GetQuery(ctx context.Context, id int) (*Query, error) {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L24
 func (client *Client) CreateFavoriteQuery(ctx context.Context, id int) error {
-	_, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/favorite", id), nil)
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/favorite", id), nil)
+	defer close()
 
 	if err != nil {
 		return err
@@ -140,7 +143,8 @@ type CreateQueryInputSchedule struct {
 
 // https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/queries.py#L207-L212
 func (client *Client) CreateQuery(ctx context.Context, input *CreateQueryInput) (*Query, error) {
-	res, err := client.Post(ctx, "api/queries", input)
+	res, close, err := client.Post(ctx, "api/queries", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -157,7 +161,8 @@ func (client *Client) CreateQuery(ctx context.Context, input *CreateQueryInput) 
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L130
 func (client *Client) ForkQuery(ctx context.Context, id int) (*Query, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/fork", id), nil)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/fork", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -195,7 +200,8 @@ type UpdateQueryInputSchedule struct {
 
 // https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/queries.py#L207-L212
 func (client *Client) UpdateQuery(ctx context.Context, id int, input *UpdateQueryInput) (*Query, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -211,7 +217,8 @@ func (client *Client) UpdateQuery(ctx context.Context, id int, input *UpdateQuer
 }
 
 func (client *Client) ArchiveQuery(ctx context.Context, id int) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/queries/%d", id))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/queries/%d", id))
+	defer close()
 
 	if err != nil {
 		return err
@@ -229,7 +236,8 @@ func (client *Client) GetQueryResultsCSV(ctx context.Context, id int) ([]byte, e
 }
 
 func (client *Client) GetQueryResults(ctx context.Context, id int, ext string) ([]byte, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/queries/%d/results.%s", id, ext), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/queries/%d/results.%s", id, ext), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -239,7 +247,8 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string) (
 }
 
 func (client *Client) ExecQueryJSON(ctx context.Context, id int) ([]byte, string, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), map[string]string{"filetype": "json"})
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), map[string]string{"filetype": "json"})
+	defer close()
 
 	if err != nil {
 		return nil, "", err

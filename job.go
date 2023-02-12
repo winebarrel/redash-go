@@ -20,7 +20,8 @@ type Job struct {
 }
 
 func (client *Client) GetJob(ctx context.Context, id string) (*JobResponse, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/jobs/%s", id), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/jobs/%s", id), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err

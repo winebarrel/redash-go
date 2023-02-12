@@ -41,3 +41,12 @@ func CheckStatus(res *http.Response) error {
 
 	return errors.New(msg)
 }
+
+func CloseResponse(res *http.Response) {
+	if res == nil || res.Body == nil {
+		return
+	}
+
+	io.Copy(io.Discard, res.Body) //nolint:errcheck
+	res.Body.Close()
+}

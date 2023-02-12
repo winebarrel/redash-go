@@ -51,7 +51,8 @@ func (client *Client) ListDashboards(ctx context.Context, input *ListDashboardsI
 		params["only_favorites"] = strconv.FormatBool(input.OnlyFavorites)
 	}
 
-	res, err := client.Get(ctx, "api/dashboards", params)
+	res, close, err := client.Get(ctx, "api/dashboards", params)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -68,7 +69,8 @@ func (client *Client) ListDashboards(ctx context.Context, input *ListDashboardsI
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L58
 func (client *Client) GetDashboard(ctx context.Context, slug string) (*Dashboard, error) {
-	res, err := client.Get(ctx, fmt.Sprintf("api/dashboards/%s", slug), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/dashboards/%s", slug), nil)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -85,7 +87,8 @@ func (client *Client) GetDashboard(ctx context.Context, slug string) (*Dashboard
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L24
 func (client *Client) CreateFavoriteDashboard(ctx context.Context, slug string) error {
-	_, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%s/favorite", slug), nil)
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%s/favorite", slug), nil)
+	defer close()
 
 	if err != nil {
 		return err
@@ -100,7 +103,8 @@ type CreateDashboardInput struct {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L90
 func (client *Client) CreateDashboard(ctx context.Context, input *CreateDashboardInput) (*Dashboard, error) {
-	res, err := client.Post(ctx, "api/dashboards", input)
+	res, close, err := client.Post(ctx, "api/dashboards", input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -129,7 +133,8 @@ type UpdateDashboardInput struct {
 
 // https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L93
 func (client *Client) UpdateDashboard(ctx context.Context, id int, input *UpdateDashboardInput) (*Dashboard, error) {
-	res, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%d", id), input)
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%d", id), input)
+	defer close()
 
 	if err != nil {
 		return nil, err
@@ -145,7 +150,8 @@ func (client *Client) UpdateDashboard(ctx context.Context, id int, input *Update
 }
 
 func (client *Client) ArchiveDashboard(ctx context.Context, slug string) error {
-	_, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%s", slug))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%s", slug))
+	defer close()
 
 	if err != nil {
 		return err
