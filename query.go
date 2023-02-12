@@ -237,7 +237,7 @@ func (client *Client) GetQueryResultsCSV(ctx context.Context, id int, out io.Wri
 
 func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, out io.Writer) error {
 	if out == nil {
-		out = io.Discard
+		return fmt.Errorf("out(io.Writer) is nil")
 	}
 
 	res, close, err := client.Get(ctx, fmt.Sprintf("api/queries/%d/results.%s", id, ext), nil)
@@ -253,6 +253,10 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, o
 }
 
 func (client *Client) ExecQueryJSON(ctx context.Context, id int, out io.Writer) (*JobResponse, error) {
+	if out == nil {
+		out = io.Discard
+	}
+
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), map[string]string{"filetype": "json"})
 	defer close()
 

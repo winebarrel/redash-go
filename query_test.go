@@ -710,6 +710,30 @@ func Test_GetQueryResults_OK(t *testing.T) {
 	assert.Equal(`{"foo":"bar"}`, buf.String())
 }
 
+func Test_GetQueryResults_OK_WithNil(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.GetQueryResults(context.Background(), 1, "json", nil)
+	assert.ErrorContains(err, "out(io.Writer) is nil")
+}
+
 func Test_ExecQueryJSON_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -739,6 +763,36 @@ func Test_ExecQueryJSON_OK(t *testing.T) {
 	jobId, err := client.ExecQueryJSON(context.Background(), 1, &buf)
 	assert.NoError(err)
 	assert.Equal(`{"foo":"bar"}`, buf.String())
+	assert.Empty(jobId)
+}
+
+func Test_ExecQueryJSON_OK_WithNil(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"filetype":"json"}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, nil)
+	assert.NoError(err)
 	assert.Empty(jobId)
 }
 
@@ -853,6 +907,14 @@ func Test_Query_Acc(t *testing.T) {
 	}
 
 	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, nil)
+	assert.NoError(err)
+
+	buf = bytes.Buffer{}
+	err = client.GetQueryResultsCSV(context.Background(), query.ID, &buf)
+	assert.NoError(err)
+	assert.Equal("?column?\r\n1\r\n", buf.String())
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
 	assert.NoError(err)
