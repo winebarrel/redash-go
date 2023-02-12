@@ -106,6 +106,6 @@ func Test_CloseResponse_WithNil(t *testing.T) {
 }
 
 func Test_CloseResponse_WithBodyNil(t *testing.T) {
-	res := &http.Response{}
+	res := &http.Response{Body: nil}
 	util.CloseResponse(res)
 }
