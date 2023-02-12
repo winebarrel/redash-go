@@ -31,14 +31,16 @@ func main() {
 		Query:        "select 1",
 	})
 
-	rs, jobId, _ := client.ExecQueryJSON(ctx, query.ID)
+	var buf bytes.Buffer
+	job, _ := client.ExecQueryJSON(ctx, query.ID, &buf)
 
-	if jobId != "" {
+	if job != nil {
 		for {
-			job, _ := client.GetJob(ctx, jobId)
+			job, _ := client.GetJob(ctx, job.Job.ID)
 
 			if job.Job.Status >= 3 {
-				rs, _ = client.GetQueryResultsJSON(ctx, query.ID)
+				buf = bytes.Buffer{}
+				client.GetQueryResultsJSON(ctx, query.ID, &buf)
 				break
 			}
 
@@ -46,7 +48,7 @@ func main() {
 		}
 	}
 
-	fmt.Println(string(rs))
+	fmt.Println(buf.String())
 }
 ```
 
