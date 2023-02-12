@@ -1,6 +1,7 @@
 package redash_test
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"net/http"
@@ -650,9 +651,10 @@ func Test_GetQueryResultsJSON_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, err := client.GetQueryResultsJSON(context.Background(), 1)
+	var buf bytes.Buffer
+	err := client.GetQueryResultsJSON(context.Background(), 1, &buf)
 	assert.NoError(err)
-	assert.Equal(`{"foo":"bar"}`, string(res))
+	assert.Equal(`{"foo":"bar"}`, buf.String())
 }
 
 func Test_GetQueryResultsCSV_OK(t *testing.T) {
@@ -675,9 +677,10 @@ func Test_GetQueryResultsCSV_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, err := client.GetQueryResultsCSV(context.Background(), 1)
+	var buf bytes.Buffer
+	err := client.GetQueryResultsCSV(context.Background(), 1, &buf)
 	assert.NoError(err)
-	assert.Equal(`foo,bar`, string(res))
+	assert.Equal(`foo,bar`, buf.String())
 }
 
 func Test_GetQueryResults_OK(t *testing.T) {
@@ -700,9 +703,10 @@ func Test_GetQueryResults_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, err := client.GetQueryResults(context.Background(), 1, "json")
+	var buf bytes.Buffer
+	err := client.GetQueryResults(context.Background(), 1, "json", &buf)
 	assert.NoError(err)
-	assert.Equal(`{"foo":"bar"}`, string(res))
+	assert.Equal(`{"foo":"bar"}`, buf.String())
 }
 
 func Test_ExecQueryJSON_OK(t *testing.T) {
@@ -730,9 +734,10 @@ func Test_ExecQueryJSON_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, jobId, err := client.ExecQueryJSON(context.Background(), 1)
+	var buf bytes.Buffer
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, &buf)
 	assert.NoError(err)
-	assert.Equal(`{"foo":"bar"}`, string(res))
+	assert.Equal(`{"foo":"bar"}`, buf.String())
 	assert.Empty(jobId)
 }
 
@@ -761,9 +766,17 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	_, jobId, err := client.ExecQueryJSON(context.Background(), 1)
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, nil)
 	assert.NoError(err)
-	assert.Equal("623b290a-7fd9-4ea6-a2a6-96f9c9101f51", jobId)
+	assert.Equal(&redash.JobResponse{
+		Job: redash.Job{
+			Error:         "",
+			ID:            "623b290a-7fd9-4ea6-a2a6-96f9c9101f51",
+			QueryResultID: 0,
+			Status:        1,
+			UpdatedAt:     0,
+		},
+	}, jobId)
 }
 
 func Test_Query_Acc(t *testing.T) {
@@ -773,7 +786,7 @@ func Test_Query_Acc(t *testing.T) {
 
 	assert := assert.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
-	ds, _ := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
 		Name: "test-postgres-1",
 		Type: "pg",
 		Options: map[string]any{
@@ -783,12 +796,15 @@ func Test_Query_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
 
 	defer func() {
 		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
 	}()
 
-	_, err := client.ListQueries(context.Background(), nil)
+	_, err = client.ListQueries(context.Background(), nil)
 	assert.NoError(err)
 
 	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
@@ -814,18 +830,19 @@ func Test_Query_Acc(t *testing.T) {
 	err = client.CreateFavoriteQuery(context.Background(), query.ID)
 	assert.NoError(err)
 
-	rs, jobId, err := client.ExecQueryJSON(context.Background(), query.ID)
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, &buf)
 	assert.NoError(err)
-	assert.NotEmpty(rs)
 
-	if jobId != "" {
+	if job != nil && job.Job.ID != "" {
 		for {
-			job, err := client.GetJob(context.Background(), jobId)
+			job, err := client.GetJob(context.Background(), job.Job.ID)
 			assert.NoError(err)
 
 			if job.Job.Status >= 3 {
 				assert.Equal(3, job.Job.Status)
-				rs, err = client.GetQueryResultsJSON(context.Background(), query.ID)
+				buf = bytes.Buffer{}
+				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
 				assert.NoError(err)
 				break
 			}
@@ -834,7 +851,7 @@ func Test_Query_Acc(t *testing.T) {
 		}
 	}
 
-	assert.NotEmpty(rs)
+	assert.NotEmpty(buf.String())
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
 	assert.NoError(err)

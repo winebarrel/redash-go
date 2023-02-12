@@ -227,47 +227,56 @@ func (client *Client) ArchiveQuery(ctx context.Context, id int) error {
 	return nil
 }
 
-func (client *Client) GetQueryResultsJSON(ctx context.Context, id int) ([]byte, error) {
-	return client.GetQueryResults(ctx, id, "json")
+func (client *Client) GetQueryResultsJSON(ctx context.Context, id int, out io.Writer) error {
+	return client.GetQueryResults(ctx, id, "json", out)
 }
 
-func (client *Client) GetQueryResultsCSV(ctx context.Context, id int) ([]byte, error) {
-	return client.GetQueryResults(ctx, id, "csv")
+func (client *Client) GetQueryResultsCSV(ctx context.Context, id int, out io.Writer) error {
+	return client.GetQueryResults(ctx, id, "csv", out)
 }
 
-func (client *Client) GetQueryResults(ctx context.Context, id int, ext string) ([]byte, error) {
+func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, out io.Writer) error {
+	if out == nil {
+		out = io.Discard
+	}
+
 	res, close, err := client.Get(ctx, fmt.Sprintf("api/queries/%d/results.%s", id, ext), nil)
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(out, res.Body)
+
+	return err
+}
+
+func (client *Client) ExecQueryJSON(ctx context.Context, id int, out io.Writer) (*JobResponse, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), map[string]string{"filetype": "json"})
 	defer close()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return io.ReadAll(res.Body)
-}
-
-func (client *Client) ExecQueryJSON(ctx context.Context, id int) ([]byte, string, error) {
-	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), map[string]string{"filetype": "json"})
-	defer close()
+	magic := []byte(`{"job":`)
+	head := make([]byte, len(magic))
+	_, err = io.ReadFull(res.Body, head)
 
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	body, err := io.ReadAll(res.Body)
+	buf := io.MultiReader(bytes.NewReader(head), res.Body)
 
-	if err != nil {
-		return nil, "", err
+	if bytes.Equal(head, magic) {
+		job := &JobResponse{}
+		err := json.NewDecoder(buf).Decode(&job)
+		return job, err
 	}
 
-	if bytes.HasPrefix(body, []byte(`{"job":`)) {
-		var job JobResponse
-		err := json.Unmarshal(body, &job)
+	_, err = io.Copy(out, buf)
 
-		if err == nil && job.Job.ID != "" {
-			return body, job.Job.ID, nil
-		}
-	}
-
-	return body, "", nil
+	return nil, err
 }
