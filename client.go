@@ -43,9 +43,9 @@ func NewClient(endpoint string, apiKey string) (*Client, error) {
 	return client, nil
 }
 
-type ResponseCloser func()
+type responseCloser func()
 
-func (client *Client) Get(ctx context.Context, path string, params map[string]string) (*http.Response, ResponseCloser, error) {
+func (client *Client) Get(ctx context.Context, path string, params map[string]string) (*http.Response, responseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodGet, path, params, nil)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func (client *Client) Get(ctx context.Context, path string, params map[string]st
 	return res, func() { util.CloseResponse(res) }, nil
 }
 
-func (client *Client) Post(ctx context.Context, path string, body any) (*http.Response, ResponseCloser, error) {
+func (client *Client) Post(ctx context.Context, path string, body any) (*http.Response, responseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodPost, path, nil, body)
 
 	if err != nil {
@@ -65,7 +65,7 @@ func (client *Client) Post(ctx context.Context, path string, body any) (*http.Re
 	return res, func() { util.CloseResponse(res) }, nil
 }
 
-func (client *Client) Delete(ctx context.Context, path string) (*http.Response, ResponseCloser, error) {
+func (client *Client) Delete(ctx context.Context, path string) (*http.Response, responseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodDelete, path, nil, nil)
 
 	if err != nil {
