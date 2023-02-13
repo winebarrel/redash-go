@@ -132,7 +132,7 @@ client, _ := redash.NewClientWithHTTPClient("https://redash.example.com", "<secr
 client.GetStatus(context.Background())
 ```
 
-### **NOTE: Dashboard API parameters are version dependent**
+### **NOTE: Dashboard API parameters are Redash version dependent**
 
 #### v8: string
 
