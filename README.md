@@ -27,8 +27,6 @@ func main() {
 		panic(err)
 	}
 
-	//client.Debug = true
-
 	ctx := context.Background()
 
 	ds, err := client.CreateDataSource(ctx, &redash.CreateDataSourceInput{
@@ -88,6 +86,50 @@ func main() {
 
 	fmt.Println(buf.String())
 }
+```
+
+### Set debug mode
+
+```go
+client, _ := redash.NewClient("https://redash.example.com", "<secret>")
+client.Debug = true
+client.GetStatus(context.Background())
+```
+
+```
+% go run example.go
+---request begin---
+GET /status.json HTTP/1.1
+Host: redash.example.com
+Authorization: Key <secret>
+Content-Type: application/json
+User-Agent: redash-go
+
+
+---request end---
+---response begin---
+HTTP/1.1 200 OK
+...
+
+{
+  "dashboards_count": 0,
+  "database_metrics": {
+    "metrics": [
+      [
+        "Query Results Size",
+        24576
+      ],
+...
+```
+
+### With custom HTTP client
+
+```go
+hc := &http.Client{
+  Timeout: 3 * time.Second,
+}
+client, _ := redash.NewClientWithHTTPClient("https://redash.example.com", "<secret>", hc)
+client.GetStatus(context.Background())
 ```
 
 ## Tests
