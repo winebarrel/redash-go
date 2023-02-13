@@ -38,7 +38,6 @@ type ListUsersInput struct {
 	PageSize int
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L17
 func (client *Client) ListUsers(ctx context.Context, input *ListUsersInput) (*UserPage, error) {
 	params := map[string]string{}
 
@@ -103,7 +102,6 @@ func (client *Client) CreateUser(ctx context.Context, input *CreateUsersInput) (
 	return user, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#LL47C8-L47C21
 func (client *Client) DisableUser(ctx context.Context, id int) (*User, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/users/%d/disable", id), nil)
 	defer close()

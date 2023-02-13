@@ -65,7 +65,6 @@ type ListQueriesInput struct {
 	PageSize      int
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L17
 func (client *Client) ListQueries(ctx context.Context, input *ListQueriesInput) (*QueryPage, error) {
 	params := map[string]string{}
 
@@ -91,7 +90,6 @@ func (client *Client) ListQueries(ctx context.Context, input *ListQueriesInput) 
 	return page, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L36
 func (client *Client) GetQuery(ctx context.Context, id int) (*Query, error) {
 	res, close, err := client.Get(ctx, fmt.Sprintf("api/queries/%d", id), nil)
 	defer close()
@@ -109,7 +107,6 @@ func (client *Client) GetQuery(ctx context.Context, id int) (*Query, error) {
 	return query, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L24
 func (client *Client) CreateFavoriteQuery(ctx context.Context, id int) error {
 	_, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/favorite", id), nil)
 	defer close()
@@ -121,7 +118,6 @@ func (client *Client) CreateFavoriteQuery(ctx context.Context, id int) error {
 	return nil
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/queries.py#L334-L339
 type CreateQueryInput struct {
 	DataSourceID int                       `json:"data_source_id"`
 	Description  string                    `json:"description,omitempty"`
@@ -142,7 +138,6 @@ type CreateQueryInputSchedule struct {
 	DayOfWeek *string `json:"day_of_week"`
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/queries.py#L207-L212
 func (client *Client) CreateQuery(ctx context.Context, input *CreateQueryInput) (*Query, error) {
 	res, close, err := client.Post(ctx, "api/queries", input)
 	defer close()
@@ -160,7 +155,6 @@ func (client *Client) CreateQuery(ctx context.Context, input *CreateQueryInput) 
 	return query, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L130
 func (client *Client) ForkQuery(ctx context.Context, id int) (*Query, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/fork", id), nil)
 	defer close()
@@ -178,7 +172,6 @@ func (client *Client) ForkQuery(ctx context.Context, id int) (*Query, error) {
 	return query, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L147
 type UpdateQueryInput struct {
 	DataSourceID int                       `json:"data_source_id,omitempty"`
 	Description  string                    `json:"description,omitempty"`
@@ -199,7 +192,6 @@ type UpdateQueryInputSchedule struct {
 	DayOfWeek *string `json:"day_of_week"`
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/queries.py#L207-L212
 func (client *Client) UpdateQuery(ctx context.Context, id int, input *UpdateQueryInput) (*Query, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
 	defer close()
