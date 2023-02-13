@@ -55,6 +55,55 @@ func Test_Get_OK(t *testing.T) {
 	assert.Equal(`{"zoo":"baz"}`, string(body))
 }
 
+type testRoundTripper struct {
+	callback func(req *http.Request)
+}
+
+func (t *testRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.callback(req)
+	return http.DefaultTransport.RoundTrip(req)
+}
+
+func Test_Get_WithTransport(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"Foo":           []string{"bar"},
+					"User-Agent":    []string{"my-user-agent"},
+				},
+			),
+			req.Header,
+		)
+		assert.Equal("foo=bar", req.URL.Query().Encode())
+		return httpmock.NewStringResponse(http.StatusOK, `{"zoo":"baz"}`), nil
+	})
+
+	client, _ := redash.NewClientWithHTTPClient("https://redash.example.com", testRedashAPIKey, &http.Client{
+		Transport: &testRoundTripper{
+			func(req *http.Request) {
+				req.Header.Set("foo", "bar")
+				req.Header.Set("user-agent", "my-user-agent")
+			},
+		},
+	})
+	res, close, err := client.Get(context.Background(), "api/queries/1", map[string]string{"foo": "bar"})
+	defer close()
+	assert.NoError(err)
+	assert.Equal("200", res.Status)
+	if res.Body == nil {
+		assert.FailNow("res.Body is nil")
+	}
+	body, _ := io.ReadAll(res.Body)
+	assert.Equal(`{"zoo":"baz"}`, string(body))
+}
+
 func Test_Get_Err(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
