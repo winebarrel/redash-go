@@ -27,14 +27,22 @@ type Client struct {
 }
 
 func NewClient(endpoint string, apiKey string) (*Client, error) {
+	return NewClientWithHTTPClient(endpoint, apiKey, nil)
+}
+
+func NewClientWithHTTPClient(endpoint string, apiKey string, httpClient *http.Client) (*Client, error) {
 	_, err := url.Parse(endpoint)
 
 	if err != nil {
 		return nil, err
 	}
 
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+
 	client := &Client{
-		httpCli:   &http.Client{},
+		httpCli:   httpClient,
 		endpoint:  endpoint,
 		apiKey:    apiKey,
 		UserAgent: DefaultUserAgent,
