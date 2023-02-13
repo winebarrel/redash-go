@@ -359,7 +359,9 @@ func Test_Dashboard_Acc(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("test-dashboard-1", dashbaord.Name)
 
-	dashbaord, err = client.GetDashboard(context.Background(), dashbaord.Slug)
+	// NOTE: for v8
+	// dashbaord, err = client.GetDashboard(context.Background(), dashbaord.Slug)
+	dashbaord, err = client.GetDashboard(context.Background(), dashbaord.ID)
 	assert.NoError(err)
 	assert.Equal("test-dashboard-1", dashbaord.Name)
 
@@ -372,13 +374,19 @@ func Test_Dashboard_Acc(t *testing.T) {
 	assert.Equal("test-dashboard-2", dashbaord.Name)
 	assert.Equal([]string{"foo"}, dashbaord.Tags)
 
-	err = client.CreateFavoriteDashboard(context.Background(), dashbaord.Slug)
+	// NOTE: for v8
+	// err = client.CreateFavoriteDashboard(context.Background(), dashbaord.Slug)
+	err = client.CreateFavoriteDashboard(context.Background(), dashbaord.ID)
 	assert.NoError(err)
 
-	err = client.ArchiveDashboard(context.Background(), dashbaord.Slug)
+	// NOTE: for v8
+	// err = client.ArchiveDashboard(context.Background(), dashbaord.Slug)
+	err = client.ArchiveDashboard(context.Background(), dashbaord.ID)
 	assert.NoError(err)
 
-	dashbaord, err = client.GetDashboard(context.Background(), dashbaord.Slug)
+	// NOTE: for v8
+	// dashbaord, err = client.GetDashboard(context.Background(), dashbaord.Slug)
+	dashbaord, err = client.GetDashboard(context.Background(), dashbaord.ID)
 	assert.NoError(err)
 	assert.Equal("test-dashboard-2", dashbaord.Name)
 	assert.True(dashbaord.IsArchived)

@@ -71,7 +71,7 @@ func (client *Client) ListDashboards(ctx context.Context, input *ListDashboardsI
 //	v8: int
 //	v10: string
 func (client *Client) GetDashboard(ctx context.Context, idOrSlug any) (*Dashboard, error) {
-	res, close, err := client.Get(ctx, fmt.Sprintf("api/dashboards/%s", idOrSlug), nil)
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/dashboards/%v", idOrSlug), nil)
 	defer close()
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (client *Client) GetDashboard(ctx context.Context, idOrSlug any) (*Dashboar
 //	v8: int
 //	v10: string
 func (client *Client) CreateFavoriteDashboard(ctx context.Context, idOrSlug any) error {
-	_, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%s/favorite", idOrSlug), nil)
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%v/favorite", idOrSlug), nil)
 	defer close()
 
 	if err != nil {
@@ -156,7 +156,7 @@ func (client *Client) UpdateDashboard(ctx context.Context, id int, input *Update
 //	v8: int
 //	v10: string
 func (client *Client) ArchiveDashboard(ctx context.Context, idOrSlug any) error {
-	_, close, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%s", idOrSlug))
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%v", idOrSlug))
 	defer close()
 
 	if err != nil {
