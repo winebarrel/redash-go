@@ -21,7 +21,6 @@ type DataSource struct {
 	ViewOnly           bool           `json:"view_only"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L65
 func (client *Client) ListDataSources(ctx context.Context) ([]DataSource, error) {
 	res, close, err := client.Get(ctx, "api/data_sources", nil)
 	defer close()
@@ -39,7 +38,6 @@ func (client *Client) ListDataSources(ctx context.Context) ([]DataSource, error)
 	return dataSources, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L71
 func (client *Client) GetDataSource(ctx context.Context, id int) (*DataSource, error) {
 	res, close, err := client.Get(ctx, fmt.Sprintf("api/data_sources/%d", id), nil)
 	defer close()
@@ -63,7 +61,6 @@ type CreateDataSourceInput struct {
 	Type    string         `json:"type"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L76
 func (client *Client) CreateDataSource(ctx context.Context, input *CreateDataSourceInput) (*DataSource, error) {
 	res, close, err := client.Post(ctx, "api/data_sources", input)
 	defer close()

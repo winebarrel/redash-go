@@ -309,13 +309,13 @@ ALTER SEQUENCE public.alerts_id_seq OWNED BY public.alerts.id;
 
 CREATE TABLE public.api_keys (
     object_type character varying(255) NOT NULL,
-    object_id integer NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone NOT NULL,
     id integer NOT NULL,
     org_id integer NOT NULL,
     api_key character varying(255) NOT NULL,
     active boolean NOT NULL,
+    object_id integer NOT NULL,
     created_by_id integer
 );
 
@@ -349,8 +349,8 @@ ALTER SEQUENCE public.api_keys_id_seq OWNED BY public.api_keys.id;
 
 CREATE TABLE public.changes (
     object_type character varying(255) NOT NULL,
-    object_id integer NOT NULL,
     id integer NOT NULL,
+    object_id integer NOT NULL,
     object_version integer NOT NULL,
     user_id integer NOT NULL,
     change text NOT NULL,
@@ -398,7 +398,8 @@ CREATE TABLE public.dashboards (
     dashboard_filters_enabled boolean NOT NULL,
     is_archived boolean NOT NULL,
     is_draft boolean NOT NULL,
-    tags character varying[]
+    tags character varying[],
+    options json DEFAULT '{}'::json NOT NULL
 );
 
 
@@ -623,7 +624,7 @@ CREATE TABLE public.notification_destinations (
     user_id integer NOT NULL,
     name character varying(255) NOT NULL,
     type character varying(255) NOT NULL,
-    options text NOT NULL,
+    encrypted_options bytea NOT NULL,
     created_at timestamp with time zone NOT NULL
 );
 
@@ -1085,7 +1086,7 @@ COPY public.access_permissions (object_type, object_id, id, access_type, grantor
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-e5c7a4e2df4d
+89bc7873a3e0
 \.
 
 
@@ -1109,7 +1110,7 @@ COPY public.alerts (updated_at, created_at, id, name, query_id, user_id, options
 -- Data for Name: api_keys; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.api_keys (object_type, object_id, updated_at, created_at, id, org_id, api_key, active, created_by_id) FROM stdin;
+COPY public.api_keys (object_type, updated_at, created_at, id, org_id, api_key, active, object_id, created_by_id) FROM stdin;
 \.
 
 
@@ -1117,7 +1118,7 @@ COPY public.api_keys (object_type, object_id, updated_at, created_at, id, org_id
 -- Data for Name: changes; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.changes (object_type, object_id, id, object_version, user_id, change, created_at) FROM stdin;
+COPY public.changes (object_type, id, object_id, object_version, user_id, change, created_at) FROM stdin;
 \.
 
 
@@ -1125,7 +1126,7 @@ COPY public.changes (object_type, object_id, id, object_version, user_id, change
 -- Data for Name: dashboards; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.dashboards (updated_at, created_at, id, version, org_id, slug, name, user_id, layout, dashboard_filters_enabled, is_archived, is_draft, tags) FROM stdin;
+COPY public.dashboards (updated_at, created_at, id, version, org_id, slug, name, user_id, layout, dashboard_filters_enabled, is_archived, is_draft, tags, options) FROM stdin;
 \.
 
 
@@ -1166,8 +1167,8 @@ COPY public.favorites (updated_at, created_at, id, org_id, object_type, object_i
 --
 
 COPY public.groups (id, org_id, type, name, permissions, created_at) FROM stdin;
-1	1	builtin	admin	{admin,super_admin}	2023-02-09 14:30:15.536037+00
-2	1	builtin	default	{create_dashboard,create_query,edit_dashboard,edit_query,view_query,view_source,execute_query,list_users,schedule_query,list_dashboards,list_alerts,list_data_sources}	2023-02-09 14:30:15.536037+00
+1	1	builtin	admin	{admin,super_admin}	2023-02-13 14:43:19.013106+00
+2	1	builtin	default	{create_dashboard,create_query,edit_dashboard,edit_query,view_query,view_source,execute_query,list_users,schedule_query,list_dashboards,list_alerts,list_data_sources}	2023-02-13 14:43:19.013106+00
 \.
 
 
@@ -1175,7 +1176,7 @@ COPY public.groups (id, org_id, type, name, permissions, created_at) FROM stdin;
 -- Data for Name: notification_destinations; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.notification_destinations (id, org_id, user_id, name, type, options, created_at) FROM stdin;
+COPY public.notification_destinations (id, org_id, user_id, name, type, encrypted_options, created_at) FROM stdin;
 \.
 
 
@@ -1184,7 +1185,7 @@ COPY public.notification_destinations (id, org_id, user_id, name, type, options,
 --
 
 COPY public.organizations (updated_at, created_at, id, name, slug, settings) FROM stdin;
-2023-02-09 14:30:15.698106+00	2023-02-09 14:30:15.536037+00	1	my-org	default	{}
+2023-02-13 14:43:22.965189+00	2023-02-13 14:43:19.013106+00	1	my-org	default	{"settings": {"beacon_consent": false}}
 \.
 
 
@@ -1217,7 +1218,7 @@ COPY public.query_snippets (updated_at, created_at, id, org_id, trigger, descrip
 --
 
 COPY public.users (updated_at, created_at, id, org_id, name, email, profile_image_url, password_hash, groups, api_key, disabled_at, details) FROM stdin;
-2023-02-09 14:31:06.186145+00	2023-02-09 14:30:15.698106+00	1	1	admin	admin@example.com	\N	$6$rounds=93792$31hWjkDP9.rDIdXQ$Tfl3IDal8co7.FHmPEs6Bt2j.i6ge6kmjD.t6fAoxj0TFfJ.MObYDzyyV5TJXwYLZgsP9s2G9hkLnmU/MDuTI.	{1,2}	G1LARLeRTzoWF7asyy32Qdvken2OZ2LhzoOzwA3r	\N	{"active_at": "2023-02-09T14:30:17Z"}
+2023-02-13 14:43:26.017743+00	2023-02-13 14:43:19.772401+00	1	1	admin	admin@example.com	\N	$6$rounds=656000$vctiKmuDdMVkBSRR$D1lHkXewWbet9sUpLtYkcneKb5oakm0KxqsnqGU6xYw5x9/wf/YucshGWtlQclifPhvEzarV9qQtMUG.b7O2R1	{1,2}	G1LARLeRTzoWF7asyy32Qdvken2OZ2LhzoOzwA3r	\N	{"active_at": "2023-02-13T14:43:22Z"}
 \.
 
 
@@ -1297,7 +1298,7 @@ SELECT pg_catalog.setval('public.data_sources_id_seq', 1, false);
 -- Name: events_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.events_id_seq', 6, true);
+SELECT pg_catalog.setval('public.events_id_seq', 1, true);
 
 
 --

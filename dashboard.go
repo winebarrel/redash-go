@@ -41,7 +41,6 @@ type ListDashboardsInput struct {
 	PageSize      int
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L51
 func (client *Client) ListDashboards(ctx context.Context, input *ListDashboardsInput) (*DashboardPage, error) {
 	params := map[string]string{}
 
@@ -67,9 +66,12 @@ func (client *Client) ListDashboards(ctx context.Context, input *ListDashboardsI
 	return page, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L58
-func (client *Client) GetDashboard(ctx context.Context, slug string) (*Dashboard, error) {
-	res, close, err := client.Get(ctx, fmt.Sprintf("api/dashboards/%s", slug), nil)
+// idOrSlug:
+//
+//	v8: int
+//	v10: string
+func (client *Client) GetDashboard(ctx context.Context, idOrSlug any) (*Dashboard, error) {
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/dashboards/%v", idOrSlug), nil)
 	defer close()
 
 	if err != nil {
@@ -85,9 +87,12 @@ func (client *Client) GetDashboard(ctx context.Context, slug string) (*Dashboard
 	return dashbaord, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L24
-func (client *Client) CreateFavoriteDashboard(ctx context.Context, slug string) error {
-	_, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%s/favorite", slug), nil)
+// idOrSlug:
+//
+//	v8: int
+//	v10: string
+func (client *Client) CreateFavoriteDashboard(ctx context.Context, idOrSlug any) error {
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%v/favorite", idOrSlug), nil)
 	defer close()
 
 	if err != nil {
@@ -101,7 +106,6 @@ type CreateDashboardInput struct {
 	Name string `json:"name"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L90
 func (client *Client) CreateDashboard(ctx context.Context, input *CreateDashboardInput) (*Dashboard, error) {
 	res, close, err := client.Post(ctx, "api/dashboards", input)
 	defer close()
@@ -119,7 +123,6 @@ func (client *Client) CreateDashboard(ctx context.Context, input *CreateDashboar
 	return dashbaord, nil
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/dashboards.py#L239-L247
 type UpdateDashboardInput struct {
 	DashboardFiltersEnabled bool     `json:"dashboard_filters_enabled,omitempty"`
 	IsArchived              bool     `json:"is_archived,omitempty"`
@@ -131,7 +134,6 @@ type UpdateDashboardInput struct {
 	Version                 int      `json:"version,omitempty"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L93
 func (client *Client) UpdateDashboard(ctx context.Context, id int, input *UpdateDashboardInput) (*Dashboard, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%d", id), input)
 	defer close()
@@ -149,8 +151,12 @@ func (client *Client) UpdateDashboard(ctx context.Context, id int, input *Update
 	return dashbaord, nil
 }
 
-func (client *Client) ArchiveDashboard(ctx context.Context, slug string) error {
-	_, close, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%s", slug))
+// idOrSlug:
+//
+//	v8: int
+//	v10: string
+func (client *Client) ArchiveDashboard(ctx context.Context, idOrSlug any) error {
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%v", idOrSlug))
 	defer close()
 
 	if err != nil {

@@ -19,7 +19,6 @@ type Visualization struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/visualizations.py#L29
 type UpdateVisualizationInput struct {
 	Description string `json:"description,omitempty"`
 	Name        string `json:"name,omitempty"`
@@ -27,7 +26,6 @@ type UpdateVisualizationInput struct {
 	Type        string `json:"type,omitempty"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L98
 func (client *Client) UpdateVisualization(ctx context.Context, id int, input *UpdateVisualizationInput) (*Visualization, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/visualizations/%d", id), input)
 	defer close()

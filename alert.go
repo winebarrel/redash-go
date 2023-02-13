@@ -34,7 +34,6 @@ type AlertSubscription struct {
 	User        User         `json:"user"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L157
 func (client *Client) ListAlerts(ctx context.Context) ([]Alert, error) {
 	res, close, err := client.Get(ctx, "api/alerts", nil)
 	defer close()
@@ -52,7 +51,6 @@ func (client *Client) ListAlerts(ctx context.Context) ([]Alert, error) {
 	return alerts, nil
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L162
 func (client *Client) GetAlert(ctx context.Context, id int) (*Alert, error) {
 	res, close, err := client.Get(ctx, fmt.Sprintf("api/alerts/%d", id), nil)
 	defer close()
@@ -113,7 +111,6 @@ type UpdateAlertOptions struct {
 	Op     string `json:"op"`
 }
 
-// https://github.com/getredash/redash-toolbelt/blob/f6d2c40881fcacb411665c75f3afbe570533539d/redash_toolbelt/client.py#L176
 func (client *Client) UpdateAlert(ctx context.Context, id int, input *UpdateAlertInput) (*Alert, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/alerts/%d", id), input)
 	defer close()

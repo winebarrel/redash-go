@@ -11,7 +11,7 @@ x-redash-environment: &redash-environment
 
 services:
   server:
-    image: redash/redash:latest
+    image: redash/redash:10.1.0.b50633
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,14 +24,14 @@ services:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   scheduler:
-    image: redash/redash:latest
+    image: redash/redash:10.1.0.b50633
     command: scheduler
     depends_on:
       - server
     environment:
       <<: *redash-environment
   worker:
-    image: redash/redash:latest
+    image: redash/redash:10.1.0.b50633
     command: worker
     depends_on:
       - server

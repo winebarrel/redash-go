@@ -132,6 +132,20 @@ client, _ := redash.NewClientWithHTTPClient("https://redash.example.com", "<secr
 client.GetStatus(context.Background())
 ```
 
+### **NOTE: Dashboard API parameters are version dependent**
+
+#### v8: string
+
+```go
+client.GetDashboard(context.Background(), "my-dashboard")
+```
+
+#### v10: int
+
+```go
+client.GetDashboard(context.Background(), 1)
+```
+
 ## Tests
 
 ```sh

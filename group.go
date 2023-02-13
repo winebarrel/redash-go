@@ -50,7 +50,6 @@ func (client *Client) GetGroup(ctx context.Context, id int) (*Group, error) {
 	return group, nil
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/groups.py#L11
 type CreateGroupInput struct {
 	Name string `json:"name"`
 }
@@ -173,7 +172,6 @@ func (client *Client) RemoveGroupDataSource(ctx context.Context, id int, dsId in
 	return nil
 }
 
-// https://github.com/getredash/redash/blob/5cf13afafe4a13c8db9da645d9667bc26fd118c5/redash/handlers/groups.py#L182
 type UpdateGroupDataSourceInput struct {
 	ViewOnly bool `json:"view_only"`
 }
