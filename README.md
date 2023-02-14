@@ -134,13 +134,13 @@ client.GetStatus(context.Background())
 
 ### **NOTE: Dashboard API parameters are Redash version dependent**
 
-#### v8: string
+#### v8: slug(string)
 
 ```go
 client.GetDashboard(context.Background(), "my-dashboard")
 ```
 
-#### v10: int
+#### v10: id(int)
 
 ```go
 client.GetDashboard(context.Background(), 1)
