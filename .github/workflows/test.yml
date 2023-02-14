@@ -14,8 +14,6 @@ jobs:
         with:
           args: -E misspell
       - name: Start services
-        with:
-          args: -E misspell
         run: |
           for i in {1..60}; do docker compose up -d && break; sleep 1; done
           for i in {1..60}; do pg_isready -U postgres -h 127.0.0.1 -p 15432 && break; sleep 1; done
