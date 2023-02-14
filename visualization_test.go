@@ -64,3 +64,52 @@ func Test_UpdateVisualization_OK(t *testing.T) {
 		UpdatedAt:   dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 	}, res)
 }
+
+func Test_Visualization_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   testRedashPgHost,
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	if err != nil {
+		assert.FailNow(err.Error())
+	}
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	query, _ := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select 1",
+	})
+
+	defer func() {
+		client.ArchiveQuery(context.Background(), query.ID) //nolint:errcheck
+	}()
+
+	if len(query.Visualizations) < 1 {
+		assert.FailNow("len(query.Visualizations) < 1")
+	}
+
+	vizId := query.Visualizations[0].ID
+	viz, err := client.UpdateVisualization(context.Background(), vizId, &redash.UpdateVisualizationInput{
+		Name:        "test-viz-1",
+		Description: "test-viz-1-desc",
+	})
+	assert.NoError(err)
+	assert.Equal("test-viz-1", viz.Name)
+	assert.Equal("test-viz-1-desc", viz.Description)
+}
