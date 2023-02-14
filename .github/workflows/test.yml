@@ -11,6 +11,8 @@ jobs:
         with:
           go-version: ">=1.20.0"
       - uses: golangci/golangci-lint-action@v3
+        with:
+          args: -E misspell
       - name: Start services
         run: |
           for i in {1..60}; do docker compose up -d && break; sleep 1; done
