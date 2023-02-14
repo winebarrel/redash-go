@@ -2,6 +2,7 @@ package redash
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/winebarrel/redash-go/internal/util"
@@ -14,7 +15,7 @@ type Widget struct {
 	Options       map[string]any `json:"options"`
 	Text          string         `json:"text"`
 	UpdatedAt     time.Time      `json:"updated_at"`
-	Visualization Visualization  `json:"visualization"`
+	Visualization *Visualization `json:"visualization"`
 	Width         int            `json:"width"`
 }
 
@@ -27,6 +28,11 @@ type CreateWidgetInput struct {
 }
 
 func (client *Client) CreateWidget(ctx context.Context, input *CreateWidgetInput) (*Widget, error) {
+	// workaround
+	if input.Width < 1 {
+		input.Width = 1
+	}
+
 	res, close, err := client.Post(ctx, "api/widgets", input)
 	defer close()
 
@@ -43,4 +49,13 @@ func (client *Client) CreateWidget(ctx context.Context, input *CreateWidgetInput
 	return widget, nil
 }
 
-// TODO: This API is not well tested :_(
+func (client *Client) DeleteWidget(ctx context.Context, id int) error {
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/widgets/%d", id))
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
