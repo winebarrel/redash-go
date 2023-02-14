@@ -78,13 +78,13 @@ func (client *Client) GetDashboard(ctx context.Context, idOrSlug any) (*Dashboar
 		return nil, err
 	}
 
-	dashbaord := &Dashboard{}
+	dashboard := &Dashboard{}
 
-	if err := util.UnmarshalBody(res, &dashbaord); err != nil {
+	if err := util.UnmarshalBody(res, &dashboard); err != nil {
 		return nil, err
 	}
 
-	return dashbaord, nil
+	return dashboard, nil
 }
 
 // idOrSlug:
@@ -114,13 +114,13 @@ func (client *Client) CreateDashboard(ctx context.Context, input *CreateDashboar
 		return nil, err
 	}
 
-	dashbaord := &Dashboard{}
+	dashboard := &Dashboard{}
 
-	if err := util.UnmarshalBody(res, &dashbaord); err != nil {
+	if err := util.UnmarshalBody(res, &dashboard); err != nil {
 		return nil, err
 	}
 
-	return dashbaord, nil
+	return dashboard, nil
 }
 
 type UpdateDashboardInput struct {
@@ -142,13 +142,13 @@ func (client *Client) UpdateDashboard(ctx context.Context, id int, input *Update
 		return nil, err
 	}
 
-	dashbaord := &Dashboard{}
+	dashboard := &Dashboard{}
 
-	if err := util.UnmarshalBody(res, &dashbaord); err != nil {
+	if err := util.UnmarshalBody(res, &dashboard); err != nil {
 		return nil, err
 	}
 
-	return dashbaord, nil
+	return dashboard, nil
 }
 
 // idOrSlug:

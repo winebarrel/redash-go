@@ -353,42 +353,42 @@ func Test_Dashboard_Acc(t *testing.T) {
 	_, err := client.ListDashboards(context.Background(), nil)
 	assert.NoError(err)
 
-	dashbaord, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
+	dashboard, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
 		Name: "test-dashboard-1",
 	})
 	assert.NoError(err)
-	assert.Equal("test-dashboard-1", dashbaord.Name)
+	assert.Equal("test-dashboard-1", dashboard.Name)
 
 	// NOTE: for v8
-	// dashbaord, err = client.GetDashboard(context.Background(), dashbaord.Slug)
-	dashbaord, err = client.GetDashboard(context.Background(), dashbaord.ID)
+	// dashboard, err = client.GetDashboard(context.Background(), dashboard.Slug)
+	dashboard, err = client.GetDashboard(context.Background(), dashboard.ID)
 	assert.NoError(err)
-	assert.Equal("test-dashboard-1", dashbaord.Name)
+	assert.Equal("test-dashboard-1", dashboard.Name)
 
-	dashbaord, err = client.UpdateDashboard(context.Background(), dashbaord.ID, &redash.UpdateDashboardInput{
+	dashboard, err = client.UpdateDashboard(context.Background(), dashboard.ID, &redash.UpdateDashboardInput{
 		Name:    "test-dashboard-2",
 		Tags:    []string{"foo"},
 		Version: 0,
 	})
 	assert.NoError(err)
-	assert.Equal("test-dashboard-2", dashbaord.Name)
-	assert.Equal([]string{"foo"}, dashbaord.Tags)
+	assert.Equal("test-dashboard-2", dashboard.Name)
+	assert.Equal([]string{"foo"}, dashboard.Tags)
 
 	// NOTE: for v8
-	// err = client.CreateFavoriteDashboard(context.Background(), dashbaord.Slug)
-	err = client.CreateFavoriteDashboard(context.Background(), dashbaord.ID)
+	// err = client.CreateFavoriteDashboard(context.Background(), dashboard.Slug)
+	err = client.CreateFavoriteDashboard(context.Background(), dashboard.ID)
 	assert.NoError(err)
 
 	// NOTE: for v8
-	// err = client.ArchiveDashboard(context.Background(), dashbaord.Slug)
-	err = client.ArchiveDashboard(context.Background(), dashbaord.ID)
+	// err = client.ArchiveDashboard(context.Background(), dashboard.Slug)
+	err = client.ArchiveDashboard(context.Background(), dashboard.ID)
 	assert.NoError(err)
 
 	// NOTE: for v8
-	// dashbaord, err = client.GetDashboard(context.Background(), dashbaord.Slug)
-	dashbaord, err = client.GetDashboard(context.Background(), dashbaord.ID)
+	// dashboard, err = client.GetDashboard(context.Background(), dashboard.Slug)
+	dashboard, err = client.GetDashboard(context.Background(), dashboard.ID)
 	assert.NoError(err)
-	assert.Equal("test-dashboard-2", dashbaord.Name)
-	assert.True(dashbaord.IsArchived)
-	assert.True(dashbaord.IsFavorite)
+	assert.Equal("test-dashboard-2", dashboard.Name)
+	assert.True(dashboard.IsArchived)
+	assert.True(dashboard.IsFavorite)
 }
