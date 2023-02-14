@@ -165,18 +165,18 @@ func Test_Widget_Acc(t *testing.T) {
 
 	assert := assert.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
-	dashbaord, _ := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
+	dashboard, _ := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
 		Name: "test-dashboard-1",
 	})
 
 	defer func() {
 		// NOTE: for v8
-		// client.ArchiveDashboard(context.Background(), dashbaord.Slug) //nolint:errcheck
-		client.ArchiveDashboard(context.Background(), dashbaord.ID) //nolint:errcheck
+		// client.ArchiveDashboard(context.Background(), dashboard.Slug) //nolint:errcheck
+		client.ArchiveDashboard(context.Background(), dashboard.ID) //nolint:errcheck
 	}()
 
 	widget, err := client.CreateWidget(context.Background(), &redash.CreateWidgetInput{
-		DashboardID: dashbaord.ID,
+		DashboardID: dashboard.ID,
 		Text:        "test-widget-1",
 		Width:       1,
 	})
