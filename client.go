@@ -15,15 +15,14 @@ import (
 )
 
 const (
-	DefaultUserAgent = "redash-go"
+	UserAgent = "redash-go"
 )
 
 type Client struct {
-	httpCli   *http.Client
-	endpoint  string
-	apiKey    string
-	Debug     bool
-	UserAgent string
+	httpCli  *http.Client
+	endpoint string
+	apiKey   string
+	Debug    bool
 }
 
 func NewClient(endpoint string, apiKey string) (*Client, error) {
@@ -42,10 +41,9 @@ func NewClientWithHTTPClient(endpoint string, apiKey string, httpClient *http.Cl
 	}
 
 	client := &Client{
-		httpCli:   httpClient,
-		endpoint:  endpoint,
-		apiKey:    apiKey,
-		UserAgent: DefaultUserAgent,
+		httpCli:  httpClient,
+		endpoint: endpoint,
+		apiKey:   apiKey,
 	}
 
 	return client, nil
@@ -109,7 +107,7 @@ func (client *Client) sendRequest(ctx context.Context, method string, path strin
 	}
 
 	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("User-Agent", client.UserAgent)
+	req.Header.Add("User-Agent", UserAgent)
 	req.Header.Set("Authorization", "Key "+client.apiKey)
 
 	if len(params) > 0 {
