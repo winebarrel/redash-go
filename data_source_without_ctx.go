@@ -1,4 +1,5 @@
-// Code generated from data_source.go using genzfunc.go; DO NOT EDIT.
+// Code generated from data_source.go using gen/withoutctx.go; DO NOT EDIT.
+
 package redash
 
 import "context"
