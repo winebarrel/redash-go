@@ -172,8 +172,8 @@ type DashboardTags struct {
 }
 
 type DashboardTagsTag struct {
-	Name  string `json:"name"`
 	Count int    `json:"count"`
+	Name  string `json:"name"`
 }
 
 func (client *Client) GetDashboardTags(ctx context.Context) (*DashboardTags, error) {

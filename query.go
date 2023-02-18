@@ -126,6 +126,7 @@ type CreateQueryInput struct {
 	Options      *CreateQueryInputOptions  `json:"options,omitempty"`
 	Query        string                    `json:"query"`
 	Schedule     *CreateQueryInputSchedule `json:"schedule,omitempty"`
+	Tags         []string                  `json:"tags,omitempty"`
 }
 
 type CreateQueryInputOptions struct {
@@ -180,6 +181,7 @@ type UpdateQueryInput struct {
 	Options      *UpdateQueryInputOptions  `json:"options,omitempty"`
 	Query        string                    `json:"query,omitempty"`
 	Schedule     *UpdateQueryInputSchedule `json:"schedule,omitempty"`
+	Tags         []string                  `json:"tags,omitempty"`
 }
 
 type UpdateQueryInputOptions struct {
@@ -277,4 +279,30 @@ func (client *Client) ExecQueryJSON(ctx context.Context, id int, out io.Writer) 
 	_, err = io.Copy(out, buf)
 
 	return nil, err
+}
+
+type QueryTags struct {
+	Tags []QueryTagsTag `json:"tags"`
+}
+
+type QueryTagsTag struct {
+	Count int    `json:"count"`
+	Name  string `json:"name"`
+}
+
+func (client *Client) GetQueryTags(ctx context.Context) (*QueryTags, error) {
+	res, close, err := client.Get(ctx, "api/queries/tags", nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	tags := &QueryTags{}
+
+	if err := util.UnmarshalBody(res, &tags); err != nil {
+		return nil, err
+	}
+
+	return tags, nil
 }
