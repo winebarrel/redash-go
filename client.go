@@ -25,6 +25,10 @@ type Client struct {
 	Debug    bool
 }
 
+type ClientWithoutContext struct {
+	withCtx *Client
+}
+
 func NewClient(endpoint string, apiKey string) (*Client, error) {
 	return NewClientWithHTTPClient(endpoint, apiKey, nil)
 }
@@ -47,6 +51,12 @@ func NewClientWithHTTPClient(endpoint string, apiKey string, httpClient *http.Cl
 	}
 
 	return client, nil
+}
+
+func (client *Client) WithoutContext() *ClientWithoutContext {
+	return &ClientWithoutContext{
+		withCtx: client,
+	}
 }
 
 type responseCloser func()

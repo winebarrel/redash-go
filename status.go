@@ -1,3 +1,4 @@
+//go:generate go run gen/withoutctx.go
 package redash
 
 import (
