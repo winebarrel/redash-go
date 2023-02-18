@@ -374,6 +374,10 @@ func Test_Dashboard_Acc(t *testing.T) {
 	assert.Equal("test-dashboard-2", dashboard.Name)
 	assert.Equal([]string{"foo"}, dashboard.Tags)
 
+	tags, err := client.GetDashboardTags(context.Background())
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(tags.Tags), 1)
+
 	// NOTE: for v8
 	// err = client.CreateFavoriteDashboard(context.Background(), dashboard.Slug)
 	err = client.CreateFavoriteDashboard(context.Background(), dashboard.ID)
