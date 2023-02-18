@@ -20,6 +20,11 @@ func (client *ClientWithoutContext) CreateUser(input *CreateUsersInput) (*User, 
 }
 
 // Auto-generated
+func (client *ClientWithoutContext) DeleteUser(id int) error {
+	return client.withCtx.DeleteUser(context.Background(), id)
+}
+
+// Auto-generated
 func (client *ClientWithoutContext) DisableUser(id int) (*User, error) {
 	return client.withCtx.DisableUser(context.Background(), id)
 }
