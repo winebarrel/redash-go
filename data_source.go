@@ -134,6 +134,23 @@ func (client *Client) PauseDataSource(ctx context.Context, id int, input *PauseD
 	return dataSource, nil
 }
 
+func (client *Client) ResumeDataSource(ctx context.Context, id int) (*DataSource, error) {
+	res, close, err := client.Delete(ctx, fmt.Sprintf("api/data_sources/%d/pause", id))
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	dataSource := &DataSource{}
+
+	if err := util.UnmarshalBody(res, &dataSource); err != nil {
+		return nil, err
+	}
+
+	return dataSource, nil
+}
+
 type TestDataSourceOutput struct {
 	Message string `json:"message"`
 	Ok      bool   `json:"ok"`

@@ -13,6 +13,7 @@ jobs:
       - uses: golangci/golangci-lint-action@v3
         with:
           args: -E misspell
+      - run: make gen && git diff --exit-code
       - name: Start services
         run: |
           for i in {1..60}; do docker compose up -d && break; sleep 1; done
