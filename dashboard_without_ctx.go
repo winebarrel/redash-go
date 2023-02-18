@@ -33,3 +33,8 @@ func (client *ClientWithoutContext) UpdateDashboard(id int, input *UpdateDashboa
 func (client *ClientWithoutContext) ArchiveDashboard(idOrSlug any) error {
 	return client.withCtx.ArchiveDashboard(context.Background(), idOrSlug)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) GetDashboardTags() (*DashboardTags, error) {
+	return client.withCtx.GetDashboardTags(context.Background())
+}
