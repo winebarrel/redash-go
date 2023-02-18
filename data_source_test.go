@@ -424,6 +424,183 @@ func Test_TestDataSource_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_GetDataSourceTypes_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/types", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			[
+				{
+					"configuration_schema": {
+						"extra_options": [
+							"glue",
+							"cost_per_tb",
+							"encryption_option",
+							"kms_key"
+						],
+						"order": [
+							"region",
+							"aws_access_key",
+							"aws_secret_key",
+							"s3_staging_dir",
+							"schema",
+							"work_group",
+							"cost_per_tb"
+						],
+						"properties": {
+							"aws_access_key": {
+								"title": "AWS Access Key",
+								"type": "string"
+							},
+							"aws_secret_key": {
+								"title": "AWS Secret Key",
+								"type": "string"
+							},
+							"cost_per_tb": {
+								"default": 5,
+								"title": "Athena cost per Tb scanned (USD)",
+								"type": "number"
+							},
+							"encryption_option": {
+								"title": "Encryption Option",
+								"type": "string"
+							},
+							"glue": {
+								"title": "Use Glue Data Catalog",
+								"type": "boolean"
+							},
+							"kms_key": {
+								"title": "KMS Key",
+								"type": "string"
+							},
+							"region": {
+								"title": "AWS Region",
+								"type": "string"
+							},
+							"s3_staging_dir": {
+								"title": "S3 Staging (Query Results) Bucket Path",
+								"type": "string"
+							},
+							"schema": {
+								"default": "default",
+								"title": "Schema Name",
+								"type": "string"
+							},
+							"work_group": {
+								"default": "primary",
+								"title": "Athena Work Group",
+								"type": "string"
+							}
+						},
+						"required": [
+							"region",
+							"s3_staging_dir"
+						],
+						"secret": [
+							"aws_secret_key"
+						],
+						"type": "object"
+					},
+					"name": "Amazon Athena",
+					"type": "athena"
+				}
+			]
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.GetDataSourceTypes(context.Background())
+	assert.NoError(err)
+	assert.Equal([]redash.DataSourceType{
+		{
+			ConfigurationSchema: redash.DataSourceTypeConfigurationSchema{
+				ExtraOptions: []string{
+					"glue",
+					"cost_per_tb",
+					"encryption_option",
+					"kms_key",
+				},
+				Order: []string{
+					"region",
+					"aws_access_key",
+					"aws_secret_key",
+					"s3_staging_dir",
+					"schema",
+					"work_group",
+					"cost_per_tb",
+				},
+				Properties: map[string]redash.DataSourceTypeConfigurationSchemaProperty{
+					"aws_access_key": {
+						Title: "AWS Access Key",
+						Type:  "string",
+					},
+					"aws_secret_key": {
+						Title: "AWS Secret Key",
+						Type:  "string",
+					},
+					"cost_per_tb": {
+						Default: float64(5),
+						Title:   "Athena cost per Tb scanned (USD)",
+						Type:    "number",
+					},
+					"encryption_option": {
+						Title: "Encryption Option",
+						Type:  "string",
+					},
+					"glue": {
+						Title: "Use Glue Data Catalog",
+						Type:  "boolean",
+					},
+					"kms_key": {
+						Title: "KMS Key",
+						Type:  "string",
+					},
+					"region": {
+						Title: "AWS Region",
+						Type:  "string",
+					},
+					"s3_staging_dir": {
+						Title: "S3 Staging (Query Results) Bucket Path",
+						Type:  "string",
+					},
+					"schema": {
+						Default: "default",
+						Title:   "Schema Name",
+						Type:    "string",
+					},
+					"work_group": {
+						Default: "primary",
+						Title:   "Athena Work Group",
+						Type:    "string",
+					},
+				},
+				Required: []string{
+					"region",
+					"s3_staging_dir",
+				},
+				Secret: []string{
+					"aws_secret_key",
+				},
+				Type: "object",
+			},
+			Name: "Amazon Athena",
+			Type: "athena",
+		},
+	}, res)
+}
+
 func Test_DataSource_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -486,4 +663,8 @@ func Test_DataSource_Acc(t *testing.T) {
 
 	_, err = client.GetDataSource(context.Background(), ds.ID)
 	assert.Error(err)
+
+	types, err := client.GetDataSourceTypes(context.Background())
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(types), 1)
 }

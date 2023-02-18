@@ -43,3 +43,8 @@ func (client *ClientWithoutContext) ResumeDataSource(id int) (*DataSource, error
 func (client *ClientWithoutContext) TestDataSource(id int) (*TestDataSourceOutput, error) {
 	return client.withCtx.TestDataSource(context.Background(), id)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) GetDataSourceTypes() ([]DataSourceType, error) {
+	return client.withCtx.GetDataSourceTypes(context.Background())
+}

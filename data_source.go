@@ -172,3 +172,41 @@ func (client *Client) TestDataSource(ctx context.Context, id int) (*TestDataSour
 
 	return output, nil
 }
+
+type DataSourceType struct {
+	ConfigurationSchema DataSourceTypeConfigurationSchema `json:"configuration_schema"`
+	Name                string                            `json:"name"`
+	Type                string                            `json:"type"`
+}
+
+type DataSourceTypeConfigurationSchema struct {
+	ExtraOptions []string                                             `json:"extra_options"`
+	Order        []string                                             `json:"order"`
+	Properties   map[string]DataSourceTypeConfigurationSchemaProperty `json:"properties"`
+	Required     []string                                             `json:"required"`
+	Secret       []string                                             `json:"secret"`
+	Type         string                                               `json:"type"`
+}
+
+type DataSourceTypeConfigurationSchemaProperty struct {
+	Default any    `json:"default"`
+	Title   string `json:"title"`
+	Type    string `json:"type"`
+}
+
+func (client *Client) GetDataSourceTypes(ctx context.Context) ([]DataSourceType, error) {
+	res, close, err := client.Get(ctx, "api/data_sources/types", nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	types := []DataSourceType{}
+
+	if err := util.UnmarshalBody(res, &types); err != nil {
+		return nil, err
+	}
+
+	return types, nil
+}
