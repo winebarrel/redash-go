@@ -834,6 +834,47 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 	}, jobId)
 }
 
+func Test_GetQueryTags_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/tags", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"tags": [
+					{
+						"count": 1,
+						"name": "my-tag"
+					}
+				]
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.GetQueryTags(context.Background())
+	assert.NoError(err)
+	assert.Equal(&redash.QueryTags{
+		Tags: []redash.QueryTagsTag{
+			{
+				Name:  "my-tag",
+				Count: 1,
+			},
+		},
+	}, res)
+}
+
 func Test_Query_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -866,17 +907,25 @@ func Test_Query_Acc(t *testing.T) {
 		DataSourceID: ds.ID,
 		Name:         "test-query-1",
 		Query:        "select 1",
+		Tags:         []string{"my-tag-1"},
 	})
 	assert.NoError(err)
 	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
 
 	query, err = client.UpdateQuery(context.Background(), query.ID, &redash.UpdateQueryInput{
 		Schedule: &redash.UpdateQueryInputSchedule{
 			Interval: 600,
 		},
+		Tags: []string{"my-tag-2"},
 	})
 	assert.NoError(err)
 	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
+	assert.Equal([]string{"my-tag-2"}, query.Tags)
+
+	tags, err := client.GetQueryTags(context.Background())
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(tags.Tags), 1)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
 	assert.NoError(err)
