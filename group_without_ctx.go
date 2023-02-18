@@ -1,4 +1,5 @@
-// Code generated from group.go using genzfunc.go; DO NOT EDIT.
+// Code generated from group.go using gen/withoutctx.go; DO NOT EDIT.
+
 package redash
 
 import "context"
