@@ -289,6 +289,66 @@ func Test_DisableUser_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_EnableUser_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/users/1/disable", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"active_at": "2023-02-10T01:23:45.000Z",
+				"api_key": "api_key",
+				"auth_type": "password",
+				"created_at": "2023-02-10T01:23:45.000Z",
+				"disabled_at": null,
+				"email": "admin@example.com",
+				"groups": [
+					1,
+					2
+				],
+				"id": 1,
+				"is_disabled": false,
+				"is_email_verified": true,
+				"is_invitation_pending": false,
+				"name": "admin",
+				"profile_image_url": "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=40&d=identicon",
+				"updated_at": "2023-02-10T01:23:45.000Z"
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.EnableUser(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal(&redash.User{
+		ActiveAt:            dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+		APIKey:              "api_key",
+		AuthType:            "password",
+		CreatedAt:           dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+		DisabledAt:          time.Time{},
+		Email:               "admin@example.com",
+		Groups:              []any{float64(1), float64(2)},
+		ID:                  1,
+		IsDisabled:          false,
+		IsEmailVerified:     true,
+		IsInvitationPending: false,
+		Name:                "admin",
+		ProfileImageURL:     "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=40&d=identicon",
+		UpdatedAt:           dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+	}, res)
+}
+
 func Test_User_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -308,7 +368,10 @@ func Test_User_Acc(t *testing.T) {
 		Email:    email,
 		Name:     uuidObj.String(),
 	})
+	assert.NoError(err)
+	assert.Equal(email, user.Email)
 
+	user, err = client.GetUser(context.Background(), user.ID)
 	assert.NoError(err)
 	assert.Equal(email, user.Email)
 
@@ -316,4 +379,9 @@ func Test_User_Acc(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(email, user.Email)
 	assert.True(user.IsDisabled)
+
+	user, err = client.EnableUser(context.Background(), user.ID)
+	assert.NoError(err)
+	assert.Equal(email, user.Email)
+	assert.False(user.IsDisabled)
 }
