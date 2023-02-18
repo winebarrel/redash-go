@@ -184,3 +184,25 @@ func (client *Client) RemoveAlertSubscription(ctx context.Context, id int, subsc
 
 	return nil
 }
+
+func (client *Client) MuteAlert(ctx context.Context, id int) error {
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/alerts/%d/mute", id), nil)
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) UnmuteAlert(ctx context.Context, id int) error {
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/alerts/%d/mute", id))
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

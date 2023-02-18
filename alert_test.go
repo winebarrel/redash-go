@@ -425,6 +425,54 @@ func Test_RemoveAlertSubscription_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_MuteAlert_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts/1/mute", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, ``), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.MuteAlert(context.Background(), 1)
+	assert.NoError(err)
+}
+
+func Test_UnmuteAlert_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/alerts/1/mute", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, ``), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.UnmuteAlert(context.Background(), 1)
+	assert.NoError(err)
+}
+
 func Test_Alert_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -487,6 +535,12 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal("test-alert-2", alert.Name)
 
 	_, err = client.ListAlertSubscriptions(context.Background(), alert.ID)
+	assert.NoError(err)
+
+	err = client.MuteAlert(context.Background(), alert.ID)
+	assert.NoError(err)
+
+	err = client.UnmuteAlert(context.Background(), alert.ID)
 	assert.NoError(err)
 
 	err = client.DeleteAlert(context.Background(), alert.ID)
