@@ -229,6 +229,30 @@ func Test_CreateUser_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_DeleteUser_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/users/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, ``), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteUser(context.Background(), 1)
+	assert.NoError(err)
+}
+
 func Test_DisableUser_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -384,4 +408,10 @@ func Test_User_Acc(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(email, user.Email)
 	assert.False(user.IsDisabled)
+
+	err = client.DeleteUser(context.Background(), user.ID)
+	assert.NoError(err)
+
+	_, err = client.GetUser(context.Background(), user.ID)
+	assert.Error(err)
 }

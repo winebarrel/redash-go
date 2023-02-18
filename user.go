@@ -103,6 +103,17 @@ func (client *Client) CreateUser(ctx context.Context, input *CreateUsersInput) (
 	return user, nil
 }
 
+func (client *Client) DeleteUser(ctx context.Context, id int) error {
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/users/%d", id))
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (client *Client) DisableUser(ctx context.Context, id int) (*User, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/users/%d/disable", id), nil)
 	defer close()
