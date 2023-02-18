@@ -17,7 +17,7 @@ type Job struct {
 	ID            string `json:"id"`
 	QueryResultID int    `json:"query_result_id"`
 	Status        int    `json:"status"`
-	UpdatedAt     int    `json:"updated_at"`
+	UpdatedAt     any    `json:"updated_at"`
 }
 
 func (client *Client) GetJob(ctx context.Context, id string) (*JobResponse, error) {

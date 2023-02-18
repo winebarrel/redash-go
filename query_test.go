@@ -821,7 +821,7 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	jobId, err := client.ExecQueryJSON(context.Background(), 1, nil)
+	job, err := client.ExecQueryJSON(context.Background(), 1, nil)
 	assert.NoError(err)
 	assert.Equal(&redash.JobResponse{
 		Job: redash.Job{
@@ -829,9 +829,9 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 			ID:            "623b290a-7fd9-4ea6-a2a6-96f9c9101f51",
 			QueryResultID: 0,
 			Status:        1,
-			UpdatedAt:     0,
+			UpdatedAt:     float64(0),
 		},
-	}, jobId)
+	}, job)
 }
 
 func Test_GetQueryTags_OK(t *testing.T) {
@@ -873,6 +873,50 @@ func Test_GetQueryTags_OK(t *testing.T) {
 			},
 		},
 	}, res)
+}
+
+func Test_RefreshQuery_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/refresh", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"job": {
+					"error": "",
+					"id": "baaf5b97-6419-4db3-a60c-ef8b4e290376",
+					"query_result_id": null,
+					"result": null,
+					"status": 1,
+					"updated_at": 0
+				}
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	job, err := client.RefreshQuery(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal(&redash.JobResponse{
+		Job: redash.Job{
+			Error:         "",
+			ID:            "baaf5b97-6419-4db3-a60c-ef8b4e290376",
+			QueryResultID: 0,
+			Status:        1,
+			UpdatedAt:     float64(0),
+		},
+	}, job)
 }
 
 func Test_Query_Acc(t *testing.T) {
@@ -964,6 +1008,28 @@ func Test_Query_Acc(t *testing.T) {
 	err = client.GetQueryResultsCSV(context.Background(), query.ID, &buf)
 	assert.NoError(err)
 	assert.Equal("?column?\r\n1\r\n", buf.String())
+
+	job, err = client.RefreshQuery(context.Background(), query.ID)
+	assert.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			assert.NoError(err)
+
+			if job.Job.Status >= 3 {
+				assert.Equal(3, job.Job.Status)
+				buf = bytes.Buffer{}
+				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
+				assert.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
 	assert.NoError(err)
