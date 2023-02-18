@@ -43,3 +43,13 @@ func (client *ClientWithoutContext) AddAlertSubscription(id int, destinationId i
 func (client *ClientWithoutContext) RemoveAlertSubscription(id int, subscriptionId int) error {
 	return client.withCtx.RemoveAlertSubscription(context.Background(), id, subscriptionId)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) MuteAlert(id int) error {
+	return client.withCtx.MuteAlert(context.Background(), id)
+}
+
+// Auto-generated
+func (client *ClientWithoutContext) UnmuteAlert(id int) error {
+	return client.withCtx.UnmuteAlert(context.Background(), id)
+}
