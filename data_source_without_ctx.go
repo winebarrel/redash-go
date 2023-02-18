@@ -28,3 +28,8 @@ func (client *ClientWithoutContext) UpdateDataSource(id int, input *UpdateDataSo
 func (client *ClientWithoutContext) DeleteDataSource(id int) error {
 	return client.withCtx.DeleteDataSource(context.Background(), id)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) TestDataSource(id int) (*TestDataSourceOutput, error) {
+	return client.withCtx.TestDataSource(context.Background(), id)
+}

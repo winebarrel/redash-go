@@ -300,6 +300,39 @@ func Test_DeleteDataSource_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_TestDataSource_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1/test", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"message": "success",
+				"ok": true
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.TestDataSource(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal(&redash.TestDataSourceOutput{
+		Message: "success",
+		Ok:      true,
+	}, res)
+}
+
 func Test_DataSource_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -323,6 +356,10 @@ func Test_DataSource_Acc(t *testing.T) {
 	})
 	assert.NoError(err)
 	assert.Equal("test-postgres-1", ds.Name)
+
+	output, err := client.TestDataSource(context.Background(), ds.ID)
+	assert.NoError(err)
+	assert.True(output.Ok)
 
 	ds, err = client.GetDataSource(context.Background(), ds.ID)
 	assert.NoError(err)

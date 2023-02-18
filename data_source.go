@@ -112,3 +112,25 @@ func (client *Client) DeleteDataSource(ctx context.Context, id int) error {
 
 	return nil
 }
+
+type TestDataSourceOutput struct {
+	Message string `json:"message"`
+	Ok      bool   `json:"ok"`
+}
+
+func (client *Client) TestDataSource(ctx context.Context, id int) (*TestDataSourceOutput, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/data_sources/%d/test", id), nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	output := &TestDataSourceOutput{}
+
+	if err := util.UnmarshalBody(res, &output); err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
