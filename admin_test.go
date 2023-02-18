@@ -219,7 +219,6 @@ func Test_Admin_Acc(t *testing.T) {
 
 	assert := assert.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
-	client.Debug = true
 	outdated, err := client.GetAdminQueriesOutdated(context.Background())
 	if err != nil {
 		assert.FailNow(err.Error())

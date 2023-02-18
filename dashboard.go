@@ -166,3 +166,29 @@ func (client *Client) ArchiveDashboard(ctx context.Context, idOrSlug any) error 
 
 	return nil
 }
+
+type DashboardTags struct {
+	Tags []DashboardTagsTag `json:"tags"`
+}
+
+type DashboardTagsTag struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
+
+func (client *Client) GetDashboardTags(ctx context.Context) (*DashboardTags, error) {
+	res, close, err := client.Get(ctx, "api/dashboards/tags", nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	tags := &DashboardTags{}
+
+	if err := util.UnmarshalBody(res, &tags); err != nil {
+		return nil, err
+	}
+
+	return tags, nil
+}
