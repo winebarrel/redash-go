@@ -119,3 +119,20 @@ func (client *Client) DisableUser(ctx context.Context, id int) (*User, error) {
 
 	return user, nil
 }
+
+func (client *Client) EnableUser(ctx context.Context, id int) (*User, error) {
+	res, close, err := client.Delete(ctx, fmt.Sprintf("api/users/%d/disable", id))
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+
+	if err := util.UnmarshalBody(res, &user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}

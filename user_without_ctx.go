@@ -23,3 +23,8 @@ func (client *ClientWithoutContext) CreateUser(input *CreateUsersInput) (*User, 
 func (client *ClientWithoutContext) DisableUser(id int) (*User, error) {
 	return client.withCtx.DisableUser(context.Background(), id)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) EnableUser(id int) (*User, error) {
+	return client.withCtx.EnableUser(context.Background(), id)
+}
