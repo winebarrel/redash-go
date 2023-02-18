@@ -7,7 +7,15 @@ require (
 	github.com/stretchr/testify v1.8.1
 )
 
-require github.com/google/uuid v1.3.0
+require (
+	github.com/google/uuid v1.3.0
+	golang.org/x/tools v0.6.0
+)
+
+require (
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+)
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de

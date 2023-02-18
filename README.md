@@ -133,6 +133,14 @@ client, _ := redash.NewClientWithHTTPClient("https://redash.example.com", "<secr
 client.GetStatus(context.Background())
 ```
 
+### Without context.Context
+
+```go
+client0, _ := redash.NewClient("https://redash.example.com", "<secret>")
+client := client0.WithoutContext()
+client.GetStatus()
+```
+
 ### **NOTE: Dashboard API parameters are Redash version dependent**
 
 #### v8: slug(string)

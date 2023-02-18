@@ -17,6 +17,10 @@ testacc:
 lint:
 	golangci-lint run -E misspell
 
+.PHONY: gen
+gen:
+	go generate
+
 .PHONY: redash-setup
 redash-setup:
 	psql -U postgres -h localhost -p 15432 -f _etc/redash.sql
