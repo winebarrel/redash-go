@@ -30,6 +30,11 @@ func (client *ClientWithoutContext) DeleteDataSource(id int) error {
 }
 
 // Auto-generated
+func (client *ClientWithoutContext) PauseDataSource(id int, input *PauseDataSourceInput) (*DataSource, error) {
+	return client.withCtx.PauseDataSource(context.Background(), id, input)
+}
+
+// Auto-generated
 func (client *ClientWithoutContext) TestDataSource(id int) (*TestDataSourceOutput, error) {
 	return client.withCtx.TestDataSource(context.Background(), id)
 }
