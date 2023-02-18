@@ -276,6 +276,55 @@ func Test_UpdateDataSource_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_PauseDataSource_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1/pause", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"reason":"this is reason"}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"id": 1,
+				"name": "postgres",
+				"pause_reason": "this is reason",
+				"paused": 1,
+				"supports_auto_limit": true,
+				"syntax": "sql",
+				"type": "pg"
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.PauseDataSource(context.Background(), 1, &redash.PauseDataSourceInput{
+		Reason: "this is reason",
+	})
+	assert.NoError(err)
+	assert.Equal(&redash.DataSource{
+		ID:          1,
+		Name:        "postgres",
+		Paused:      1,
+		PauseReason: "this is reason",
+		Syntax:      "sql",
+		Type:        "pg",
+	}, res)
+}
+
 func Test_DeleteDataSource_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -377,6 +426,13 @@ func Test_DataSource_Acc(t *testing.T) {
 	})
 	assert.NoError(err)
 	assert.Equal("test-postgres-2", ds.Name)
+
+	ds, err = client.PauseDataSource(context.Background(), ds.ID, &redash.PauseDataSourceInput{
+		Reason: "this is reason",
+	})
+	assert.NoError(err)
+	assert.Equal(1, ds.Paused)
+	assert.Equal("this is reason", ds.PauseReason)
 
 	err = client.DeleteDataSource(context.Background(), ds.ID)
 	assert.NoError(err)

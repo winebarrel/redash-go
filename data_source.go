@@ -113,6 +113,27 @@ func (client *Client) DeleteDataSource(ctx context.Context, id int) error {
 	return nil
 }
 
+type PauseDataSourceInput struct {
+	Reason string `json:"reason,omitempty"`
+}
+
+func (client *Client) PauseDataSource(ctx context.Context, id int, input *PauseDataSourceInput) (*DataSource, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/data_sources/%d/pause", id), input)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	dataSource := &DataSource{}
+
+	if err := util.UnmarshalBody(res, &dataSource); err != nil {
+		return nil, err
+	}
+
+	return dataSource, nil
+}
+
 type TestDataSourceOutput struct {
 	Message string `json:"message"`
 	Ok      bool   `json:"ok"`
