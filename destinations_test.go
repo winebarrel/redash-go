@@ -174,6 +174,99 @@ func Test_DeleteDestination_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_GetDestinationTypes_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/destinations/types", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			[
+				{
+					"configuration_schema": {
+						"extra_options": [
+							"subject_template"
+						],
+						"properties": {
+							"icon_url": {
+								"title": "Icon URL (32x32 or multiple, png format)",
+								"type": "string"
+							},
+							"url": {
+								"title": "Webhook URL (get it from the room settings)",
+								"type": "string"
+							},
+							"subject_template": {
+								"default": "({state}) {alert_name}",
+								"title": "Subject Template",
+								"type": "string"
+							}
+						},
+						"required": [
+							"url"
+						],
+						"secret": [
+							"url"
+						],
+						"type": "object"
+					},
+					"icon": "fa-bolt",
+					"name": "Google Hangouts Chat",
+					"type": "hangouts_chat"
+				}
+			]
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.GetDestinationTypes(context.Background())
+	assert.NoError(err)
+	assert.Equal([]redash.DestinationType{
+		{
+			ConfigurationSchema: redash.DestinationTypeConfigurationSchema{
+				ExtraOptions: []string{
+					"subject_template",
+				},
+				Properties: map[string]redash.DestinationTypeConfigurationSchemaProperty{
+					"icon_url": {
+						Title: "Icon URL (32x32 or multiple, png format)",
+						Type:  "string",
+					},
+					"url": {
+						Title: "Webhook URL (get it from the room settings)",
+						Type:  "string",
+					},
+					"subject_template": {
+						Default: "({state}) {alert_name}",
+						Title:   "Subject Template",
+						Type:    "string",
+					},
+				},
+				Required: []string{
+					"url",
+				},
+				Secret: []any{
+					"url",
+				},
+				Type: "object",
+			},
+			Icon: "fa-bolt",
+			Name: "Google Hangouts Chat",
+			Type: "hangouts_chat",
+		},
+	}, res)
+}
+
 func Test_Destination_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -204,4 +297,8 @@ func Test_Destination_Acc(t *testing.T) {
 
 	_, err = client.GetDestination(context.Background(), dest.ID)
 	assert.Error(err)
+
+	types, err := client.GetDestinationTypes(context.Background())
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(types), 1)
 }

@@ -23,3 +23,8 @@ func (client *ClientWithoutContext) CreateDestination(input *CreateDestinationIn
 func (client *ClientWithoutContext) DeleteDestination(id int) error {
 	return client.withCtx.DeleteDestination(context.Background(), id)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) GetDestinationTypes() ([]DestinationType, error) {
+	return client.withCtx.GetDestinationTypes(context.Background())
+}

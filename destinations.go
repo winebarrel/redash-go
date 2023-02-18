@@ -83,3 +83,41 @@ func (client *Client) DeleteDestination(ctx context.Context, id int) error {
 
 	return nil
 }
+
+type DestinationType struct {
+	ConfigurationSchema DestinationTypeConfigurationSchema `json:"configuration_schema"`
+	Icon                string                             `json:"icon"`
+	Name                string                             `json:"name"`
+	Type                string                             `json:"type"`
+}
+
+type DestinationTypeConfigurationSchema struct {
+	ExtraOptions []string                                              `json:"extra_options"`
+	Properties   map[string]DestinationTypeConfigurationSchemaProperty `json:"properties"`
+	Required     []string                                              `json:"required"`
+	Secret       any                                                   `json:"secret"`
+	Type         string                                                `json:"type"`
+}
+
+type DestinationTypeConfigurationSchemaProperty struct {
+	Default any    `json:"default"`
+	Title   string `json:"title"`
+	Type    string `json:"type"`
+}
+
+func (client *Client) GetDestinationTypes(ctx context.Context) ([]DestinationType, error) {
+	res, close, err := client.Get(ctx, "api/destinations/types", nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	types := []DestinationType{}
+
+	if err := util.UnmarshalBody(res, &types); err != nil {
+		return nil, err
+	}
+
+	return types, nil
+}
