@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+
+	"github.com/google/go-querystring/query"
 )
 
 func UnmarshalBody(res *http.Response, v any) error {
@@ -50,3 +53,39 @@ func CloseResponse(res *http.Response) {
 	io.Copy(io.Discard, res.Body) //nolint:errcheck
 	res.Body.Close()
 }
+
+func URLValuesFrom(params any) (url.Values, error) {
+	if m, ok := params.(map[string]string); ok {
+		values := url.Values{}
+
+		for k, v := range m {
+			values.Add(k, v)
+		}
+
+		return values, nil
+	} else {
+		values, err := query.Values(params)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return values, nil
+	}
+}
+
+// +       if params != nil {
+// 	+               v, err := query.Values(params)
+
+// 	-               for k, v := range params {
+// 	-                       query.Add(k, v)
+// 	+               if err != nil {
+// 	+                       return nil, err
+// 									}
+
+// 	-               req.URL.RawQuery = query.Encode()
+// 	+               req.URL.RawQuery = v.Encode()
+// 					}
+
+// 					if client.Debug {
+// 	diff

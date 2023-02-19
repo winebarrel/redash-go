@@ -91,7 +91,7 @@ func (client *Client) Delete(ctx context.Context, path string) (*http.Response, 
 	return res, func() { util.CloseResponse(res) }, nil
 }
 
-func (client *Client) sendRequest(ctx context.Context, method string, path string, params map[string]string, body any) (*http.Response, error) {
+func (client *Client) sendRequest(ctx context.Context, method string, path string, params any, body any) (*http.Response, error) {
 	url, err := url.JoinPath(client.endpoint, path)
 
 	if err != nil {
@@ -120,14 +120,14 @@ func (client *Client) sendRequest(ctx context.Context, method string, path strin
 	req.Header.Add("User-Agent", UserAgent)
 	req.Header.Set("Authorization", "Key "+client.apiKey)
 
-	if len(params) > 0 {
-		query := req.URL.Query()
+	if params != nil {
+		values, err := util.URLValuesFrom(params)
 
-		for k, v := range params {
-			query.Add(k, v)
+		if err != nil {
+			return nil, err
 		}
 
-		req.URL.RawQuery = query.Encode()
+		req.URL.RawQuery = values.Encode()
 	}
 
 	if client.Debug {
