@@ -919,6 +919,111 @@ func Test_RefreshQuery_OK(t *testing.T) {
 	}, job)
 }
 
+func Test_SearchQueries_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/search", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		assert.Equal("q=my-query", req.URL.Query().Encode())
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"count": 1,
+				"page": 1,
+				"page_size": 25,
+				"results": [
+					{
+						"api_key": "api_key",
+						"created_at": "2023-02-10T01:23:45.000Z",
+						"data_source_id": 1,
+						"description": "description",
+						"id": 1,
+						"is_archived": false,
+						"is_draft": false,
+						"is_favorite": false,
+						"is_safe": true,
+						"last_modified_by_id": 1,
+						"latest_query_data_id": 1,
+						"name": "my-query",
+						"options": {
+							"parameters": []
+						},
+						"query": "select 1",
+						"query_hash": "query_hash",
+						"retrieved_at": "2023-02-10T01:23:45.000Z",
+						"runtime": 0.1,
+						"schedule": {
+							"day_of_week": null,
+							"interval": 60,
+							"time": null,
+							"until": "2023-02-11"
+						},
+						"tags": [],
+						"updated_at": "2023-02-10T01:23:45.000Z",
+						"user": {},
+						"version": 1
+					}
+				]
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.SearchQueries(context.Background(), &redash.SearchQueriesInput{
+		Q: "my-query",
+	})
+	assert.NoError(err)
+	assert.Equal(&redash.QueryPage{
+		Count:    1,
+		Page:     1,
+		PageSize: 25,
+		Results: []redash.Query{
+			{
+				APIKey:            "api_key",
+				CanEdit:           false,
+				CreatedAt:         dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+				DataSourceID:      1,
+				Description:       "description",
+				ID:                1,
+				IsArchived:        false,
+				IsDraft:           false,
+				IsFavorite:        false,
+				IsSafe:            true,
+				LastModifiedBy:    nil,
+				LastModifiedByID:  1,
+				LatestQueryDataID: 1,
+				Name:              "my-query",
+				Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+				Query:             "select 1",
+				QueryHash:         "query_hash",
+				RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+				Runtime:           0.1,
+				Schedule: &redash.QueueSchedule{
+					DayOfWeek: "",
+					Interval:  60,
+					Time:      "",
+					Until:     "2023-02-11",
+				},
+				Tags:           []string{},
+				UpdatedAt:      dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+				User:           redash.User{},
+				Version:        1,
+				Visualizations: nil,
+			},
+		},
+	}, res)
+}
+
 func Test_Query_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -974,6 +1079,12 @@ func Test_Query_Acc(t *testing.T) {
 	query, err = client.GetQuery(context.Background(), query.ID)
 	assert.NoError(err)
 	assert.Equal("test-query-1", query.Name)
+
+	page, err := client.SearchQueries(context.Background(), &redash.SearchQueriesInput{
+		Q: "test-query-1",
+	})
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(page.Results), 1)
 
 	err = client.CreateFavoriteQuery(context.Background(), query.ID)
 	assert.NoError(err)

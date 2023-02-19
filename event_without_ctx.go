@@ -1,4 +1,4 @@
-// Code generated from event.go using gen/withoutctx.go; DO NOT EDIT.
+// Code generated from event.go using internal/gen/withoutctx.go; DO NOT EDIT.
 
 package redash
 

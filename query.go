@@ -1,4 +1,4 @@
-//go:generate go run gen/withoutctx.go
+//go:generate go run internal/gen/withoutctx.go
 package redash
 
 import (
@@ -322,4 +322,31 @@ func (client *Client) RefreshQuery(ctx context.Context, id int) (*JobResponse, e
 	}
 
 	return job, nil
+}
+
+type SearchQueriesInput struct {
+	Q string
+}
+
+func (client *Client) SearchQueries(ctx context.Context, input *SearchQueriesInput) (*QueryPage, error) {
+	params := map[string]string{}
+
+	if input != nil {
+		params["q"] = input.Q
+	}
+
+	res, close, err := client.Get(ctx, "api/queries/search", params)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	page := &QueryPage{}
+
+	if err := util.UnmarshalBody(res, &page); err != nil {
+		return nil, err
+	}
+
+	return page, nil
 }

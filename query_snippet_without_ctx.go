@@ -1,4 +1,4 @@
-// Code generated from query_snippet.go using gen/withoutctx.go; DO NOT EDIT.
+// Code generated from query_snippet.go using internal/gen/withoutctx.go; DO NOT EDIT.
 
 package redash
 

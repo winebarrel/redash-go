@@ -1,4 +1,4 @@
-// Code generated from widget.go using gen/withoutctx.go; DO NOT EDIT.
+// Code generated from widget.go using internal/gen/withoutctx.go; DO NOT EDIT.
 
 package redash
 
