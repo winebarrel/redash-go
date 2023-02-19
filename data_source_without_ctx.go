@@ -1,4 +1,4 @@
-// Code generated from data_source.go using gen/withoutctx.go; DO NOT EDIT.
+// Code generated from data_source.go using internal/gen/withoutctx.go; DO NOT EDIT.
 
 package redash
 

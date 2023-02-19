@@ -1,4 +1,4 @@
-// Code generated from query.go using gen/withoutctx.go; DO NOT EDIT.
+// Code generated from query.go using internal/gen/withoutctx.go; DO NOT EDIT.
 
 package redash
 
@@ -70,4 +70,9 @@ func (client *ClientWithoutContext) GetQueryTags() (*QueryTags, error) {
 // Auto-generated
 func (client *ClientWithoutContext) RefreshQuery(id int) (*JobResponse, error) {
 	return client.withCtx.RefreshQuery(context.Background(), id)
+}
+
+// Auto-generated
+func (client *ClientWithoutContext) SearchQueries(input *SearchQueriesInput) (*QueryPage, error) {
+	return client.withCtx.SearchQueries(context.Background(), input)
 }
