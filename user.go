@@ -4,7 +4,6 @@ package redash
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/winebarrel/redash-go/internal/util"
@@ -35,19 +34,12 @@ type User struct {
 }
 
 type ListUsersInput struct {
-	Page     int
-	PageSize int
+	Page     int `url:"page,omitempty"`
+	PageSize int `url:"page_size,omitempty"`
 }
 
 func (client *Client) ListUsers(ctx context.Context, input *ListUsersInput) (*UserPage, error) {
-	params := map[string]string{}
-
-	if input != nil {
-		params["page"] = strconv.Itoa(input.Page)
-		params["page_size"] = strconv.Itoa(input.PageSize)
-	}
-
-	res, close, err := client.Get(ctx, "api/users", params)
+	res, close, err := client.Get(ctx, "api/users", input)
 	defer close()
 
 	if err != nil {
