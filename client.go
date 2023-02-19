@@ -61,7 +61,7 @@ func (client *Client) WithoutContext() *ClientWithoutContext {
 
 type responseCloser func()
 
-func (client *Client) Get(ctx context.Context, path string, params map[string]string) (*http.Response, responseCloser, error) {
+func (client *Client) Get(ctx context.Context, path string, params any) (*http.Response, responseCloser, error) {
 	res, err := client.sendRequest(ctx, http.MethodGet, path, params, nil)
 
 	if err != nil {
