@@ -31,7 +31,7 @@ func Test_ListQueries_OK(t *testing.T) {
 			),
 			req.Header,
 		)
-		assert.Equal("only_favorites=false&page=1&page_size=25", req.URL.Query().Encode())
+		assert.Equal("page=1&page_size=25", req.URL.Query().Encode())
 		return httpmock.NewStringResponse(http.StatusOK, `
 			{
 				"count": 1,

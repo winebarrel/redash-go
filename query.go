@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"strconv"
 	"time"
 
 	"github.com/winebarrel/redash-go/internal/util"
@@ -61,21 +60,13 @@ type QueueSchedule struct {
 }
 
 type ListQueriesInput struct {
-	OnlyFavorites bool
-	Page          int
-	PageSize      int
+	OnlyFavorites bool `url:"only_favorites,omitempty"`
+	Page          int  `url:"page,omitempty"`
+	PageSize      int  `url:"page_size,omitempty"`
 }
 
 func (client *Client) ListQueries(ctx context.Context, input *ListQueriesInput) (*QueryPage, error) {
-	params := map[string]string{}
-
-	if input != nil {
-		params["page"] = strconv.Itoa(input.Page)
-		params["page_size"] = strconv.Itoa(input.PageSize)
-		params["only_favorites"] = strconv.FormatBool(input.OnlyFavorites)
-	}
-
-	res, close, err := client.Get(ctx, "api/queries", params)
+	res, close, err := client.Get(ctx, "api/queries", input)
 	defer close()
 
 	if err != nil {
@@ -325,17 +316,11 @@ func (client *Client) RefreshQuery(ctx context.Context, id int) (*JobResponse, e
 }
 
 type SearchQueriesInput struct {
-	Q string
+	Q string `url:"q"`
 }
 
 func (client *Client) SearchQueries(ctx context.Context, input *SearchQueriesInput) (*QueryPage, error) {
-	params := map[string]string{}
-
-	if input != nil {
-		params["q"] = input.Q
-	}
-
-	res, close, err := client.Get(ctx, "api/queries/search", params)
+	res, close, err := client.Get(ctx, "api/queries/search", input)
 	defer close()
 
 	if err != nil {
