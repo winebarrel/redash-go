@@ -109,3 +109,28 @@ func Test_CloseResponse_WithBodyNil(t *testing.T) {
 	res := &http.Response{Body: nil}
 	util.CloseResponse(res)
 }
+
+func Test_ValuesFrom_Map(t *testing.T) {
+	assert := assert.New(t)
+	params := map[string]string{"foo": "bar", "zoo": "baz"}
+	values, err := util.URLValuesFrom(params)
+	assert.NoError(err)
+	assert.Equal("foo=bar&zoo=baz", values.Encode())
+}
+
+type testParams struct {
+	Foo string `url:"foo"`
+	Bar int    `url:"bar"`
+	Zoo string `url:"zoo,omitempty"`
+}
+
+func Test_ValuesFrom_Struct(t *testing.T) {
+	assert := assert.New(t)
+	params := &testParams{
+		Foo: "foo",
+		Bar: 1,
+	}
+	values, err := util.URLValuesFrom(params)
+	assert.NoError(err)
+	assert.Equal("bar=1&foo=foo", values.Encode())
+}

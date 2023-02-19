@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/google/go-querystring v1.1.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 )
