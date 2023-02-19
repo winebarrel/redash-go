@@ -3,7 +3,6 @@ package redash
 
 import (
 	"context"
-	"strconv"
 	"time"
 
 	"github.com/winebarrel/redash-go/internal/util"
@@ -30,19 +29,12 @@ type Event struct {
 }
 
 type ListEventsInput struct {
-	Page     int
-	PageSize int
+	Page     int `url:"page,omitempty"`
+	PageSize int `url:"page_size,omitempty"`
 }
 
 func (client *Client) ListEvents(ctx context.Context, input *ListEventsInput) (*EventPage, error) {
-	params := map[string]string{}
-
-	if input != nil {
-		params["page"] = strconv.Itoa(input.Page)
-		params["page_size"] = strconv.Itoa(input.PageSize)
-	}
-
-	res, close, err := client.Get(ctx, "api/events", params)
+	res, close, err := client.Get(ctx, "api/events", input)
 	defer close()
 
 	if err != nil {
