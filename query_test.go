@@ -1617,7 +1617,7 @@ func Test_Query_Acc(t *testing.T) {
 
 	queries, err := client.ListRecentQueries(context.Background())
 	assert.NoError(err)
-	assert.GreaterOrEqual(queries, 1)
+	assert.GreaterOrEqual(len(queries), 1)
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
 	assert.NoError(err)
