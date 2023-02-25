@@ -91,7 +91,7 @@ func Test_ListDashboards_OK(t *testing.T) {
 	}, res)
 }
 
-func Test_SearchDashboards_OK(t *testing.T) {
+func Test_ListDashboards_WithQ(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -458,9 +458,9 @@ func Test_Dashboard_Acc(t *testing.T) {
 	assert.NoError(err)
 	assert.GreaterOrEqual(len(tags.Tags), 1)
 
-	dashboards, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{Q: "test-dashboard-2"})
+	page, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{Q: "test-dashboard-2"})
 	assert.NoError(err)
-	assert.GreaterOrEqual(len(dashboards.Results), 1)
+	assert.GreaterOrEqual(len(page.Results), 1)
 
 	// NOTE: for v8
 	// err = client.CreateFavoriteDashboard(context.Background(), dashboard.Slug)
