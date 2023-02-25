@@ -403,3 +403,20 @@ func (client *Client) FormatQuery(ctx context.Context, query string) (*FormatQue
 
 	return output, nil
 }
+
+func (client *Client) ListRecentQueries(ctx context.Context) ([]Query, error) {
+	res, close, err := client.Get(ctx, "api/queries/recent", nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	queries := []Query{}
+
+	if err := util.UnmarshalBody(res, &queries); err != nil {
+		return nil, err
+	}
+
+	return queries, nil
+}
