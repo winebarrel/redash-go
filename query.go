@@ -382,3 +382,24 @@ func (client *Client) ListFavoriteQueries(ctx context.Context, input *ListFavori
 
 	return page, nil
 }
+
+type FormatQueryOutput struct {
+	Query string `json:"query"`
+}
+
+func (client *Client) FormatQuery(ctx context.Context, query string) (*FormatQueryOutput, error) {
+	res, close, err := client.Post(ctx, "api/queries/format", map[string]string{"query": query})
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	output := &FormatQueryOutput{}
+
+	if err := util.UnmarshalBody(res, &output); err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
