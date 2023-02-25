@@ -73,19 +73,3 @@ func URLValuesFrom(params any) (url.Values, error) {
 		return values, nil
 	}
 }
-
-// +       if params != nil {
-// 	+               v, err := query.Values(params)
-
-// 	-               for k, v := range params {
-// 	-                       query.Add(k, v)
-// 	+               if err != nil {
-// 	+                       return nil, err
-// 									}
-
-// 	-               req.URL.RawQuery = query.Encode()
-// 	+               req.URL.RawQuery = v.Encode()
-// 					}
-
-// 					if client.Debug {
-// 	diff
