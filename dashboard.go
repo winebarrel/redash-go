@@ -184,3 +184,27 @@ func (client *Client) GetDashboardTags(ctx context.Context) (*DashboardTags, err
 
 	return tags, nil
 }
+
+type ListMyDashboardsInput struct {
+	OnlyFavorites bool   `url:"only_favorites,omitempty"`
+	Page          int    `url:"page,omitempty"`
+	PageSize      int    `url:"page_size,omitempty"`
+	Q             string `url:"q,omitempty"`
+}
+
+func (client *Client) ListMyDashboards(ctx context.Context, input *ListMyDashboardsInput) (*DashboardPage, error) {
+	res, close, err := client.Get(ctx, "api/dashboards/my", input)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	page := &DashboardPage{}
+
+	if err := util.UnmarshalBody(res, &page); err != nil {
+		return nil, err
+	}
+
+	return page, nil
+}
