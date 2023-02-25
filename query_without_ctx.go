@@ -76,3 +76,8 @@ func (client *ClientWithoutContext) RefreshQuery(id int) (*JobResponse, error) {
 func (client *ClientWithoutContext) SearchQueries(input *SearchQueriesInput) (*QueryPage, error) {
 	return client.withCtx.SearchQueries(context.Background(), input)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) ListMyQueries(input *ListMyQueriesInput) (*QueryPage, error) {
+	return client.withCtx.ListMyQueries(context.Background(), input)
+}
