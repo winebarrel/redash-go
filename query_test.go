@@ -1346,6 +1346,42 @@ func Test_ListFavoriteQueries_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_FormatQuery_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/format", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"query":"select 1 from dual"}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"query": "SELECT 1\nFROM dual"
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.FormatQuery(context.Background(), "select 1 from dual")
+	assert.NoError(err)
+	assert.Equal(&redash.FormatQueryOutput{
+		Query: "SELECT 1\nFROM dual",
+	}, res)
+}
+
 func Test_Query_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -1496,4 +1532,8 @@ func Test_Query_Acc(t *testing.T) {
 	assert.Equal("test-query-1", query.Name)
 	assert.True(query.IsArchived)
 	assert.True(query.IsFavorite)
+
+	formatted, err := client.FormatQuery(context.Background(), "select 1 from dual")
+	assert.NoError(err)
+	assert.Equal("SELECT 1\nFROM dual", formatted.Query)
 }
