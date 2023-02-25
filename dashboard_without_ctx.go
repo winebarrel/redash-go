@@ -43,3 +43,8 @@ func (client *ClientWithoutContext) GetDashboardTags() (*DashboardTags, error) {
 func (client *ClientWithoutContext) ListMyDashboards(input *ListMyDashboardsInput) (*DashboardPage, error) {
 	return client.withCtx.ListMyDashboards(context.Background(), input)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) ListFavoriteDashboards(input *ListFavoriteDashboardsInput) (*DashboardPage, error) {
+	return client.withCtx.ListFavoriteDashboards(context.Background(), input)
+}
