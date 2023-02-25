@@ -48,3 +48,13 @@ func (client *ClientWithoutContext) ListMyDashboards(input *ListMyDashboardsInpu
 func (client *ClientWithoutContext) ListFavoriteDashboards(input *ListFavoriteDashboardsInput) (*DashboardPage, error) {
 	return client.withCtx.ListFavoriteDashboards(context.Background(), input)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) ShareDashboard(id int) (*ShareDashboardOutput, error) {
+	return client.withCtx.ShareDashboard(context.Background(), id)
+}
+
+// Auto-generated
+func (client *ClientWithoutContext) UnshareDashboard(id int) error {
+	return client.withCtx.UnshareDashboard(context.Background(), id)
+}
