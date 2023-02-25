@@ -169,4 +169,7 @@ make redash-setup
 make testacc
 ```
 
-**NOTE:** local Redash URL: http://localhost:5001
+**NOTE:**
+* local Redash URL: http://localhost:5001
+* Email: `admin@example.com`
+* Password: `password`
