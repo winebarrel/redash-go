@@ -81,3 +81,8 @@ func (client *ClientWithoutContext) SearchQueries(input *SearchQueriesInput) (*Q
 func (client *ClientWithoutContext) ListMyQueries(input *ListMyQueriesInput) (*QueryPage, error) {
 	return client.withCtx.ListMyQueries(context.Background(), input)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) ListFavoriteQueries(input *ListFavoriteQueriesInput) (*QueryPage, error) {
+	return client.withCtx.ListFavoriteQueries(context.Background(), input)
+}
