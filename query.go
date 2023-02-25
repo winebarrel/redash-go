@@ -338,14 +338,36 @@ func (client *Client) SearchQueries(ctx context.Context, input *SearchQueriesInp
 }
 
 type ListMyQueriesInput struct {
-	OnlyFavorites bool   `url:"only_favorites,omitempty"`
-	Page          int    `url:"page,omitempty"`
-	PageSize      int    `url:"page_size,omitempty"`
-	Q             string `url:"q,omitempty"`
+	Page     int    `url:"page,omitempty"`
+	PageSize int    `url:"page_size,omitempty"`
+	Q        string `url:"q,omitempty"`
 }
 
 func (client *Client) ListMyQueries(ctx context.Context, input *ListMyQueriesInput) (*QueryPage, error) {
 	res, close, err := client.Get(ctx, "api/queries/my", input)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	page := &QueryPage{}
+
+	if err := util.UnmarshalBody(res, &page); err != nil {
+		return nil, err
+	}
+
+	return page, nil
+}
+
+type ListFavoriteQueriesInput struct {
+	Page     int    `url:"page,omitempty"`
+	PageSize int    `url:"page_size,omitempty"`
+	Q        string `url:"q,omitempty"`
+}
+
+func (client *Client) ListFavoriteQueries(ctx context.Context, input *ListFavoriteQueriesInput) (*QueryPage, error) {
+	res, close, err := client.Get(ctx, "api/queries/favorites", input)
 	defer close()
 
 	if err != nil {
