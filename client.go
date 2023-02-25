@@ -10,6 +10,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/winebarrel/redash-go/internal/util"
 )
@@ -31,6 +32,26 @@ type ClientWithoutContext struct {
 
 func NewClient(endpoint string, apiKey string) (*Client, error) {
 	return NewClientWithHTTPClient(endpoint, apiKey, nil)
+}
+
+func MustNewClient(endpoint string, apiKey string) *Client {
+	client, err := NewClient(endpoint, apiKey)
+
+	if err != nil {
+		panic("MustNewClientWithHTTPClient(" + strconv.Quote(endpoint) + `, ...): ` + err.Error())
+	}
+
+	return client
+}
+
+func MustNewClientWithHTTPClient(endpoint string, apiKey string, httpClient *http.Client) *Client {
+	client, err := NewClientWithHTTPClient(endpoint, apiKey, httpClient)
+
+	if err != nil {
+		panic("MustNewClientWithHTTPClient(" + strconv.Quote(endpoint) + `, ...): ` + err.Error())
+	}
+
+	return client
 }
 
 func NewClientWithHTTPClient(endpoint string, apiKey string, httpClient *http.Client) (*Client, error) {
