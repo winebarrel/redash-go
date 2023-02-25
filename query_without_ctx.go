@@ -91,3 +91,8 @@ func (client *ClientWithoutContext) ListFavoriteQueries(input *ListFavoriteQueri
 func (client *ClientWithoutContext) FormatQuery(query string) (*FormatQueryOutput, error) {
 	return client.withCtx.FormatQuery(context.Background(), query)
 }
+
+// Auto-generated
+func (client *ClientWithoutContext) ListRecentQueries() ([]Query, error) {
+	return client.withCtx.ListRecentQueries(context.Background())
+}
