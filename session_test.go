@@ -102,7 +102,7 @@ func Test_GetSession_OK(t *testing.T) {
 	}, res)
 }
 
-func Test_GetSession_Acc(t *testing.T) {
+func Test_Session_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
 	}
