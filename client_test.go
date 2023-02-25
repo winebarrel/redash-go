@@ -34,7 +34,7 @@ func Test_MustNewClient_Err(t *testing.T) {
 
 	defer func() {
 		err := recover()
-		assert.Contains(err, `MustNewClientWithHTTPClient(":redash.example.com", ...):`)
+		assert.Contains(err, `MustNewClient(":redash.example.com", ...):`)
 	}()
 
 	client := redash.MustNewClient(":redash.example.com", testRedashAPIKey)

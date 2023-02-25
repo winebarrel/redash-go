@@ -38,7 +38,7 @@ func MustNewClient(endpoint string, apiKey string) *Client {
 	client, err := NewClient(endpoint, apiKey)
 
 	if err != nil {
-		panic("MustNewClientWithHTTPClient(" + strconv.Quote(endpoint) + `, ...): ` + err.Error())
+		panic("MustNewClient(" + strconv.Quote(endpoint) + `, ...): ` + err.Error())
 	}
 
 	return client
