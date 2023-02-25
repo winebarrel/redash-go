@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-  client := redash.MustNewClient("https://redash.example.com", "<secret>")
+	client := redash.MustNewClient("https://redash.example.com", "<secret>")
 	ctx := context.Background()
 
 	ds, err := client.CreateDataSource(ctx, &redash.CreateDataSourceInput{
