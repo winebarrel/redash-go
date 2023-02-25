@@ -1,7 +1,15 @@
 name: test
 on:
   pull_request:
+    paths-ignore:
+      - .github/dependabot.yml
+      - LICENSE
+      - README.md
   push:
+    paths-ignore:
+      - .github/dependabot.yml
+      - LICENSE
+      - README.md
 jobs:
   test:
     runs-on: ubuntu-latest
