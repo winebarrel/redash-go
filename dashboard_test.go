@@ -581,6 +581,63 @@ func Test_ListFavoriteDashboards_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ShareDashboard_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1/share", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"api_key": "a7f60fafc2bea325bbd69ccc1b2846cb",
+				"public_url": "https://redash.example.com/public/dashboards/a7f60fafc2bea325bbd69ccc1b2846cb?org_slug=default"
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.ShareDashboard(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal(&redash.ShareDashboardOutput{
+		APIKey:    "a7f60fafc2bea325bbd69ccc1b2846cb",
+		PublicURL: "https://redash.example.com/public/dashboards/a7f60fafc2bea325bbd69ccc1b2846cb?org_slug=default",
+	}, res)
+}
+
+func Test_UnshareDashboard_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/dashboards/1/share", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, ``), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.UnshareDashboard(context.Background(), 1)
+	assert.NoError(err)
+}
+
 func Test_Dashboard_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -636,6 +693,13 @@ func Test_Dashboard_Acc(t *testing.T) {
 	page, err = client.ListFavoriteDashboards(context.Background(), &redash.ListFavoriteDashboardsInput{Q: "test-dashboard-2"})
 	assert.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
+
+	share, err := client.ShareDashboard(context.Background(), dashboard.ID)
+	assert.NoError(err)
+	assert.NotEmpty(share.PublicURL)
+
+	err = client.UnshareDashboard(context.Background(), dashboard.ID)
+	assert.NoError(err)
 
 	// NOTE: for v8
 	// err = client.ArchiveDashboard(context.Background(), dashboard.Slug)

@@ -230,3 +230,36 @@ func (client *Client) ListFavoriteDashboards(ctx context.Context, input *ListFav
 
 	return page, nil
 }
+
+type ShareDashboardOutput struct {
+	APIKey    string `json:"api_key"`
+	PublicURL string `json:"public_url"`
+}
+
+func (client *Client) ShareDashboard(ctx context.Context, id int) (*ShareDashboardOutput, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/dashboards/%d/share", id), nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	output := &ShareDashboardOutput{}
+
+	if err := util.UnmarshalBody(res, &output); err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
+
+func (client *Client) UnshareDashboard(ctx context.Context, id int) error {
+	_, close, err := client.Delete(ctx, fmt.Sprintf("api/dashboards/%d/share", id))
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
