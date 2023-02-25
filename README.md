@@ -22,12 +22,7 @@ import (
 )
 
 func main() {
-	client, err := redash.NewClient("https://redash.example.com", "<secret>")
-
-	if err != nil {
-		panic(err)
-	}
-
+  client := redash.MustNewClient("https://redash.example.com", "<secret>")
 	ctx := context.Background()
 
 	ds, err := client.CreateDataSource(ctx, &redash.CreateDataSourceInput{
@@ -92,7 +87,7 @@ func main() {
 ### Set debug mode
 
 ```go
-client, _ := redash.NewClient("https://redash.example.com", "<secret>")
+client := redash.MustNewClient("https://redash.example.com", "<secret>")
 client.Debug = true
 client.GetStatus(context.Background())
 ```
@@ -121,14 +116,14 @@ HTTP/1.1 200 OK
 hc := &http.Client{
   Timeout: 3 * time.Second,
 }
-client, _ := redash.NewClientWithHTTPClient("https://redash.example.com", "<secret>", hc)
+client := redash.MustNewClientWithHTTPClient("https://redash.example.com", "<secret>", hc)
 client.GetStatus(context.Background())
 ```
 
 ### Without context.Context
 
 ```go
-client0, _ := redash.NewClient("https://redash.example.com", "<secret>")
+client0 := redash.MustNewClient("https://redash.example.com", "<secret>")
 client := client0.WithoutContext()
 client.GetStatus()
 ```

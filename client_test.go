@@ -23,6 +23,42 @@ func Test_NewClient_Err(t *testing.T) {
 	assert.ErrorContains(err, `parse ":redash.example.com": missing protocol scheme`)
 }
 
+func Test_MustNewClient_OK(t *testing.T) {
+	assert := assert.New(t)
+	client := redash.MustNewClient("https://redash.example.com", testRedashAPIKey)
+	assert.NotNil(client)
+}
+
+func Test_MustNewClient_Err(t *testing.T) {
+	assert := assert.New(t)
+
+	defer func() {
+		err := recover()
+		assert.Contains(err, `MustNewClientWithHTTPClient(":redash.example.com", ...):`)
+	}()
+
+	client := redash.MustNewClient(":redash.example.com", testRedashAPIKey)
+	assert.NotNil(client)
+}
+
+func Test_MustNewClientWithHTTPClient_OK(t *testing.T) {
+	assert := assert.New(t)
+	client := redash.MustNewClientWithHTTPClient("https://redash.example.com", testRedashAPIKey, &http.Client{})
+	assert.NotNil(client)
+}
+
+func Test_MustNewClientWithHTTPClient_Err(t *testing.T) {
+	assert := assert.New(t)
+
+	defer func() {
+		err := recover()
+		assert.Contains(err, `MustNewClientWithHTTPClient(":redash.example.com", ...):`)
+	}()
+
+	client := redash.MustNewClientWithHTTPClient(":redash.example.com", testRedashAPIKey, &http.Client{})
+	assert.NotNil(client)
+}
+
 func Test_Get_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
