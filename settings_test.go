@@ -160,7 +160,7 @@ func Test_UpdateSettingsOrganization_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, err := client.UpdateSettingsOrganization(context.Background(), &redash.SettingsOrganizationSettings{
+	res, err := client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
 		DateFormat: "YYYY/MM/DD",
 	})
 	assert.NoError(err)
@@ -207,7 +207,7 @@ func Test_Settings_Acc(t *testing.T) {
 	assert.NoError(err)
 	assert.NotEmpty(settings.SettingsOrganizationSettings.DateFormat)
 
-	settings, err = client.UpdateSettingsOrganization(context.Background(), &redash.SettingsOrganizationSettings{
+	settings, err = client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
 		DateFormat: "YYYY/MM/DD",
 	})
 	assert.NoError(err)

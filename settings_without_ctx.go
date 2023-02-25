@@ -10,6 +10,6 @@ func (client *ClientWithoutContext) GetSettingsOrganization() (*SettingsOrganiza
 }
 
 // Auto-generated
-func (client *ClientWithoutContext) UpdateSettingsOrganization(input *SettingsOrganizationSettings) (*SettingsOrganization, error) {
+func (client *ClientWithoutContext) UpdateSettingsOrganization(input *UpdateSettingsOrganizationInput) (*SettingsOrganization, error) {
 	return client.withCtx.UpdateSettingsOrganization(context.Background(), input)
 }
