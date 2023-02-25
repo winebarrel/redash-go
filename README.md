@@ -112,15 +112,7 @@ User-Agent: redash-go
 HTTP/1.1 200 OK
 ...
 
-{
-  "dashboards_count": 0,
-  "database_metrics": {
-    "metrics": [
-      [
-        "Query Results Size",
-        24576
-      ],
-...
+{"dashboards_count": 0, "database_metrics": {"metrics": [ ...
 ```
 
 ### With custom HTTP client
