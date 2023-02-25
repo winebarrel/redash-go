@@ -36,9 +36,10 @@ type Dashboard struct {
 }
 
 type ListDashboardsInput struct {
-	OnlyFavorites bool `url:"only_favorites,omitempty"`
-	Page          int  `url:"page,omitempty"`
-	PageSize      int  `url:"page_size,omitempty"`
+	OnlyFavorites bool   `url:"only_favorites,omitempty"`
+	Page          int    `url:"page,omitempty"`
+	PageSize      int    `url:"page_size,omitempty"`
+	Q             string `url:"q,omitempty"`
 }
 
 func (client *Client) ListDashboards(ctx context.Context, input *ListDashboardsInput) (*DashboardPage, error) {

@@ -91,6 +91,86 @@ func Test_ListDashboards_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_SearchDashboards_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		assert.Equal("page=1&page_size=25&q=name", req.URL.Query().Encode())
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"count": 1,
+				"page": 1,
+				"page_size": 25,
+				"results": [
+					{
+						"created_at": "2023-02-10T01:23:45.000Z",
+						"dashboard_filters_enabled": false,
+						"id": 1,
+						"is_archived": false,
+						"is_draft": false,
+						"is_favorite": false,
+						"layout": [],
+						"name": "name",
+						"slug": "name",
+						"tags": [],
+						"updated_at": "2023-02-10T01:23:45.000Z",
+						"user": {},
+						"user_id": 1,
+						"version": 2,
+						"widgets": null
+					}
+				]
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{
+		OnlyFavorites: false,
+		Page:          1,
+		PageSize:      25,
+		Q:             "name",
+	})
+	assert.NoError(err)
+	assert.Equal(&redash.DashboardPage{
+		Count:    1,
+		Page:     1,
+		PageSize: 25,
+		Results: []redash.Dashboard{
+			{
+				CanEdit:                 false,
+				CreatedAt:               dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+				DashboardFiltersEnabled: false,
+				ID:                      1,
+				IsArchived:              false,
+				IsDraft:                 false,
+				IsFavorite:              false,
+				Layout:                  []any{},
+				Name:                    "name",
+				Slug:                    "name",
+				Tags:                    []string{},
+				UpdatedAt:               dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+				User:                    redash.User{},
+				UserID:                  1,
+				Version:                 2,
+				Widgets:                 nil,
+			},
+		},
+	}, res)
+}
+
 func Test_GetDashboard_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -377,6 +457,10 @@ func Test_Dashboard_Acc(t *testing.T) {
 	tags, err := client.GetDashboardTags(context.Background())
 	assert.NoError(err)
 	assert.GreaterOrEqual(len(tags.Tags), 1)
+
+	dashboards, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{Q: "test-dashboard-2"})
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(dashboards.Results), 1)
 
 	// NOTE: for v8
 	// err = client.CreateFavoriteDashboard(context.Background(), dashboard.Slug)
