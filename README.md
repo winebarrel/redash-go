@@ -128,6 +128,12 @@ client := client0.WithoutContext()
 client.GetStatus()
 ```
 
+### NewClient with error
+
+```go
+client, err := redash.NewClient("https://redash.example.com", "<secret>")
+```
+
 ### **NOTE: Dashboard API parameters are Redash version dependent**
 
 #### v8: slug(string)
