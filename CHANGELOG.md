@@ -9,3 +9,5 @@
 ### Added
 
 - First stable release.
+
+<!-- cf. https://keepachangelog.com/ -->
