@@ -3,11 +3,13 @@ on:
   pull_request:
     paths-ignore:
       - .github/dependabot.yml
+      - CHANGELOG.md
       - LICENSE
       - README.md
   push:
     paths-ignore:
       - .github/dependabot.yml
+      - CHANGELOG.md
       - LICENSE
       - README.md
 jobs:
