@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-- TODO:
+### Changed
+
+- Rename docker-compose.yml to compose.yaml.
 
 ## [1.0.0] - 2023-03-07
 
