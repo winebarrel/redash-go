@@ -9,7 +9,7 @@ require (
 
 require (
 	github.com/google/uuid v1.3.0
-	golang.org/x/tools v0.6.0
+	golang.org/x/tools v0.7.0
 )
 
 require (
