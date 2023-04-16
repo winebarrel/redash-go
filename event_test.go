@@ -97,7 +97,7 @@ func Test_Event_Acc(t *testing.T) {
 		Type: "pg",
 		Options: map[string]any{
 			"dbname": "postgres",
-			"host":   testRedashPgHost,
+			"host":   "postgres",
 			"port":   5432,
 			"user":   "postgres",
 		},
