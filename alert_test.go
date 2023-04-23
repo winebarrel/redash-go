@@ -43,7 +43,9 @@ func Test_ListAlerts_OK(t *testing.T) {
 					"options": {
 						"column": "col",
 						"value": 0,
-						"op": "greater than"
+						"op": "greater than",
+						"custom_subject": "custom_subject",
+						"custom_body": "custom_body"
 					}
 				}
 			]
@@ -60,9 +62,11 @@ func Test_ListAlerts_OK(t *testing.T) {
 			LastTriggeredAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 			Name:            "name",
 			Options: redash.AlertOptions{
-				Column: "col",
-				Value:  0,
-				Op:     "greater than",
+				Column:        "col",
+				Value:         0,
+				Op:            "greater than",
+				CustomSubject: "custom_subject",
+				CustomBody:    "custom_body",
 			},
 			Query:     redash.Query{},
 			Rearm:     1,
@@ -103,7 +107,9 @@ func Test_GetAlert_OK(t *testing.T) {
 				"options": {
 					"column": "col",
 					"value": 0,
-					"op": "greater than"
+					"op": "greater than",
+					"custom_subject": "custom_subject",
+					"custom_body": "custom_body"
 				}
 			}
 		`), nil
@@ -118,9 +124,11 @@ func Test_GetAlert_OK(t *testing.T) {
 		LastTriggeredAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 		Name:            "name",
 		Options: redash.AlertOptions{
-			Column: "col",
-			Value:  0,
-			Op:     "greater than",
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
 		},
 		Query:     redash.Query{},
 		Rearm:     1,
@@ -150,7 +158,7 @@ func Test_CreateAlert_OK(t *testing.T) {
 			assert.FailNow("req.Body is nil")
 		}
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"name":"name","options":{"column":"col","op":"greater than","value":0},"query_id":1,"rearm":1}`, string(body))
+		assert.Equal(`{"name":"name","options":{"column":"col","op":"greater than","value":0,"custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
   		{
 				"user": {},
@@ -165,7 +173,9 @@ func Test_CreateAlert_OK(t *testing.T) {
 				"options": {
 					"column": "col",
 					"value": 0,
-					"op": "greater than"
+					"op": "greater than",
+					"custom_subject": "custom_subject",
+					"custom_body": "custom_body"
 				}
 			}
 		`), nil
@@ -175,9 +185,11 @@ func Test_CreateAlert_OK(t *testing.T) {
 	res, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
 		Name: "name",
 		Options: redash.CreateAlertOptions{
-			Column: "col",
-			Value:  0,
-			Op:     "greater than",
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
 		},
 		QueryId: 1,
 		Rearm:   1,
@@ -189,9 +201,11 @@ func Test_CreateAlert_OK(t *testing.T) {
 		LastTriggeredAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 		Name:            "name",
 		Options: redash.AlertOptions{
-			Column: "col",
-			Value:  0,
-			Op:     "greater than",
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
 		},
 		Query:     redash.Query{},
 		Rearm:     1,
@@ -221,7 +235,7 @@ func Test_UpdateAlert_OK(t *testing.T) {
 			assert.FailNow("req.Body is nil")
 		}
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"name":"name","options":{"column":"col","value":0,"op":"greater than"},"query_id":1,"rearm":1}`, string(body))
+		assert.Equal(`{"name":"name","options":{"column":"col","value":0,"op":"greater than","custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
   		{
 				"user": {},
@@ -236,7 +250,9 @@ func Test_UpdateAlert_OK(t *testing.T) {
 				"options": {
 					"column": "col",
 					"value": 0,
-					"op": "greater than"
+					"op": "greater than",
+					"custom_subject": "custom_subject",
+					"custom_body": "custom_body"
 				}
 			}
 		`), nil
@@ -246,9 +262,11 @@ func Test_UpdateAlert_OK(t *testing.T) {
 	res, err := client.UpdateAlert(context.Background(), 1, &redash.UpdateAlertInput{
 		Name: "name",
 		Options: &redash.UpdateAlertOptions{
-			Column: "col",
-			Value:  0,
-			Op:     "greater than",
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
 		},
 		QueryId: 1,
 		Rearm:   1,
@@ -260,9 +278,11 @@ func Test_UpdateAlert_OK(t *testing.T) {
 		LastTriggeredAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 		Name:            "name",
 		Options: redash.AlertOptions{
-			Column: "col",
-			Value:  0,
-			Op:     "greater than",
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
 		},
 		Query:     redash.Query{},
 		Rearm:     1,
@@ -514,9 +534,11 @@ func Test_Alert_Acc(t *testing.T) {
 	alert, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
 		Name: "test-alert-1",
 		Options: redash.CreateAlertOptions{
-			Column: "col",
-			Op:     "greater than",
-			Value:  0,
+			Column:        "col",
+			Op:            "greater than",
+			Value:         1,
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
 		},
 		QueryId: query.ID,
 		Rearm:   0,
@@ -527,12 +549,38 @@ func Test_Alert_Acc(t *testing.T) {
 	alert, err = client.GetAlert(context.Background(), alert.ID)
 	assert.NoError(err)
 	assert.Equal("test-alert-1", alert.Name)
+	assert.Equal("col", alert.Options.Column)
+	assert.Equal("greater than", alert.Options.Op)
+	assert.Equal(1, alert.Options.Value)
+	assert.Equal("custom_subject", alert.Options.CustomSubject)
+	assert.Equal("custom_body", alert.Options.CustomBody)
 
 	alert, err = client.UpdateAlert(context.Background(), alert.ID, &redash.UpdateAlertInput{
 		Name: "test-alert-2",
 	})
 	assert.NoError(err)
 	assert.Equal("test-alert-2", alert.Name)
+	assert.Equal("col", alert.Options.Column)
+	assert.Equal("greater than", alert.Options.Op)
+	assert.Equal(1, alert.Options.Value)
+	assert.Equal("custom_subject", alert.Options.CustomSubject)
+	assert.Equal("custom_body", alert.Options.CustomBody)
+
+	alert, err = client.UpdateAlert(context.Background(), alert.ID, &redash.UpdateAlertInput{
+		Name: "test-alert-3",
+		Options: &redash.UpdateAlertOptions{
+			Column: "col",
+			Op:     "greater than",
+			Value:  2,
+		},
+	})
+	assert.NoError(err)
+	assert.Equal("test-alert-3", alert.Name)
+	assert.Equal("col", alert.Options.Column)
+	assert.Equal("greater than", alert.Options.Op)
+	assert.Equal(2, alert.Options.Value)
+	assert.Empty(alert.Options.CustomSubject)
+	assert.Empty(alert.Options.CustomBody)
 
 	_, err = client.ListAlertSubscriptions(context.Background(), alert.ID)
 	assert.NoError(err)
