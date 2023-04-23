@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.2] - 2023-04-23
+
+* Add `AlertOptions.Muted`.
+
 ## [1.1.1] - 2023-04-23
 
 * Remove "omitempty" from `UpdateAlertInput.Rearm`.

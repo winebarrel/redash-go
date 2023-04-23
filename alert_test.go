@@ -109,7 +109,8 @@ func Test_GetAlert_OK(t *testing.T) {
 					"value": 0,
 					"op": "greater than",
 					"custom_subject": "custom_subject",
-					"custom_body": "custom_body"
+					"custom_body": "custom_body",
+					"muted": true
 				}
 			}
 		`), nil
@@ -129,6 +130,7 @@ func Test_GetAlert_OK(t *testing.T) {
 			Op:            "greater than",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
+			Muted:         true,
 		},
 		Query:     redash.Query{},
 		Rearm:     1,
@@ -555,6 +557,7 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal(1, alert.Options.Value)
 	assert.Equal("custom_subject", alert.Options.CustomSubject)
 	assert.Equal("custom_body", alert.Options.CustomBody)
+	assert.False(alert.Options.Muted)
 
 	alert, err = client.UpdateAlert(context.Background(), alert.ID, &redash.UpdateAlertInput{
 		Name: "test-alert-2",
@@ -600,9 +603,15 @@ func Test_Alert_Acc(t *testing.T) {
 
 	err = client.MuteAlert(context.Background(), alert.ID)
 	assert.NoError(err)
+	alert, err = client.GetAlert(context.Background(), alert.ID)
+	assert.NoError(err)
+	assert.True(alert.Options.Muted)
 
 	err = client.UnmuteAlert(context.Background(), alert.ID)
 	assert.NoError(err)
+	alert, err = client.GetAlert(context.Background(), alert.ID)
+	assert.NoError(err)
+	assert.False(alert.Options.Muted)
 
 	err = client.DeleteAlert(context.Background(), alert.ID)
 	assert.NoError(err)
