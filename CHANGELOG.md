@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.1.0] - 2023-04-23
+
+### Changed
+
+- Support alert template fields.
+
 ## [1.0.1] - 2023-04-16
 
 ### Changed
