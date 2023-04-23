@@ -26,10 +26,11 @@ type AlertOptions struct {
 	Column        string `json:"column"`
 	Op            string `json:"op"`
 	Value         int    `json:"value"`
-	CustomSubject string `json:"custom_subject,omitempty"`
-	CustomBody    string `json:"custom_body,omitempty"`
+	CustomSubject string `json:"custom_subject"`
+	CustomBody    string `json:"custom_body"`
 	// Deprecated: for backward compatibility
-	Template string `json:"template,omitempty"`
+	Template string `json:"template"`
+	Muted    bool   `json:"muted"`
 }
 
 type AlertSubscription struct {
