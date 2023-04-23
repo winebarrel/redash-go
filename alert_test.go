@@ -549,6 +549,7 @@ func Test_Alert_Acc(t *testing.T) {
 	alert, err = client.GetAlert(context.Background(), alert.ID)
 	assert.NoError(err)
 	assert.Equal("test-alert-1", alert.Name)
+	assert.Equal(0, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
 	assert.Equal(1, alert.Options.Value)
@@ -560,6 +561,7 @@ func Test_Alert_Acc(t *testing.T) {
 	})
 	assert.NoError(err)
 	assert.Equal("test-alert-2", alert.Name)
+	assert.Equal(0, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
 	assert.Equal(1, alert.Options.Value)
@@ -567,7 +569,8 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal("custom_body", alert.Options.CustomBody)
 
 	alert, err = client.UpdateAlert(context.Background(), alert.ID, &redash.UpdateAlertInput{
-		Name: "test-alert-3",
+		Name:  "test-alert-3",
+		Rearm: 300,
 		Options: &redash.UpdateAlertOptions{
 			Column: "col",
 			Op:     "greater than",
@@ -576,11 +579,21 @@ func Test_Alert_Acc(t *testing.T) {
 	})
 	assert.NoError(err)
 	assert.Equal("test-alert-3", alert.Name)
+	assert.Equal(300, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
 	assert.Equal(2, alert.Options.Value)
 	assert.Empty(alert.Options.CustomSubject)
 	assert.Empty(alert.Options.CustomBody)
+
+	alert, err = client.UpdateAlert(context.Background(), alert.ID, &redash.UpdateAlertInput{
+		Name:  "test-alert-3",
+		Rearm: 0,
+	})
+
+	assert.NoError(err)
+	assert.Equal("test-alert-3", alert.Name)
+	assert.Equal(0, alert.Rearm)
 
 	_, err = client.ListAlertSubscriptions(context.Background(), alert.ID)
 	assert.NoError(err)
