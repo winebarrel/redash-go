@@ -111,7 +111,7 @@ type UpdateAlertInput struct {
 	Name    string              `json:"name,omitempty"`
 	Options *UpdateAlertOptions `json:"options,omitempty"`
 	QueryId int                 `json:"query_id,omitempty"`
-	Rearm   int                 `json:"rearm,omitempty"`
+	Rearm   int                 `json:"rearm"`
 }
 
 type UpdateAlertOptions struct {

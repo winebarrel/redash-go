@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2023-04-23
+
+* Remove "omitempty" from `UpdateAlertInput.Rearm`.
+
 ## [1.1.0] - 2023-04-23
 
 ### Changed
