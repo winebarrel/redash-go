@@ -1,4 +1,4 @@
-// Code generated from job.go using internal/gen/withoutctx.go; DO NOT EDIT.
+// Code generated from job.go using tools/withoutctx.go; DO NOT EDIT.
 
 package redash
 

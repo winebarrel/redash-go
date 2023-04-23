@@ -2,11 +2,19 @@
 
 ## [Unreleased]
 
+### Changed
+
+* Change generator tool path.
+
 ## [1.1.2] - 2023-04-23
+
+### Changed
 
 * Add `AlertOptions.Muted`.
 
 ## [1.1.1] - 2023-04-23
+
+### Changed
 
 * Remove "omitempty" from `UpdateAlertInput.Rearm`.
 

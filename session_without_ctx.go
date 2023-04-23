@@ -1,4 +1,4 @@
-// Code generated from session.go using internal/gen/withoutctx.go; DO NOT EDIT.
+// Code generated from session.go using tools/withoutctx.go; DO NOT EDIT.
 
 package redash
 
