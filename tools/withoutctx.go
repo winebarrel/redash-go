@@ -1,3 +1,5 @@
+//go:build tools
+
 package main
 
 import (
@@ -124,6 +126,6 @@ func main() {
 	}
 
 	defer dst.Close()
-	fmt.Fprintf(dst, "// Code generated from %s using internal/gen/withoutctx.go; DO NOT EDIT.\n\n", filename)
+	fmt.Fprintf(dst, "// Code generated from %s using tools/withoutctx.go; DO NOT EDIT.\n\n", filename)
 	fmt.Fprintln(dst, string(bytes.TrimSpace(src)))
 }

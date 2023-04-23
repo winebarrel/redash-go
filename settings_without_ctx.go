@@ -1,4 +1,4 @@
-// Code generated from settings.go using internal/gen/withoutctx.go; DO NOT EDIT.
+// Code generated from settings.go using tools/withoutctx.go; DO NOT EDIT.
 
 package redash
 

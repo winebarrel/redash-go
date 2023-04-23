@@ -1,4 +1,4 @@
-//go:generate go run internal/gen/withoutctx.go
+//go:generate go run tools/withoutctx.go
 package redash
 
 import (

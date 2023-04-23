@@ -1,4 +1,4 @@
-// Code generated from alert.go using internal/gen/withoutctx.go; DO NOT EDIT.
+// Code generated from alert.go using tools/withoutctx.go; DO NOT EDIT.
 
 package redash
 

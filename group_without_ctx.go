@@ -1,4 +1,4 @@
-// Code generated from group.go using internal/gen/withoutctx.go; DO NOT EDIT.
+// Code generated from group.go using tools/withoutctx.go; DO NOT EDIT.
 
 package redash
 
