@@ -23,9 +23,13 @@ type Alert struct {
 }
 
 type AlertOptions struct {
-	Column string `json:"column"`
-	Op     string `json:"op"`
-	Value  int    `json:"value"`
+	Column        string `json:"column"`
+	Op            string `json:"op"`
+	Value         int    `json:"value"`
+	CustomSubject string `json:"custom_subject,omitempty"`
+	CustomBody    string `json:"custom_body,omitempty"`
+	// Deprecated: for backward compatibility
+	Template string `json:"template,omitempty"`
 }
 
 type AlertSubscription struct {
@@ -77,9 +81,13 @@ type CreateAlertInput struct {
 }
 
 type CreateAlertOptions struct {
-	Column string `json:"column"`
-	Op     string `json:"op"`
-	Value  int    `json:"value"`
+	Column        string `json:"column"`
+	Op            string `json:"op"`
+	Value         int    `json:"value"`
+	CustomSubject string `json:"custom_subject,omitempty"`
+	CustomBody    string `json:"custom_body,omitempty"`
+	// Deprecated: for backward compatibility
+	Template string `json:"template,omitempty"`
 }
 
 func (client *Client) CreateAlert(ctx context.Context, input *CreateAlertInput) (*Alert, error) {
@@ -107,9 +115,13 @@ type UpdateAlertInput struct {
 }
 
 type UpdateAlertOptions struct {
-	Column string `json:"column"`
-	Value  int    `json:"value"`
-	Op     string `json:"op"`
+	Column        string `json:"column"`
+	Value         int    `json:"value"`
+	Op            string `json:"op"`
+	CustomSubject string `json:"custom_subject,omitempty"`
+	CustomBody    string `json:"custom_body,omitempty"`
+	// Deprecated: for backward compatibility
+	Template string `json:"template,omitempty"`
 }
 
 func (client *Client) UpdateAlert(ctx context.Context, id int, input *UpdateAlertInput) (*Alert, error) {
