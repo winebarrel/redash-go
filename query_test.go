@@ -481,7 +481,7 @@ func Test_UpdateQuery_OK(t *testing.T) {
 			assert.FailNow("req.Body is nil")
 		}
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":{"interval":60,"time":null,"until":null,"day_of_week":null},"tags":null}`, string(body))
+		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":{"interval":60,"time":null,"until":null,"day_of_week":null}}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
 			{
 				"api_key": "api_key",
@@ -537,6 +537,120 @@ func Test_UpdateQuery_OK(t *testing.T) {
 			Interval: 60,
 		},
 	})
+	assert.NoError(err)
+	assert.Equal(&redash.Query{
+		APIKey:            "api_key",
+		CanEdit:           true,
+		CreatedAt:         dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+		DataSourceID:      1,
+		Description:       "description",
+		ID:                1,
+		IsArchived:        false,
+		IsDraft:           false,
+		IsFavorite:        false,
+		IsSafe:            true,
+		LastModifiedBy:    &redash.User{},
+		LastModifiedByID:  0,
+		LatestQueryDataID: 1,
+		Name:              "my-query",
+		Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+		Query:             "select 1",
+		QueryHash:         "query_hash",
+		RetrievedAt:       time.Time{},
+		Runtime:           0,
+		Schedule: &redash.QueueSchedule{
+			DayOfWeek: "",
+			Interval:  60,
+			Time:      "",
+			Until:     "2023-02-11",
+		},
+		Tags:      []string{},
+		UpdatedAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+		User:      redash.User{},
+		Version:   1,
+		Visualizations: []redash.Visualization{
+			{
+				CreatedAt:   dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+				Description: "description",
+				ID:          1,
+				Name:        "Table",
+				Options:     map[string]any{},
+				Query:       redash.Query{},
+				Type:        "TABLE",
+				UpdatedAt:   dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+			},
+		},
+	}, res)
+}
+
+func Test_RemoveQueryTags_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"tags":[]}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"api_key": "api_key",
+				"can_edit": true,
+				"created_at": "2023-02-10T01:23:45.000Z",
+				"data_source_id": 1,
+				"description": "description",
+				"id": 1,
+				"is_archived": false,
+				"is_draft": false,
+				"is_favorite": false,
+				"is_safe": true,
+				"last_modified_by": {},
+				"latest_query_data_id": 1,
+				"name": "my-query",
+				"options": {
+					"parameters": []
+				},
+				"query": "select 1",
+				"query_hash": "query_hash",
+				"schedule": {
+					"day_of_week": null,
+					"interval": 60,
+					"time": null,
+					"until": "2023-02-11"
+				},
+				"tags": [],
+				"updated_at": "2023-02-10T01:23:45.000Z",
+				"user": {},
+				"version": 1,
+				"visualizations": [
+					{
+						"created_at": "2023-02-10T01:23:45.000Z",
+						"description": "description",
+						"id": 1,
+						"name": "Table",
+						"options": {},
+						"type": "TABLE",
+						"updated_at": "2023-02-10T01:23:45.000Z"
+					}
+				]
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.RemoveQueryTags(context.Background(), 1)
 	assert.NoError(err)
 	assert.Equal(&redash.Query{
 		APIKey:            "api_key",
@@ -1525,13 +1639,22 @@ func Test_Query_Acc(t *testing.T) {
 		Schedule: &redash.UpdateQueryInputSchedule{
 			Interval: 600,
 		},
-		Tags: []string{},
 	})
 	assert.NoError(err)
 	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
-	assert.Equal([]string{}, query.Tags)
+	assert.Equal([]string{"my-tag-2"}, query.Tags)
 
 	tags, err := client.GetQueryTags(context.Background())
+	assert.NoError(err)
+	assert.GreaterOrEqual(len(tags.Tags), 1)
+
+	query, err = client.RemoveQueryTags(context.Background(), query.ID)
+	assert.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
+	assert.Equal([]string{}, query.Tags)
+
+	tags, err = client.GetQueryTags(context.Background())
 	assert.NoError(err)
 	assert.GreaterOrEqual(len(tags.Tags), 0)
 

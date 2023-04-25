@@ -4,6 +4,12 @@
 
 * N/A
 
+## [1.3.0] - 2023-04-25
+
+### Added
+
+* Add `Client.RemoveQueryTags()`.
+
 ## [1.2.1] - 2023-04-25
 
 ### Changed
