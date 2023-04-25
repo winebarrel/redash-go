@@ -481,7 +481,7 @@ func Test_UpdateQuery_OK(t *testing.T) {
 			assert.FailNow("req.Body is nil")
 		}
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":{"interval":60,"time":null,"until":null,"day_of_week":null}}`, string(body))
+		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":{"interval":60,"time":null,"until":null,"day_of_week":null},"tags":null}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
 			{
 				"api_key": "api_key",
@@ -1521,9 +1521,19 @@ func Test_Query_Acc(t *testing.T) {
 	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
 	assert.Equal([]string{"my-tag-2"}, query.Tags)
 
+	query, err = client.UpdateQuery(context.Background(), query.ID, &redash.UpdateQueryInput{
+		Schedule: &redash.UpdateQueryInputSchedule{
+			Interval: 600,
+		},
+		Tags: []string{},
+	})
+	assert.NoError(err)
+	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
+	assert.Equal([]string{}, query.Tags)
+
 	tags, err := client.GetQueryTags(context.Background())
 	assert.NoError(err)
-	assert.GreaterOrEqual(len(tags.Tags), 1)
+	assert.GreaterOrEqual(len(tags.Tags), 0)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
 	assert.NoError(err)
