@@ -7,6 +7,8 @@ on:
       - LICENSE
       - README.md
   push:
+    branches:
+      - main
     paths-ignore:
       - .github/dependabot.yml
       - CHANGELOG.md
