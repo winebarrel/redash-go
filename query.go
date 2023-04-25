@@ -173,7 +173,7 @@ type UpdateQueryInput struct {
 	Options      *UpdateQueryInputOptions  `json:"options,omitempty"`
 	Query        string                    `json:"query,omitempty"`
 	Schedule     *UpdateQueryInputSchedule `json:"schedule,omitempty"`
-	Tags         []string                  `json:"tags"`
+	Tags         []string                  `json:"tags,omitempty"`
 }
 
 type UpdateQueryInputOptions struct {
@@ -189,6 +189,23 @@ type UpdateQueryInputSchedule struct {
 
 func (client *Client) UpdateQuery(ctx context.Context, id int, input *UpdateQueryInput) (*Query, error) {
 	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	query := &Query{}
+
+	if err := util.UnmarshalBody(res, &query); err != nil {
+		return nil, err
+	}
+
+	return query, nil
+}
+
+func (client *Client) RemoveQueryTags(ctx context.Context, id int) (*Query, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), map[string]any{"tags": []string{}})
 	defer close()
 
 	if err != nil {
