@@ -23,7 +23,7 @@ gen:
 
 .PHONY: redash-setup
 redash-setup:
-	psql -U postgres -h localhost -p 15432 -f _etc/redash.sql
+	psql -U postgres -h localhost -p 15432 -f etc/redash.sql
 
 .PHONY: redash-create-db
 redash-create-db:
