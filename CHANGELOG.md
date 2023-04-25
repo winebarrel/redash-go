@@ -2,9 +2,16 @@
 
 ## [Unreleased]
 
-### Changed
+* N/A
+
+## [1.2.0] - 2023-04-25
+
+### Added
 
 * Add `Client.UpdateUser()`.
+
+### Changed
+
 * Change generator tool path.
 
 ## [1.1.2] - 2023-04-23
