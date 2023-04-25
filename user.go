@@ -95,6 +95,28 @@ func (client *Client) CreateUser(ctx context.Context, input *CreateUsersInput) (
 	return user, nil
 }
 
+type UpdateUserInput struct {
+	Email string `json:"email,omitempty"`
+	Name  string `json:"name,omitempty"`
+}
+
+func (client *Client) UpdateUser(ctx context.Context, id int, input *UpdateUserInput) (*User, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/users/%d", id), input)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+
+	if err := util.UnmarshalBody(res, &user); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (client *Client) DeleteUser(ctx context.Context, id int) error {
 	_, close, err := client.Delete(ctx, fmt.Sprintf("api/users/%d", id))
 	defer close()

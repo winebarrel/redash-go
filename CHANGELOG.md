@@ -4,6 +4,7 @@
 
 ### Changed
 
+* Add `Client.UpdateUser()`.
 * Change generator tool path.
 
 ## [1.1.2] - 2023-04-23

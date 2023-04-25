@@ -20,6 +20,11 @@ func (client *ClientWithoutContext) CreateUser(input *CreateUsersInput) (*User, 
 }
 
 // Auto-generated
+func (client *ClientWithoutContext) UpdateUser(id int, input *UpdateUserInput) (*User, error) {
+	return client.withCtx.UpdateUser(context.Background(), id, input)
+}
+
+// Auto-generated
 func (client *ClientWithoutContext) DeleteUser(id int) error {
 	return client.withCtx.DeleteUser(context.Background(), id)
 }
