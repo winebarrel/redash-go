@@ -173,7 +173,7 @@ type UpdateQueryInput struct {
 	Options      *UpdateQueryInputOptions  `json:"options,omitempty"`
 	Query        string                    `json:"query,omitempty"`
 	Schedule     *UpdateQueryInputSchedule `json:"schedule,omitempty"`
-	Tags         []string                  `json:"tags,omitempty"`
+	Tags         []string                  `json:"tags"`
 }
 
 type UpdateQueryInputOptions struct {

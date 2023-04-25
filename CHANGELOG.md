@@ -4,6 +4,12 @@
 
 * N/A
 
+## [1.2.1] - 2023-04-25
+
+### Changed
+
+* Remove "omitempty" from `UpdateQueryInput.Tags`.
+
 ## [1.2.0] - 2023-04-25
 
 ### Added
