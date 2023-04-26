@@ -8,7 +8,7 @@
 
 ### Added
 
-* Change UpdateInput.Tags type. (`[]string` -> `*[]string`)
+* Change `UpdateInput.Tags` type. (`[]string` -> `*[]string`)
 * Remove `Client.RemoveQueryTags()`.
 
 ## [1.3.0] - 2023-04-25
