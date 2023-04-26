@@ -38,11 +38,6 @@ func (client *ClientWithoutContext) UpdateQuery(id int, input *UpdateQueryInput)
 }
 
 // Auto-generated
-func (client *ClientWithoutContext) RemoveQueryTags(id int) (*Query, error) {
-	return client.withCtx.RemoveQueryTags(context.Background(), id)
-}
-
-// Auto-generated
 func (client *ClientWithoutContext) ArchiveQuery(id int) error {
 	return client.withCtx.ArchiveQuery(context.Background(), id)
 }

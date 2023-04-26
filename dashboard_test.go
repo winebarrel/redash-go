@@ -375,7 +375,7 @@ func Test_UpdateDashboard_OK(t *testing.T) {
 		Layout:                  []any{},
 		Name:                    "name",
 		Options:                 nil,
-		Tags:                    []string{"foo", "bar"},
+		Tags:                    &[]string{"foo", "bar"},
 		Version:                 1,
 	})
 	assert.NoError(err)
@@ -662,7 +662,7 @@ func Test_Dashboard_Acc(t *testing.T) {
 
 	dashboard, err = client.UpdateDashboard(context.Background(), dashboard.ID, &redash.UpdateDashboardInput{
 		Name:    "test-dashboard-2",
-		Tags:    []string{"foo"},
+		Tags:    &[]string{"foo"},
 		Version: 0,
 	})
 	assert.NoError(err)
