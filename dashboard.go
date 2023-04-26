@@ -117,14 +117,14 @@ func (client *Client) CreateDashboard(ctx context.Context, input *CreateDashboar
 }
 
 type UpdateDashboardInput struct {
-	DashboardFiltersEnabled bool     `json:"dashboard_filters_enabled,omitempty"`
-	IsArchived              bool     `json:"is_archived,omitempty"`
-	IsDraft                 bool     `json:"is_draft,omitempty"`
-	Layout                  []any    `json:"layout,omitempty"`
-	Name                    string   `json:"name,omitempty"`
-	Options                 any      `json:"options,omitempty"`
-	Tags                    []string `json:"tags,omitempty"`
-	Version                 int      `json:"version,omitempty"`
+	DashboardFiltersEnabled bool      `json:"dashboard_filters_enabled,omitempty"`
+	IsArchived              bool      `json:"is_archived,omitempty"`
+	IsDraft                 bool      `json:"is_draft,omitempty"`
+	Layout                  []any     `json:"layout,omitempty"`
+	Name                    string    `json:"name,omitempty"`
+	Options                 any       `json:"options,omitempty"`
+	Tags                    *[]string `json:"tags,omitempty"`
+	Version                 int       `json:"version,omitempty"`
 }
 
 func (client *Client) UpdateDashboard(ctx context.Context, id int, input *UpdateDashboardInput) (*Dashboard, error) {
