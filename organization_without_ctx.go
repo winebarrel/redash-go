@@ -4,7 +4,6 @@ package redash
 
 import "context"
 
-// Auto-generated
 func (client *ClientWithoutContext) GetOrganizationStatus() (*OrganizationStatus, error) {
 	return client.withCtx.GetOrganizationStatus(context.Background())
 }

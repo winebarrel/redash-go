@@ -4,7 +4,6 @@ package redash
 
 import "context"
 
-// Auto-generated
 func (client *ClientWithoutContext) GetStatus() (*Status, error) {
 	return client.withCtx.GetStatus(context.Background())
 }
