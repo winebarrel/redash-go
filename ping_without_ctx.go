@@ -4,5 +4,4 @@ package redash
 
 import "context"
 
-// Auto-generated
 func (client *ClientWithoutContext) Ping() error { return client.withCtx.Ping(context.Background()) }

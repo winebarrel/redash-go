@@ -11,7 +11,6 @@ import (
 	"go/token"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 
 	"golang.org/x/tools/imports"
@@ -112,7 +111,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	src = regexp.MustCompile(`(?m)^func `).ReplaceAll(src, []byte("\n// Auto-generated\nfunc "))
 	src, err = format.Source(src)
 
 	if err != nil {
