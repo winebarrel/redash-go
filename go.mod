@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	golang.org/x/tools v0.12.0
 )
 
