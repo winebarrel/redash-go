@@ -3,7 +3,7 @@ module github.com/winebarrel/redash-go
 go 1.20
 
 require (
-	github.com/jarcoal/httpmock v1.3.0
+	github.com/jarcoal/httpmock v1.3.1
 	github.com/stretchr/testify v1.8.4
 )
 
