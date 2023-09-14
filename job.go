@@ -16,7 +16,7 @@ type Job struct {
 	Error         string `json:"error"`
 	ID            string `json:"id"`
 	QueryResultID int    `json:"query_result_id"`
-	Status        int    `json:"status"`
+	Status        int    `json:"status"` // see https://redash.io/help/user-guide/integrations-and-api/api#Jobs
 	UpdatedAt     any    `json:"updated_at"`
 }
 
