@@ -4,6 +4,16 @@
 
 * N/A
 
+## [1.4.1] - 2023-09-14
+
+### Added
+
+* Add job status constants.
+
+### Changed
+
+* Update modules.
+
 ## [1.4.0] - 2023-04-25
 
 ### Added
