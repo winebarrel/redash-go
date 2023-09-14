@@ -1592,8 +1592,8 @@ func Test_Query_Acc(t *testing.T) {
 			job, err := client.GetJob(context.Background(), job.Job.ID)
 			assert.NoError(err)
 
-			if job.Job.Status >= 3 {
-				assert.Equal(3, job.Job.Status)
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
 				buf = bytes.Buffer{}
 				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
 				assert.NoError(err)
@@ -1622,8 +1622,8 @@ func Test_Query_Acc(t *testing.T) {
 			job, err := client.GetJob(context.Background(), job.Job.ID)
 			assert.NoError(err)
 
-			if job.Job.Status >= 3 {
-				assert.Equal(3, job.Job.Status)
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
 				buf = bytes.Buffer{}
 				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
 				assert.NoError(err)

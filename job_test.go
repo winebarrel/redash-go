@@ -47,7 +47,7 @@ func Test_GetJob_OK(t *testing.T) {
 			Error:         "",
 			ID:            "623b290a-7fd9-4ea6-a2a6-96f9c9101f51",
 			QueryResultID: 1,
-			Status:        3,
+			Status:        redash.JobStatusSuccess,
 			UpdatedAt:     float64(0),
 		},
 	}, res)
