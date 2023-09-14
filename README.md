@@ -65,8 +65,7 @@ func main() {
 				panic(err)
 			}
 
-			// see https://redash.io/help/user-guide/integrations-and-api/api#Jobs
-			if job.Job.Status >= 3 {
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
 				buf = bytes.Buffer{}
 				err := client.GetQueryResultsJSON(ctx, query.ID, &buf)
 

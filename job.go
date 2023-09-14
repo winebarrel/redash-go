@@ -8,6 +8,15 @@ import (
 	"github.com/winebarrel/redash-go/internal/util"
 )
 
+const (
+	// see https://redash.io/help/user-guide/integrations-and-api/api#Jobs
+	JobStatusPending   = 1
+	JobStatusStarted   = 2
+	JobStatusSuccess   = 3
+	JobStatusFailure   = 4
+	JobStatusCancelled = 5
+)
+
 type JobResponse struct {
 	Job Job `json:"job"`
 }
@@ -16,7 +25,7 @@ type Job struct {
 	Error         string `json:"error"`
 	ID            string `json:"id"`
 	QueryResultID int    `json:"query_result_id"`
-	Status        int    `json:"status"` // see https://redash.io/help/user-guide/integrations-and-api/api#Jobs
+	Status        int    `json:"status"`
 	UpdatedAt     any    `json:"updated_at"`
 }
 
