@@ -5,7 +5,10 @@
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/winebarrel/redash-go)](https://github.com/winebarrel/redash-go/tags)
 [![Go Report Card](https://goreportcard.com/badge/github.com/winebarrel/redash-go)](https://goreportcard.com/report/github.com/winebarrel/redash-go)
 
+## Overview
+
 Redash API client in Go.
+Supports almost all Redash APIs.
 
 ## Usage
 
