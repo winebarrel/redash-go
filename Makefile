@@ -25,6 +25,14 @@ gen:
 redash-setup:
 	psql -U postgres -h localhost -p 15432 -f etc/redash.sql
 
+.PHONY: redash-upgrade-db
+redash-upgrade-db:
+	docker compose run --rm server manage db upgrade
+
 .PHONY: redash-create-db
 redash-create-db:
 	docker compose run --rm server create_db
+
+.PHONY: pg-dump
+pg-dump:
+	pg_dump -U postgres -h localhost -p 15432  -c --if-exists  > etc/redash.sql

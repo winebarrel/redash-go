@@ -7,6 +7,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -59,9 +60,10 @@ func Test_GetOrganizationStatus_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	status, err := client.GetOrganizationStatus(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.NotNil(status)
 }

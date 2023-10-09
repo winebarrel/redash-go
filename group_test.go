@@ -10,6 +10,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -485,6 +486,7 @@ func Test_Group_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	_, err := client.ListGroups(context.Background())
@@ -493,21 +495,21 @@ func Test_Group_Acc(t *testing.T) {
 	group, err := client.CreateGroup(context.Background(), &redash.CreateGroupInput{
 		Name: "test-group-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-group-1", group.Name)
 
 	group, err = client.GetGroup(context.Background(), group.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-group-1", group.Name)
 
 	_, err = client.ListGroupMembers(context.Background(), group.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.ListGroupDataSources(context.Background(), group.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	err = client.DeleteGroup(context.Background(), group.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.GetGroup(context.Background(), group.ID)
 	assert.Error(err)

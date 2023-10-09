@@ -8,6 +8,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -273,6 +274,7 @@ func Test_Destination_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	_, err := client.ListDestinations(context.Background())
@@ -285,20 +287,20 @@ func Test_Destination_Acc(t *testing.T) {
 		},
 		Type: "email",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-dest-1", dest.Name)
 
 	dest, err = client.GetDestination(context.Background(), dest.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-dest-1", dest.Name)
 
 	err = client.DeleteDestination(context.Background(), dest.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.GetDestination(context.Background(), dest.ID)
 	assert.Error(err)
 
 	types, err := client.GetDestinationTypes(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(types), 1)
 }

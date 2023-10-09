@@ -9,6 +9,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -71,6 +72,7 @@ func Test_Visualization_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
 		Name: "test-postgres-1",
@@ -82,9 +84,7 @@ func Test_Visualization_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
+	require.NoError(err)
 
 	defer func() {
 		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
@@ -109,7 +109,7 @@ func Test_Visualization_Acc(t *testing.T) {
 		Name:        "test-viz-1",
 		Description: "test-viz-1-desc",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-viz-1", viz.Name)
 	assert.Equal("test-viz-1-desc", viz.Description)
 }

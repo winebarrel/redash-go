@@ -11,7 +11,8 @@ x-redash-environment: &redash-environment
 
 services:
   server:
-    image: redash/redash:10.1.0.b50633
+    platform: linux/amd64
+    image: redash/preview:23.10.0-dev.b6504204176.1088
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,14 +25,16 @@ services:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   scheduler:
-    image: redash/redash:10.1.0.b50633
+    platform: linux/amd64
+    image: redash/preview:23.10.0-dev.b6504204176.1088
     command: scheduler
     depends_on:
       - server
     environment:
       <<: *redash-environment
   worker:
-    image: redash/redash:10.1.0.b50633
+    platform: linux/amd64
+    image: redash/preview:23.10.0-dev.b6504204176.1088
     command: worker
     depends_on:
       - server
@@ -39,10 +42,10 @@ services:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   redis:
-    image: redis:3-alpine
+    image: redis:7-alpine
     restart: unless-stopped
   postgres:
-    image: postgres:9.5-alpine
+    image: pgautoupgrade/pgautoupgrade:15-alpine3.8
     ports:
       - "15432:5432"
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
@@ -55,7 +58,7 @@ services:
       timeout: 1s
       retries: 10
   email:
-    image: djfarrelly/maildev
+    image: maildev/maildev
     ports:
       - "1080:80"
     restart: unless-stopped
