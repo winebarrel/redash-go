@@ -490,7 +490,7 @@ func Test_Group_Acc(t *testing.T) {
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	_, err := client.ListGroups(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 
 	group, err := client.CreateGroup(context.Background(), &redash.CreateGroupInput{
 		Name: "test-group-1",
