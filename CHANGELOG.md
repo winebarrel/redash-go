@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+* N/A
+
+## [2.0.0] - 2023-10-14
+
+### Removed
+
 * Drop v8 support.
 
 ## [1.4.1] - 2023-09-14
