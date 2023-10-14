@@ -7,8 +7,7 @@
 
 ## Overview
 
-Redash API client for Go.
-Supports almost all Redash APIs.
+Redash API client for Go that supports almost all APIs.
 
 ## Usage
 
