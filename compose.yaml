@@ -1,3 +1,7 @@
+x-redash-image: &redash-image
+  platform: linux/amd64
+  image: redash/preview:23.10.0-dev.b6504204176.1088
+
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
   REDASH_REDIS_URL: "redis://redis:6379/0"
@@ -11,8 +15,7 @@ x-redash-environment: &redash-environment
 
 services:
   server:
-    platform: linux/amd64
-    image: redash/preview:23.10.0-dev.b6504204176.1088
+    <<: *redash-image
     depends_on:
       postgres:
         condition: service_healthy
@@ -25,16 +28,14 @@ services:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   scheduler:
-    platform: linux/amd64
-    image: redash/preview:23.10.0-dev.b6504204176.1088
+    <<: *redash-image
     command: scheduler
     depends_on:
       - server
     environment:
       <<: *redash-environment
   worker:
-    platform: linux/amd64
-    image: redash/preview:23.10.0-dev.b6504204176.1088
+    <<: *redash-image
     command: worker
     depends_on:
       - server
