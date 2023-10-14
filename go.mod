@@ -1,4 +1,4 @@
-module github.com/winebarrel/redash-go
+module github.com/winebarrel/redash-go/v2
 
 go 1.21
 

@@ -9,7 +9,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"github.com/winebarrel/redash-go"
+	"github.com/winebarrel/redash-go/v2"
 )
 
 func Test_ListAlerts_OK(t *testing.T) {

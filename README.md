@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/winebarrel/redash-go"
+	"github.com/winebarrel/redash-go/v2"
 )
 
 func main() {

@@ -9,7 +9,7 @@ import (
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/winebarrel/redash-go"
+	"github.com/winebarrel/redash-go/v2"
 )
 
 func Test_GetSettingsOrganization_OK(t *testing.T) {
