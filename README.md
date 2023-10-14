@@ -1,9 +1,9 @@
 # redash-go
 
 [![test](https://github.com/winebarrel/redash-go/actions/workflows/test.yml/badge.svg)](https://github.com/winebarrel/redash-go/actions/workflows/test.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/winebarrel/redash-go.svg)](https://pkg.go.dev/github.com/winebarrel/redash-go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/winebarrel/redash-go/v2.svg)](https://pkg.go.dev/github.com/winebarrel/redash-go/v2)
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/winebarrel/redash-go)](https://github.com/winebarrel/redash-go/tags)
-[![Go Report Card](https://goreportcard.com/badge/github.com/winebarrel/redash-go)](https://goreportcard.com/report/github.com/winebarrel/redash-go)
+[![Go Report Card](https://goreportcard.com/badge/github.com/winebarrel/redash-go/v2)](https://goreportcard.com/report/github.com/winebarrel/redash-go/v2)
 
 ## Overview
 
