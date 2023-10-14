@@ -8,12 +8,12 @@ func (client *ClientWithoutContext) ListDashboards(input *ListDashboardsInput) (
 	return client.withCtx.ListDashboards(context.Background(), input)
 }
 
-func (client *ClientWithoutContext) GetDashboard(idOrSlug any) (*Dashboard, error) {
-	return client.withCtx.GetDashboard(context.Background(), idOrSlug)
+func (client *ClientWithoutContext) GetDashboard(id int) (*Dashboard, error) {
+	return client.withCtx.GetDashboard(context.Background(), id)
 }
 
-func (client *ClientWithoutContext) CreateFavoriteDashboard(idOrSlug any) error {
-	return client.withCtx.CreateFavoriteDashboard(context.Background(), idOrSlug)
+func (client *ClientWithoutContext) CreateFavoriteDashboard(id int) error {
+	return client.withCtx.CreateFavoriteDashboard(context.Background(), id)
 }
 
 func (client *ClientWithoutContext) CreateDashboard(input *CreateDashboardInput) (*Dashboard, error) {
@@ -24,8 +24,8 @@ func (client *ClientWithoutContext) UpdateDashboard(id int, input *UpdateDashboa
 	return client.withCtx.UpdateDashboard(context.Background(), id, input)
 }
 
-func (client *ClientWithoutContext) ArchiveDashboard(idOrSlug any) error {
-	return client.withCtx.ArchiveDashboard(context.Background(), idOrSlug)
+func (client *ClientWithoutContext) ArchiveDashboard(id int) error {
+	return client.withCtx.ArchiveDashboard(context.Background(), id)
 }
 
 func (client *ClientWithoutContext) GetDashboardTags() (*DashboardTags, error) {

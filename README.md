@@ -137,20 +137,6 @@ client.GetStatus()
 client, err := redash.NewClient("https://redash.example.com", "<secret>")
 ```
 
-### **NOTE: Dashboard API parameters are Redash version dependent**
-
-#### v8: slug(string)
-
-```go
-client.GetDashboard(context.Background(), "my-dashboard")
-```
-
-#### v10: id(int)
-
-```go
-client.GetDashboard(context.Background(), 1)
-```
-
 ## Tests
 
 ```sh
