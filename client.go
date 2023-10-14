@@ -12,7 +12,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/winebarrel/redash-go/internal/util"
+	"github.com/winebarrel/redash-go/v2/internal/util"
 )
 
 const (

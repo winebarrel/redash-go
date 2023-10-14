@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/winebarrel/redash-go/internal/util"
+	"github.com/winebarrel/redash-go/v2/internal/util"
 )
 
 func Test_UnmarshalBody_OK(t *testing.T) {

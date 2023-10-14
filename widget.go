@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/winebarrel/redash-go/internal/util"
+	"github.com/winebarrel/redash-go/v2/internal/util"
 )
 
 type Widget struct {

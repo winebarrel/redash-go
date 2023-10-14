@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/winebarrel/redash-go/internal/util"
+	"github.com/winebarrel/redash-go/v2/internal/util"
 )
 
 type Destination struct {

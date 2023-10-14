@@ -4,7 +4,7 @@ package redash
 import (
 	"context"
 
-	"github.com/winebarrel/redash-go/internal/util"
+	"github.com/winebarrel/redash-go/v2/internal/util"
 )
 
 type AdminQueriesOutdated struct {
