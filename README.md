@@ -162,6 +162,7 @@ make test
 ```sh
 docker compose up -d
 make redash-setup
+make redash-upgrade-db
 make testacc
 ```
 

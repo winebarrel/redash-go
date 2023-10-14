@@ -8,6 +8,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -202,14 +203,15 @@ func Test_Settings_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	settings, err := client.GetSettingsOrganization(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.NotEmpty(settings.SettingsOrganizationSettings.DateFormat)
 
 	settings, err = client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
 		DateFormat: "YYYY/MM/DD",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("YYYY/MM/DD", settings.SettingsOrganizationSettings.DateFormat)
 }

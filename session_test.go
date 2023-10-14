@@ -7,6 +7,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -108,8 +109,9 @@ func Test_Session_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	session, err := client.GetSession(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("admin", session.User.Name)
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -1479,6 +1480,7 @@ func Test_Query_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
 		Name: "test-postgres-1",
@@ -1490,16 +1492,14 @@ func Test_Query_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
+	require.NoError(err)
 
 	defer func() {
 		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
 	}()
 
 	_, err = client.ListQueries(context.Background(), nil)
-	assert.NoError(err)
+	require.NoError(err)
 
 	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
 		DataSourceID: ds.ID,
@@ -1507,7 +1507,7 @@ func Test_Query_Acc(t *testing.T) {
 		Query:        "select 1",
 		Tags:         []string{"my-tag-1"},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
 	assert.Equal([]string{"my-tag-1"}, query.Tags)
 
@@ -1517,7 +1517,7 @@ func Test_Query_Acc(t *testing.T) {
 		},
 		Tags: &[]string{"my-tag-2"},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
 	assert.Equal([]string{"my-tag-2"}, query.Tags)
 
@@ -1526,77 +1526,77 @@ func Test_Query_Acc(t *testing.T) {
 			Interval: 600,
 		},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
 	assert.Equal([]string{"my-tag-2"}, query.Tags)
 
 	tags, err := client.GetQueryTags(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(tags.Tags), 1)
 
 	query, err = client.UpdateQuery(context.Background(), query.ID, &redash.UpdateQueryInput{
 		Tags: &[]string{},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
 	assert.Equal(&redash.QueueSchedule{Interval: 600}, query.Schedule)
 	assert.Equal([]string{}, query.Tags)
 
 	tags, err = client.GetQueryTags(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(tags.Tags), 0)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
 
 	page, err := client.SearchQueries(context.Background(), &redash.SearchQueriesInput{
 		Q: "test-query-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	page, err = client.ListQueries(context.Background(), &redash.ListQueriesInput{
 		Q: "test-query-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	page, err = client.ListMyQueries(context.Background(), &redash.ListMyQueriesInput{
 		Q: "test-query-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	page, err = client.ListFavoriteQueries(context.Background(), &redash.ListFavoriteQueriesInput{
 		Q: "test-query-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Zero(len(page.Results))
 
 	err = client.CreateFavoriteQuery(context.Background(), query.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	page, err = client.ListFavoriteQueries(context.Background(), &redash.ListFavoriteQueriesInput{
 		Q: "test-query-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	var buf bytes.Buffer
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, &buf)
-	assert.NoError(err)
+	require.NoError(err)
 
 	if job != nil && job.Job.ID != "" {
 		for {
 			job, err := client.GetJob(context.Background(), job.Job.ID)
-			assert.NoError(err)
+			require.NoError(err)
 
 			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
 				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
 				buf = bytes.Buffer{}
 				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
-				assert.NoError(err)
+				require.NoError(err)
 				break
 			}
 
@@ -1607,26 +1607,26 @@ func Test_Query_Acc(t *testing.T) {
 	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
 
 	_, err = client.ExecQueryJSON(context.Background(), query.ID, nil)
-	assert.NoError(err)
+	require.NoError(err)
 
 	buf = bytes.Buffer{}
 	err = client.GetQueryResultsCSV(context.Background(), query.ID, &buf)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("?column?\r\n1\r\n", buf.String())
 
 	job, err = client.RefreshQuery(context.Background(), query.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	if job != nil && job.Job.ID != "" {
 		for {
 			job, err := client.GetJob(context.Background(), job.Job.ID)
-			assert.NoError(err)
+			require.NoError(err)
 
 			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
 				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
 				buf = bytes.Buffer{}
 				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
-				assert.NoError(err)
+				require.NoError(err)
 				break
 			}
 
@@ -1637,19 +1637,19 @@ func Test_Query_Acc(t *testing.T) {
 	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
 
 	queries, err := client.ListRecentQueries(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(queries), 1)
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
 	assert.True(query.IsArchived)
 	assert.True(query.IsFavorite)
 
 	formatted, err := client.FormatQuery(context.Background(), "select 1 from dual")
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("SELECT 1\nFROM dual", formatted.Query)
 }

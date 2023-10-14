@@ -8,6 +8,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -607,6 +608,7 @@ func Test_DataSource_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	_, err := client.ListDataSources(context.Background())
@@ -622,15 +624,15 @@ func Test_DataSource_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-postgres-1", ds.Name)
 
 	output, err := client.TestDataSource(context.Background(), ds.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.True(output.Ok)
 
 	ds, err = client.GetDataSource(context.Background(), ds.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-postgres-1", ds.Name)
 
 	ds, err = client.UpdateDataSource(context.Background(), ds.ID, &redash.UpdateDataSourceInput{
@@ -643,28 +645,28 @@ func Test_DataSource_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-postgres-2", ds.Name)
 
 	ds, err = client.PauseDataSource(context.Background(), ds.ID, &redash.PauseDataSourceInput{
 		Reason: "this is reason",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(1, ds.Paused)
 	assert.Equal("this is reason", ds.PauseReason)
 
 	ds, err = client.ResumeDataSource(context.Background(), ds.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(0, ds.Paused)
 	assert.Equal("", ds.PauseReason)
 
 	err = client.DeleteDataSource(context.Background(), ds.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.GetDataSource(context.Background(), ds.ID)
 	assert.Error(err)
 
 	types, err := client.GetDataSourceTypes(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(types), 1)
 }

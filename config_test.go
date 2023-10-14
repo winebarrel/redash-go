@@ -8,6 +8,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -184,11 +185,12 @@ func Test_Config_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 
 	// NOTE: No authentication required
 	client, _ := redash.NewClient(testRedashEndpoint, "")
 	config, err := client.GetConfig(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("default", config.OrgSlug)
 	assert.Equal(50000, config.ClientConfig.TableCellMaxJSONSize)
 	assert.True(strings.HasPrefix(config.ClientConfig.BasePath, testRedashEndpoint))

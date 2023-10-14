@@ -9,6 +9,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -246,31 +247,32 @@ func Test_QuerySnippet_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	_, err := client.ListQuerySnippets(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 
 	snippet, err := client.CreateQuerySnippet(context.Background(), &redash.CreateQuerySnippetInput{
 		Description: "description",
 		Snippet:     "select 1",
 		Trigger:     "my-snippet-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("my-snippet-1", snippet.Trigger)
 
 	snippet, err = client.GetQuerySnippet(context.Background(), snippet.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("my-snippet-1", snippet.Trigger)
 
 	snippet, err = client.UpdateQuerySnippet(context.Background(), snippet.ID, &redash.UpdateQuerySnippetInput{
 		Snippet: "select 2",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("select 2", snippet.Snippet)
 
 	err = client.DeleteQuerySnippet(context.Background(), snippet.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.GetAlert(context.Background(), snippet.ID)
 	assert.Error(err)

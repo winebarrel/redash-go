@@ -11,7 +11,7 @@ var (
 
 const (
 	testRedashEndpoint = "http://localhost:5001"
-	testRedashAPIKey   = "G1LARLeRTzoWF7asyy32Qdvken2OZ2LhzoOzwA3r"
+	testRedashAPIKey   = "6nh64ZsT66WeVJvNZ6WB5D2JKZULeC2VBdSD68wt"
 )
 
 func TestMain(m *testing.M) {

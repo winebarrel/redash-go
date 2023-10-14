@@ -8,6 +8,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -90,6 +91,7 @@ func Test_Event_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
@@ -102,9 +104,7 @@ func Test_Event_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
+	require.NoError(err)
 
 	defer func() {
 		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
@@ -115,7 +115,7 @@ func Test_Event_Acc(t *testing.T) {
 		PageSize: 25,
 	})
 
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(1, page.Page)
 	assert.Equal(25, page.PageSize)
 	assert.NotEqual(0, page.Count)

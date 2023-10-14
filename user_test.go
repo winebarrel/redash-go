@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -447,6 +448,7 @@ func Test_User_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 
 	uuidObj, _ := uuid.NewUUID()
@@ -454,18 +456,18 @@ func Test_User_Acc(t *testing.T) {
 	email := name + "@example.com"
 
 	_, err := client.ListUsers(context.Background(), nil)
-	assert.NoError(err)
+	require.NoError(err)
 
 	user, err := client.CreateUser(context.Background(), &redash.CreateUsersInput{
 		AuthType: "password",
 		Email:    email,
 		Name:     name,
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(email, user.Email)
 
 	user, err = client.GetUser(context.Background(), user.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(name, user.Name)
 	assert.Equal(email, user.Email)
 
@@ -476,24 +478,24 @@ func Test_User_Acc(t *testing.T) {
 		Email: newEmail,
 		Name:  newName,
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(newName, user.Name)
 	assert.Equal(newEmail, user.Email)
 
 	user, err = client.DisableUser(context.Background(), user.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(newName, user.Name)
 	assert.Equal(newEmail, user.Email)
 	assert.True(user.IsDisabled)
 
 	user, err = client.EnableUser(context.Background(), user.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal(newName, user.Name)
 	assert.Equal(newEmail, user.Email)
 	assert.False(user.IsDisabled)
 
 	err = client.DeleteUser(context.Background(), user.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.GetUser(context.Background(), user.ID)
 	assert.Error(err)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -63,9 +64,9 @@ func Test_Ping_Acc(t *testing.T) {
 		t.Skip()
 	}
 
-	assert := assert.New(t)
+	require := require.New(t)
 	// NOTE: No authentication required
 	client, _ := redash.NewClient(testRedashEndpoint, "")
 	err := client.Ping(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 }

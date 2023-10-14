@@ -9,6 +9,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -164,10 +165,12 @@ func Test_Widget_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
-	dashboard, _ := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
+	dashboard, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
 		Name: "test-dashboard-1",
 	})
+	require.NoError(err)
 
 	defer func() {
 		// NOTE: for v8
@@ -180,9 +183,9 @@ func Test_Widget_Acc(t *testing.T) {
 		Text:        "test-widget-1",
 		Width:       1,
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-widget-1", widget.Text)
 
 	err = client.DeleteWidget(context.Background(), widget.ID)
-	assert.NoError(err)
+	require.NoError(err)
 }

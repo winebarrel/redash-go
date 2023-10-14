@@ -9,6 +9,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go"
 )
 
@@ -644,20 +645,21 @@ func Test_Dashboard_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	_, err := client.ListDashboards(context.Background(), nil)
-	assert.NoError(err)
+	require.NoError(err)
 
 	dashboard, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
 		Name: "test-dashboard-1",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-dashboard-1", dashboard.Name)
 
 	// NOTE: for v8
 	// dashboard, err = client.GetDashboard(context.Background(), dashboard.Slug)
 	dashboard, err = client.GetDashboard(context.Background(), dashboard.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-dashboard-1", dashboard.Name)
 
 	dashboard, err = client.UpdateDashboard(context.Background(), dashboard.ID, &redash.UpdateDashboardInput{
@@ -665,51 +667,48 @@ func Test_Dashboard_Acc(t *testing.T) {
 		Tags:    &[]string{"foo"},
 		Version: 0,
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-dashboard-2", dashboard.Name)
 	assert.Equal([]string{"foo"}, dashboard.Tags)
 
 	tags, err := client.GetDashboardTags(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(tags.Tags), 1)
 
 	page, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{Q: "test-dashboard-2"})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	page, err = client.ListMyDashboards(context.Background(), &redash.ListMyDashboardsInput{Q: "test-dashboard-2"})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	page, err = client.ListFavoriteDashboards(context.Background(), &redash.ListFavoriteDashboardsInput{Q: "test-dashboard-2"})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Zero(len(page.Results))
 
 	// NOTE: for v8
 	// err = client.CreateFavoriteDashboard(context.Background(), dashboard.Slug)
 	err = client.CreateFavoriteDashboard(context.Background(), dashboard.ID)
-	assert.NoError(err)
-
+	require.NoError(err)
 	page, err = client.ListFavoriteDashboards(context.Background(), &redash.ListFavoriteDashboardsInput{Q: "test-dashboard-2"})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	share, err := client.ShareDashboard(context.Background(), dashboard.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.NotEmpty(share.PublicURL)
 
 	err = client.UnshareDashboard(context.Background(), dashboard.ID)
-	assert.NoError(err)
-
+	require.NoError(err)
 	// NOTE: for v8
 	// err = client.ArchiveDashboard(context.Background(), dashboard.Slug)
 	err = client.ArchiveDashboard(context.Background(), dashboard.ID)
-	assert.NoError(err)
-
+	require.NoError(err)
 	// NOTE: for v8
 	// dashboard, err = client.GetDashboard(context.Background(), dashboard.Slug)
 	dashboard, err = client.GetDashboard(context.Background(), dashboard.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-dashboard-2", dashboard.Name)
 	assert.True(dashboard.IsArchived)
 	assert.True(dashboard.IsFavorite)
