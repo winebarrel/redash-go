@@ -177,7 +177,7 @@ func Test_GetDashboard_OK(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/name", func(req *http.Request) (*http.Response, error) {
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
 		assert.Equal(
 			http.Header(
 				http.Header{
@@ -211,7 +211,7 @@ func Test_GetDashboard_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	res, err := client.GetDashboard(context.Background(), "name")
+	res, err := client.GetDashboard(context.Background(), 1)
 	assert.NoError(err)
 	assert.Equal(&redash.Dashboard{
 		CanEdit:                 true,
@@ -238,7 +238,7 @@ func Test_CreatexDashboard_OK(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/name/favorite", func(req *http.Request) (*http.Response, error) {
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1/favorite", func(req *http.Request) (*http.Response, error) {
 		assert.Equal(
 			http.Header(
 				http.Header{
@@ -253,7 +253,7 @@ func Test_CreatexDashboard_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	err := client.CreateFavoriteDashboard(context.Background(), "name")
+	err := client.CreateFavoriteDashboard(context.Background(), 1)
 	assert.NoError(err)
 }
 
@@ -405,7 +405,7 @@ func Test_ArchiveDashboard_OK(t *testing.T) {
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
-	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/dashboards/name", func(req *http.Request) (*http.Response, error) {
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
 		assert.Equal(
 			http.Header(
 				http.Header{
@@ -420,7 +420,7 @@ func Test_ArchiveDashboard_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	err := client.ArchiveDashboard(context.Background(), "name")
+	err := client.ArchiveDashboard(context.Background(), 1)
 	assert.NoError(err)
 }
 

@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-* N/A
+* Drop v8 support.
 
 ## [1.4.1] - 2023-09-14
 
