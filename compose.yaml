@@ -1,6 +1,6 @@
 x-redash-image: &redash-image
-  platform: linux/amd64
-  image: redash/preview:23.10.0-dev.b6504204176.1088
+  build:
+    context: .
 
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
