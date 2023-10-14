@@ -4,6 +4,12 @@
 
 * N/A
 
+## [2.0.1] - 2023-10-14
+
+### Change
+
+* Update doc.go description.
+
 ## [2.0.0] - 2023-10-14
 
 ### Removed
