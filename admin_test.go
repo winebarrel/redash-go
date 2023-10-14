@@ -7,6 +7,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go/v2"
 )
 
@@ -218,18 +219,13 @@ func Test_Admin_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	outdated, err := client.GetAdminQueriesOutdated(context.Background())
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
-	assert.NoError(err)
+	require.NoError(err)
 	assert.NotEmpty(outdated.UpdatedAt)
 
 	rqStatus, err := client.GetAdminQueriesRqStatus(context.Background())
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("default", rqStatus.Queues.Default.Name)
 }

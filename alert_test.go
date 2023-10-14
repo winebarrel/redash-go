@@ -9,6 +9,7 @@ import (
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go/v2"
 )
 
@@ -501,6 +502,7 @@ func Test_Alert_Acc(t *testing.T) {
 	}
 
 	assert := assert.New(t)
+	require := require.New(t)
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
 		Name: "test-postgres-1",
@@ -512,9 +514,7 @@ func Test_Alert_Acc(t *testing.T) {
 			"user":   "postgres",
 		},
 	})
-	if err != nil {
-		assert.FailNow(err.Error())
-	}
+	require.NoError(err)
 
 	defer func() {
 		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
@@ -531,7 +531,7 @@ func Test_Alert_Acc(t *testing.T) {
 	}()
 
 	_, err = client.ListAlerts(context.Background())
-	assert.NoError(err)
+	require.NoError(err)
 
 	alert, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
 		Name: "test-alert-1",
@@ -545,11 +545,11 @@ func Test_Alert_Acc(t *testing.T) {
 		QueryId: query.ID,
 		Rearm:   0,
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-alert-1", alert.Name)
 
 	alert, err = client.GetAlert(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-alert-1", alert.Name)
 	assert.Equal(0, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
@@ -562,7 +562,7 @@ func Test_Alert_Acc(t *testing.T) {
 	alert, err = client.UpdateAlert(context.Background(), alert.ID, &redash.UpdateAlertInput{
 		Name: "test-alert-2",
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-alert-2", alert.Name)
 	assert.Equal(0, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
@@ -580,7 +580,7 @@ func Test_Alert_Acc(t *testing.T) {
 			Value:  2,
 		},
 	})
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-alert-3", alert.Name)
 	assert.Equal(300, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
@@ -594,27 +594,27 @@ func Test_Alert_Acc(t *testing.T) {
 		Rearm: 0,
 	})
 
-	assert.NoError(err)
+	require.NoError(err)
 	assert.Equal("test-alert-3", alert.Name)
 	assert.Equal(0, alert.Rearm)
 
 	_, err = client.ListAlertSubscriptions(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	err = client.MuteAlert(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	alert, err = client.GetAlert(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.True(alert.Options.Muted)
 
 	err = client.UnmuteAlert(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	alert, err = client.GetAlert(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 	assert.False(alert.Options.Muted)
 
 	err = client.DeleteAlert(context.Background(), alert.ID)
-	assert.NoError(err)
+	require.NoError(err)
 
 	_, err = client.GetAlert(context.Background(), alert.ID)
 	assert.Error(err)
