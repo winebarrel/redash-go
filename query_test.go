@@ -102,7 +102,7 @@ func Test_ListQueries_OK(t *testing.T) {
 				LastModifiedByID:  1,
 				LatestQueryDataID: 1,
 				Name:              "my-query",
-				Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+				Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 				Query:             "select 1",
 				QueryHash:         "query_hash",
 				RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
@@ -210,7 +210,7 @@ func Test_ListQueries_WithQ(t *testing.T) {
 				LastModifiedByID:  1,
 				LatestQueryDataID: 1,
 				Name:              "my-query",
-				Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+				Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 				Query:             "select 1",
 				QueryHash:         "query_hash",
 				RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
@@ -310,7 +310,7 @@ func Test_GetQuery_OK(t *testing.T) {
 		LastModifiedByID:  0,
 		LatestQueryDataID: 1,
 		Name:              "my-query",
-		Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+		Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 		Query:             "select 1",
 		QueryHash:         "query_hash",
 		RetrievedAt:       time.Time{},
@@ -342,6 +342,7 @@ func Test_GetQuery_OK(t *testing.T) {
 
 func Test_CreateQuery_OK(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -356,9 +357,7 @@ func Test_CreateQuery_OK(t *testing.T) {
 			),
 			req.Header,
 		)
-		if req.Body == nil {
-			assert.FailNow("req.Body is nil")
-		}
+		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
 		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":{"interval":60,"time":null,"until":null,"day_of_week":null}}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
@@ -432,7 +431,7 @@ func Test_CreateQuery_OK(t *testing.T) {
 		LastModifiedByID:  0,
 		LatestQueryDataID: 1,
 		Name:              "my-query",
-		Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+		Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 		Query:             "select 1",
 		QueryHash:         "query_hash",
 		RetrievedAt:       time.Time{},
@@ -464,6 +463,7 @@ func Test_CreateQuery_OK(t *testing.T) {
 
 func Test_UpdateQuery_OK(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -478,9 +478,7 @@ func Test_UpdateQuery_OK(t *testing.T) {
 			),
 			req.Header,
 		)
-		if req.Body == nil {
-			assert.FailNow("req.Body is nil")
-		}
+		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
 		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":{"interval":60,"time":null,"until":null,"day_of_week":null}}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
@@ -554,7 +552,7 @@ func Test_UpdateQuery_OK(t *testing.T) {
 		LastModifiedByID:  0,
 		LatestQueryDataID: 1,
 		Name:              "my-query",
-		Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+		Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 		Query:             "select 1",
 		QueryHash:         "query_hash",
 		RetrievedAt:       time.Time{},
@@ -711,7 +709,7 @@ func Test_ForkQuery_OK(t *testing.T) {
 		LastModifiedByID:  0,
 		LatestQueryDataID: 1,
 		Name:              "my-query",
-		Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+		Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 		Query:             "select 1",
 		QueryHash:         "query_hash",
 		RetrievedAt:       time.Time{},
@@ -845,6 +843,7 @@ func Test_GetQueryResults_OK_WithNil(t *testing.T) {
 
 func Test_ExecQueryJSON_OK(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -859,17 +858,15 @@ func Test_ExecQueryJSON_OK(t *testing.T) {
 			),
 			req.Header,
 		)
-		if req.Body == nil {
-			assert.FailNow("req.Body is nil")
-		}
+		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"filetype":"json"}`, string(body))
+		assert.Equal(`{}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	var buf bytes.Buffer
-	jobId, err := client.ExecQueryJSON(context.Background(), 1, &buf)
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
 	assert.NoError(err)
 	assert.Equal(`{"foo":"bar"}`, buf.String())
 	assert.Empty(jobId)
@@ -877,6 +874,7 @@ func Test_ExecQueryJSON_OK(t *testing.T) {
 
 func Test_ExecQueryJSON_OK_WithNil(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -891,22 +889,62 @@ func Test_ExecQueryJSON_OK_WithNil(t *testing.T) {
 			),
 			req.Header,
 		)
-		if req.Body == nil {
-			assert.FailNow("req.Body is nil")
-		}
+		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"filetype":"json"}`, string(body))
+		assert.Equal(`{}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	jobId, err := client.ExecQueryJSON(context.Background(), 1, nil)
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, nil)
 	assert.NoError(err)
+	assert.Empty(jobId)
+}
+
+func Test_ExecQueryJSON_OK_WithParams(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"parameters":{"date_param":"2020-01-01","date_range_param":{"end":"2020-12-31","start":"2020-01-01"},"number_param":100},"max_age":1800}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"number_param": 100,
+			"date_param":   "2020-01-01",
+			"date_range_param": map[string]string{
+				"start": "2020-01-01",
+				"end":   "2020-12-31",
+			},
+		},
+		MaxAge: 1800,
+	}, &buf)
+	assert.NoError(err)
+	assert.Equal(`{"foo":"bar"}`, buf.String())
 	assert.Empty(jobId)
 }
 
 func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -921,16 +959,14 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 			),
 			req.Header,
 		)
-		if req.Body == nil {
-			assert.FailNow("req.Body is nil")
-		}
+		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"filetype":"json"}`, string(body))
+		assert.Equal(`{}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `{"job": {"status": 1, "error": "", "id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51", "query_result_id": null,	"status": 1, "updated_at": 0}}`), nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	job, err := client.ExecQueryJSON(context.Background(), 1, nil)
+	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, nil)
 	assert.NoError(err)
 	assert.Equal(&redash.JobResponse{
 		Job: redash.Job{
@@ -1112,7 +1148,7 @@ func Test_SearchQueries_OK(t *testing.T) {
 				LastModifiedByID:  1,
 				LatestQueryDataID: 1,
 				Name:              "my-query",
-				Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+				Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 				Query:             "select 1",
 				QueryHash:         "query_hash",
 				RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
@@ -1219,7 +1255,7 @@ func Test_ListMyQueries_OK(t *testing.T) {
 				LastModifiedByID:  1,
 				LatestQueryDataID: 1,
 				Name:              "my-query",
-				Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+				Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 				Query:             "select 1",
 				QueryHash:         "query_hash",
 				RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
@@ -1326,7 +1362,7 @@ func Test_ListFavoriteQueries_OK(t *testing.T) {
 				LastModifiedByID:  1,
 				LatestQueryDataID: 1,
 				Name:              "my-query",
-				Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+				Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 				Query:             "select 1",
 				QueryHash:         "query_hash",
 				RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
@@ -1349,6 +1385,7 @@ func Test_ListFavoriteQueries_OK(t *testing.T) {
 
 func Test_FormatQuery_OK(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -1363,9 +1400,7 @@ func Test_FormatQuery_OK(t *testing.T) {
 			),
 			req.Header,
 		)
-		if req.Body == nil {
-			assert.FailNow("req.Body is nil")
-		}
+		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
 		assert.Equal(`{"query":"select 1 from dual"}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
@@ -1455,7 +1490,7 @@ func Test_ListRecentQueries_OK(t *testing.T) {
 			LastModifiedByID:  1,
 			LatestQueryDataID: 1,
 			Name:              "my-query",
-			Options:           redash.QueryOptions{Parameters: []map[string]any{}},
+			Options:           redash.QueryOptions{Parameters: []redash.QueryOptionsParameter{}},
 			Query:             "select 1",
 			QueryHash:         "query_hash",
 			RetrievedAt:       dateparse.MustParse("2023-02-10T01:23:45.000Z"),
@@ -1584,7 +1619,7 @@ func Test_Query_Acc(t *testing.T) {
 	assert.GreaterOrEqual(len(page.Results), 1)
 
 	var buf bytes.Buffer
-	job, err := client.ExecQueryJSON(context.Background(), query.ID, &buf)
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, &redash.ExecQueryJSONInput{}, &buf)
 	require.NoError(err)
 
 	if job != nil && job.Job.ID != "" {
@@ -1606,7 +1641,7 @@ func Test_Query_Acc(t *testing.T) {
 
 	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
 
-	_, err = client.ExecQueryJSON(context.Background(), query.ID, nil)
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, nil, nil)
 	require.NoError(err)
 
 	buf = bytes.Buffer{}
@@ -1625,7 +1660,7 @@ func Test_Query_Acc(t *testing.T) {
 			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
 				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
 				buf = bytes.Buffer{}
-				err = client.GetQueryResultsJSON(context.Background(), query.ID, &buf)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
 				require.NoError(err)
 				break
 			}
@@ -1652,4 +1687,98 @@ func Test_Query_Acc(t *testing.T) {
 	formatted, err := client.FormatQuery(context.Background(), "select 1 from dual")
 	require.NoError(err)
 	assert.Equal("SELECT 1\nFROM dual", formatted.Query)
+}
+
+func Test_Query_WithParams_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select {{ num }}",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "number",
+					Name:   "num",
+					Value:  123,
+					Title:  "my-number",
+				},
+			},
+		},
+		Tags: []string{"my-tag-1"},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+	assert.Equal("select {{ num }}", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "number",
+				Name:   "num",
+				Value:  float64(123),
+				Title:  "my-number",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"num": 999,
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Regexp(`"query": "select 999"`, buf.String())
 }

@@ -47,8 +47,8 @@ func (client *ClientWithoutContext) GetQueryResults(id int, ext string, out io.W
 	return client.withCtx.GetQueryResults(context.Background(), id, ext, out)
 }
 
-func (client *ClientWithoutContext) ExecQueryJSON(id int, out io.Writer) (*JobResponse, error) {
-	return client.withCtx.ExecQueryJSON(context.Background(), id, out)
+func (client *ClientWithoutContext) ExecQueryJSON(id int, input *ExecQueryJSONInput, out io.Writer) (*JobResponse, error) {
+	return client.withCtx.ExecQueryJSON(context.Background(), id, input, out)
 }
 
 func (client *ClientWithoutContext) GetQueryTags() (*QueryTags, error) {

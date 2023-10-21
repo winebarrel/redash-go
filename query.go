@@ -49,7 +49,15 @@ type Query struct {
 }
 
 type QueryOptions struct {
-	Parameters []map[string]any `json:"parameters"`
+	Parameters []QueryOptionsParameter `json:"parameters"`
+}
+
+type QueryOptionsParameter struct {
+	Global bool   `json:"global"`
+	Type   string `json:"type"`
+	Name   string `json:"name"`
+	Value  any    `json:"value"`
+	Title  string `json:"title"`
 }
 
 type QueueSchedule struct {
@@ -122,7 +130,7 @@ type CreateQueryInput struct {
 }
 
 type CreateQueryInputOptions struct {
-	Parameters []map[string]any `json:"parameters"`
+	Parameters []QueryOptionsParameter `json:"parameters"`
 }
 
 type CreateQueryInputSchedule struct {
@@ -177,7 +185,7 @@ type UpdateQueryInput struct {
 }
 
 type UpdateQueryInputOptions struct {
-	Parameters []map[string]any `json:"parameters"`
+	Parameters []QueryOptionsParameter `json:"parameters"`
 }
 
 type UpdateQueryInputSchedule struct {
@@ -240,12 +248,17 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, o
 	return err
 }
 
-func (client *Client) ExecQueryJSON(ctx context.Context, id int, out io.Writer) (*JobResponse, error) {
+type ExecQueryJSONInput struct {
+	Parameters map[string]any `json:"parameters,omitempty"`
+	MaxAge     int            `json:"max_age,omitempty"`
+}
+
+func (client *Client) ExecQueryJSON(ctx context.Context, id int, input *ExecQueryJSONInput, out io.Writer) (*JobResponse, error) {
 	if out == nil {
 		out = io.Discard
 	}
 
-	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), map[string]string{"filetype": "json"})
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), input)
 	defer close()
 
 	if err != nil {
