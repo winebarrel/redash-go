@@ -53,7 +53,11 @@ func main() {
 	}
 
 	var buf bytes.Buffer
-	job, err := client.ExecQueryJSON(ctx, query.ID, &buf)
+
+	// The API prefers to return a cached result.
+	// If a cached result is not available then a new execution job begins and the job object is returned.
+	// see https://redash.io/help/user-guide/integrations-and-api/api#Queries
+	job, err := client.ExecQueryJSON(ctx, query.ID, nil, &buf)
 
 	if err != nil {
 		panic(err)
@@ -155,3 +159,7 @@ make testacc
 * local Redash URL: http://localhost:5001
 * email: `admin@example.com`
 * password: `password`
+
+## Related Links
+
+* https://redash.io/help/user-guide/integrations-and-api/api
