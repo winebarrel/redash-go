@@ -10,8 +10,8 @@ require (
 )
 
 require (
-	github.com/google/uuid v1.4.0
-	golang.org/x/tools v0.16.0
+	github.com/google/uuid v1.5.0
+	golang.org/x/tools v0.16.1
 )
 
 require (
