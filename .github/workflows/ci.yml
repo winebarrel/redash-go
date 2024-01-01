@@ -2,19 +2,9 @@ name: CI
 
 on:
   pull_request:
-    paths-ignore:
-      - .github/dependabot.yml
-      - CHANGELOG.md
-      - LICENSE
-      - README.md
   push:
     branches:
       - main
-    paths-ignore:
-      - .github/dependabot.yml
-      - CHANGELOG.md
-      - LICENSE
-      - README.md
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
