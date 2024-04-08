@@ -11,12 +11,12 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0
-	golang.org/x/tools v0.19.0
+	golang.org/x/tools v0.20.0
 )
 
 require (
 	github.com/google/go-querystring v1.1.0
-	golang.org/x/mod v0.16.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
 )
 
 require (
