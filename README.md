@@ -142,9 +142,6 @@ fmt.Println(out)
 </details>
 
 ### Set debug mode
-```
-
-### Set debug mode
 
 ```go
 client := redash.MustNewClient("https://redash.example.com", "<secret>")
