@@ -2,4 +2,4 @@ ignore:
   - ".*_without_ctx\\.go"
   - "tools"
 comment:
-  layout: "condensed_header, condensed_files"
+  layout: "condensed_header, condensed_files, footer"
