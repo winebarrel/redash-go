@@ -122,7 +122,7 @@ fmt.Println(out)
 
 ```go
 client := redash.MustNewClient("https://redash.example.com", "<secret>")
-client.Debug = true
+client.SetDebug(true)
 client.GetStatus(context.Background())
 ```
 

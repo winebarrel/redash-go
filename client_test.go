@@ -246,3 +246,21 @@ func Test_Delete_Err(t *testing.T) {
 	defer close()
 	assert.ErrorContains(err, "DELETE api/queries/1 failed: HTTP status code not OK: 404")
 }
+
+func Test_SetDebug(t *testing.T) {
+	assert := assert.New(t)
+	client := redash.MustNewClient("https://redash.example.com", testRedashAPIKey)
+
+	assert.False(client.Debug)
+	client.SetDebug(true)
+	assert.True(client.Debug)
+	client.SetDebug(false)
+	assert.False(client.Debug)
+
+	withoutCtx := client.WithoutContext()
+	assert.False(client.Debug)
+	withoutCtx.SetDebug(true)
+	assert.True(client.Debug)
+	withoutCtx.SetDebug(false)
+	assert.False(client.Debug)
+}
