@@ -92,8 +92,6 @@ func main() {
 
 ### `max_age=0`
 
-<details>
-
 ```go
 input := &redash.ExecQueryJSONInput{
   WithoutOmittingMaxAge: true,
@@ -108,26 +106,7 @@ if err != nil {
 }
 
 if job != nil {
-  for {
-    job, err := client.GetJob(ctx, job.Job.ID)
-
-    if err != nil {
-      panic(err)
-    }
-
-    if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-      buf = bytes.Buffer{}
-      err := client.GetQueryResultsJSON(ctx, query.ID, &buf)
-
-      if err != nil {
-        panic(err)
-      }
-
-      break
-    }
-
-    time.Sleep(1 * time.Second)
-  }
+  // Waiting...
 }
 
 out, err := client.GetQueryResultsStruct(context.Background(), query.ID)
@@ -138,8 +117,6 @@ if err != nil {
 
 fmt.Println(out)
 ```
-
-</details>
 
 ### Set debug mode
 
