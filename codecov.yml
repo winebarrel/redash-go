@@ -1,0 +1,3 @@
+ignore:
+  - "**/*_without_ctx.go"
+  - "tools"
