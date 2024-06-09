@@ -28,7 +28,7 @@ jobs:
       - run: make redash-setup
       - run: make redash-upgrade-db
       - run: make vet
-      - run: make testacc TEST_OPTS='coverprofile=coverage.out'
+      - run: make testacc TEST_OPTS='-coverprofile=coverage.out'
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
