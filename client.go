@@ -74,6 +74,14 @@ func NewClientWithHTTPClient(endpoint string, apiKey string, httpClient *http.Cl
 	return client, nil
 }
 
+func (client *Client) SetDebug(debug bool) {
+	client.Debug = debug
+}
+
+func (client *ClientWithoutContext) SetDebug(debug bool) {
+	client.withCtx.SetDebug(debug)
+}
+
 func (client *Client) WithoutContext() *ClientWithoutContext {
 	return &ClientWithoutContext{
 		withCtx: client,
