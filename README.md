@@ -149,7 +149,7 @@ make test
 ### Acceptance Tests
 
 ```sh
-docker compose up --build -d
+docker compose up -d
 make redash-setup
 make redash-upgrade-db
 make testacc
