@@ -1967,7 +1967,7 @@ func Test_Query_IgnoreCache_Acc(t *testing.T) {
 
 		// NOTE: No result is returned if `max_age=0`.
 		//       I don't know if this is the spec.
-		require.Empty(buf.String())
+		assert.Empty(buf.String())
 	}
 
 	{
