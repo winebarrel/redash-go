@@ -1,6 +1,5 @@
 x-redash-image: &redash-image
-  build:
-    context: .
+  image: redash/preview:24.06.0-dev
 
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
