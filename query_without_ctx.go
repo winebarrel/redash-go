@@ -39,6 +39,10 @@ func (client *ClientWithoutContext) GetQueryResultsJSON(id int, out io.Writer) e
 	return client.withCtx.GetQueryResultsJSON(context.Background(), id, out)
 }
 
+func (client *ClientWithoutContext) GetQueryResultsStruct(id int) (*GetQueryResultsOutput, error) {
+	return client.withCtx.GetQueryResultsStruct(context.Background(), id)
+}
+
 func (client *ClientWithoutContext) GetQueryResultsCSV(id int, out io.Writer) error {
 	return client.withCtx.GetQueryResultsCSV(context.Background(), id, out)
 }

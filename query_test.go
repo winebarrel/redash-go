@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -763,6 +764,51 @@ func Test_GetQueryResultsJSON_OK(t *testing.T) {
 	err := client.GetQueryResultsJSON(context.Background(), 1, &buf)
 	assert.NoError(err)
 	assert.Equal(`{"foo":"bar"}`, buf.String())
+}
+
+func Test_GetQueryResultsStruct_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `{"query_result": {"id": 73, "query_hash": "9c12398e42fb85a93a3b1c726f0844b4", "query": "select now()", "data": {"columns": [{"name": "now", "friendly_name": "now", "type": "datetime"}], "rows": [{"now": "2024-06-09T06:14:32.922Z"}]}, "data_source_id": 93, "runtime": 0.021225452423095703, "retrieved_at": "2024-06-09T06:14:32.930Z"}}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	out, err := client.GetQueryResultsStruct(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal(
+		&redash.GetQueryResultsOutput{
+			QueryResult: redash.GetQueryResultsOutputQueryResult{
+				ID:        73,
+				QueryHash: "9c12398e42fb85a93a3b1c726f0844b4",
+				Query:     "select now()",
+				Data: redash.GetQueryResultsOutputQueryResultData{
+					Columns: []redash.GetQueryResultsOutputQueryResultDataColumn{
+						{Name: "now", FriendlyName: "now", Type: "datetime"},
+					},
+					Rows: []map[string]interface{}{
+						{"now": "2024-06-09T06:14:32.922Z"},
+					},
+				},
+				DataSourceID: 93,
+				Runtime:      0.021225452423095703,
+				RetrievedAt:  time.Date(2024, time.June, 9, 6, 14, 32, 930000000, time.UTC),
+			},
+		},
+		out,
+	)
 }
 
 func Test_GetQueryResultsCSV_OK(t *testing.T) {
@@ -1780,5 +1826,156 @@ func Test_Query_WithParams_Acc(t *testing.T) {
 		}
 	}
 
-	assert.Regexp(`"query": "select 999"`, buf.String())
+	assert.Contains(buf.String(), `"query": "select 999"`)
+}
+
+func Test_Query_IgnoreCache_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select now()",
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select now()", query.Query)
+	assert.Equal(redash.QueryOptions{}, query.Options)
+	rNow := regexp.MustCompile(`"now": "([^"]+)"`)
+	var cachedNow string
+
+	// Cache 1
+	{
+		var buf bytes.Buffer
+		input := &redash.ExecQueryJSONInput{
+			MaxAge: 1800,
+		}
+		job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+		require.NoError(err)
+
+		if job != nil && job.Job.ID != "" {
+			for {
+				job, err := client.GetJob(context.Background(), job.Job.ID)
+				require.NoError(err)
+
+				if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+					assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+					_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+					require.NoError(err)
+					break
+				}
+
+				time.Sleep(1 * time.Second)
+			}
+		}
+
+		require.Contains(buf.String(), `"rows": [{"now": "`)
+		m := rNow.FindStringSubmatch(buf.String())
+		cachedNow = m[1]
+	}
+
+	{
+		out, err := client.GetQueryResultsStruct(context.Background(), query.ID)
+		require.NoError(err)
+		require.Len(out.QueryResult.Data.Rows, 1)
+		now, ok := out.QueryResult.Data.Rows[0]["now"].(string)
+		require.True(ok)
+		assert.Equal(cachedNow, now)
+	}
+
+	{
+		out, err := client.GetQueryResultsStruct(context.Background(), query.ID)
+		require.NoError(err)
+		require.Len(out.QueryResult.Data.Rows, 1)
+		now, ok := out.QueryResult.Data.Rows[0]["now"].(string)
+		require.True(ok)
+		assert.Equal(cachedNow, now)
+	}
+
+	// Cache 2
+	{
+		var buf bytes.Buffer
+		job, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+		require.NoError(err)
+		require.Nil(job) // Get results from cache
+		require.Contains(buf.String(), `"rows": [{"now": "`)
+		m := rNow.FindStringSubmatch(buf.String())
+		assert.Equal(cachedNow, m[1])
+	}
+
+	{
+		out, err := client.GetQueryResultsStruct(context.Background(), query.ID)
+		require.NoError(err)
+		require.Len(out.QueryResult.Data.Rows, 1)
+		now, ok := out.QueryResult.Data.Rows[0]["now"].(string)
+		require.True(ok)
+		assert.Equal(cachedNow, now)
+	}
+
+	// Ignore cache
+	{
+		var buf bytes.Buffer
+		input := &redash.ExecQueryJSONInput{
+			WithoutOmittingMaxAge: true,
+		}
+		job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+		require.NoError(err)
+
+		if job != nil && job.Job.ID != "" {
+			for {
+				job, err := client.GetJob(context.Background(), job.Job.ID)
+				require.NoError(err)
+
+				if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+					assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+					_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+					require.NoError(err)
+					break
+				}
+
+				time.Sleep(1 * time.Second)
+			}
+		}
+
+		// NOTE: No result is returned if `max_age=0`.
+		//       I don't know if this is the spec.
+		require.Empty(buf.String())
+	}
+
+	{
+		out, err := client.GetQueryResultsStruct(context.Background(), query.ID)
+		require.NoError(err)
+		require.Len(out.QueryResult.Data.Rows, 1)
+		now, ok := out.QueryResult.Data.Rows[0]["now"].(string)
+		require.True(ok)
+		assert.NotEqual(cachedNow, now)
+	}
 }

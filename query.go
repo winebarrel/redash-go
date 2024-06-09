@@ -74,6 +74,31 @@ type ListQueriesInput struct {
 	Q             string `url:"q,omitempty"`
 }
 
+type GetQueryResultsOutput struct {
+	QueryResult GetQueryResultsOutputQueryResult `json:"query_result"`
+}
+
+type GetQueryResultsOutputQueryResult struct {
+	ID           int                                  `json:"id"`
+	QueryHash    string                               `json:"query_hash"`
+	Query        string                               `json:"query"`
+	Data         GetQueryResultsOutputQueryResultData `json:"data"`
+	DataSourceID int                                  `json:"data_source_id"`
+	Runtime      float64                              `json:"runtime"`
+	RetrievedAt  time.Time                            `json:"retrieved_at"`
+}
+
+type GetQueryResultsOutputQueryResultData struct {
+	Columns []GetQueryResultsOutputQueryResultDataColumn `json:"columns"`
+	Rows    []map[string]any                             `json:"rows"`
+}
+
+type GetQueryResultsOutputQueryResultDataColumn struct {
+	Name         string `json:"name"`
+	FriendlyName string `json:"friendly_name"`
+	Type         string `json:"type"`
+}
+
 func (client *Client) ListQueries(ctx context.Context, input *ListQueriesInput) (*QueryPage, error) {
 	res, close, err := client.Get(ctx, "api/queries", input)
 	defer close()
@@ -227,6 +252,24 @@ func (client *Client) GetQueryResultsJSON(ctx context.Context, id int, out io.Wr
 	return client.GetQueryResults(ctx, id, "json", out)
 }
 
+func (client *Client) GetQueryResultsStruct(ctx context.Context, id int) (*GetQueryResultsOutput, error) {
+	var buf bytes.Buffer
+	err := client.GetQueryResultsJSON(ctx, id, &buf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var out *GetQueryResultsOutput
+	err = json.Unmarshal(buf.Bytes(), &out)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
 func (client *Client) GetQueryResultsCSV(ctx context.Context, id int, out io.Writer) error {
 	return client.GetQueryResults(ctx, id, "csv", out)
 }
@@ -249,8 +292,14 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, o
 }
 
 type ExecQueryJSONInput struct {
+	Parameters            map[string]any `json:"parameters,omitempty"`
+	MaxAge                int            `json:"max_age,omitempty"`
+	WithoutOmittingMaxAge bool           `json:"-"`
+}
+
+type execQueryJSONInputWithMaxAge struct {
 	Parameters map[string]any `json:"parameters,omitempty"`
-	MaxAge     int            `json:"max_age,omitempty"`
+	MaxAge     int            `json:"max_age"`
 }
 
 func (client *Client) ExecQueryJSON(ctx context.Context, id int, input *ExecQueryJSONInput, out io.Writer) (*JobResponse, error) {
@@ -258,7 +307,16 @@ func (client *Client) ExecQueryJSON(ctx context.Context, id int, input *ExecQuer
 		out = io.Discard
 	}
 
-	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), input)
+	var body any = input
+
+	if input != nil && input.WithoutOmittingMaxAge {
+		body = &execQueryJSONInputWithMaxAge{
+			Parameters: input.Parameters,
+			MaxAge:     input.MaxAge,
+		}
+	}
+
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d/results", id), body)
 	defer close()
 
 	if err != nil {
