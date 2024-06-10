@@ -176,6 +176,38 @@ func Test_GetAlert_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_GetAlert_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetAlert(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/alerts/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetAlert_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			Status:     strconv.Itoa(http.StatusOK),
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
+		}, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetAlert(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_CreateAlert_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
