@@ -402,6 +402,24 @@ func (client *Client) WaitQueryJSON(ctx context.Context, queryId int, job *JobRe
 	return nil
 }
 
+func (client *Client) WaitQueryStruct(ctx context.Context, queryId int, job *JobResponse, option *WaitQueryJSONOption, buf *bytes.Buffer) (*GetQueryResultsOutput, error) {
+	err := client.WaitQueryJSON(ctx, queryId, job, option, buf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var out *GetQueryResultsOutput
+	bs, err := io.ReadAll(buf)
+	err = json.Unmarshal(bs, &out)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
 type QueryTags struct {
 	Tags []QueryTagsTag `json:"tags"`
 }
