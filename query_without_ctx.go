@@ -3,6 +3,7 @@
 package redash
 
 import (
+	"bytes"
 	"context"
 	"io"
 )
@@ -57,6 +58,10 @@ func (client *ClientWithoutContext) ExecQueryJSON(id int, input *ExecQueryJSONIn
 
 func (client *ClientWithoutContext) WaitQueryJSON(queryId int, job *JobResponse, option *WaitQueryJSONOption, out io.Writer) error {
 	return client.withCtx.WaitQueryJSON(context.Background(), queryId, job, option, out)
+}
+
+func (client *ClientWithoutContext) WaitQueryStruct(queryId int, job *JobResponse, option *WaitQueryJSONOption, buf *bytes.Buffer) (*GetQueryResultsOutput, error) {
+	return client.withCtx.WaitQueryStruct(context.Background(), queryId, job, option, buf)
 }
 
 func (client *ClientWithoutContext) GetQueryTags() (*QueryTags, error) {

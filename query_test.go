@@ -1095,6 +1095,93 @@ func Test_WaitQueryJSON(t *testing.T) {
 	assert.Equal(`{"foo":"bar"}`, buf.String())
 }
 
+func Test_WaitQueryStruct(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"job": {"status": 1, "error": "", "id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51", "query_result_id": null,	"status": 1, "updated_at": 0}}`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"job": {
+					"error": "",
+					"id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51",
+					"query_result_id": 1,
+					"status": 3,
+					"updated_at": 0
+				}
+			}
+		`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `{"query_result": {"id": 73, "query_hash": "9c12398e42fb85a93a3b1c726f0844b4", "query": "select now()", "data": {"columns": [{"name": "now", "friendly_name": "now", "type": "datetime"}], "rows": [{"now": "2024-06-09T06:14:32.922Z"}]}, "data_source_id": 93, "runtime": 0.021225452423095703, "retrieved_at": "2024-06-09T06:14:32.930Z"}}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
+	assert.NoError(err)
+	out, err := client.WaitQueryStruct(context.Background(), 1, job, nil, &buf)
+	assert.NoError(err)
+	assert.Equal(&redash.GetQueryResultsOutput{
+		QueryResult: redash.GetQueryResultsOutputQueryResult{
+			ID:        73,
+			QueryHash: "9c12398e42fb85a93a3b1c726f0844b4",
+			Query:     "select now()",
+			Data: redash.GetQueryResultsOutputQueryResultData{
+				Columns: []redash.GetQueryResultsOutputQueryResultDataColumn{
+					{Name: "now", FriendlyName: "now", Type: "datetime"},
+				},
+				Rows: []map[string]interface{}{
+					{"now": "2024-06-09T06:14:32.922Z"},
+				},
+			},
+			DataSourceID: 93,
+			Runtime:      0.021225452423095703,
+			RetrievedAt:  time.Date(2024, time.June, 9, 6, 14, 32, 930000000, time.UTC),
+		},
+	}, out)
+}
+
 func Test_GetQueryTags_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -2102,4 +2189,50 @@ func Test_WaitQueryJSON_Acc(t *testing.T) {
 	}, &buf)
 	require.NoError(err)
 	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+}
+
+func Test_WaitQueryStruct_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select 1",
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+	require.NoError(err)
+	out, err := client.WaitQueryStruct(context.Background(), query.ID, job, &redash.WaitQueryJSONOption{
+		WaitStatuses: []int{redash.JobStatusPending, redash.JobStatusStarted},
+		Interval:     500 * time.Microsecond,
+	}, &buf)
+	require.NoError(err)
+	assert.Equal("select 1", out.QueryResult.Query)
 }

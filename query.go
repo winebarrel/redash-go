@@ -253,6 +253,17 @@ func (client *Client) GetQueryResultsJSON(ctx context.Context, id int, out io.Wr
 	return client.GetQueryResults(ctx, id, "json", out)
 }
 
+func JsonToGetQueryResultsOutput(bs []byte) (*GetQueryResultsOutput, error) {
+	var out *GetQueryResultsOutput
+	err := json.Unmarshal(bs, &out)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out, err
+}
+
 func (client *Client) GetQueryResultsStruct(ctx context.Context, id int) (*GetQueryResultsOutput, error) {
 	var buf bytes.Buffer
 	err := client.GetQueryResultsJSON(ctx, id, &buf)
@@ -261,8 +272,7 @@ func (client *Client) GetQueryResultsStruct(ctx context.Context, id int) (*GetQu
 		return nil, err
 	}
 
-	var out *GetQueryResultsOutput
-	err = json.Unmarshal(buf.Bytes(), &out)
+	out, err := JsonToGetQueryResultsOutput(buf.Bytes())
 
 	if err != nil {
 		return nil, err
@@ -400,6 +410,22 @@ func (client *Client) WaitQueryJSON(ctx context.Context, queryId int, job *JobRe
 	}
 
 	return nil
+}
+
+func (client *Client) WaitQueryStruct(ctx context.Context, queryId int, job *JobResponse, option *WaitQueryJSONOption, buf *bytes.Buffer) (*GetQueryResultsOutput, error) {
+	err := client.WaitQueryJSON(ctx, queryId, job, option, buf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := JsonToGetQueryResultsOutput(buf.Bytes())
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 type QueryTags struct {
