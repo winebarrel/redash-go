@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	testAcc = false
-
+	testAcc   = false
 	ioErrResp = &http.Response{
 		Status:     strconv.Itoa(http.StatusOK),
 		StatusCode: http.StatusOK,
