@@ -63,7 +63,7 @@ func Test_Ping_Err(t *testing.T) {
 	assert.ErrorContains(err, "invalid ping response: <html></html>")
 }
 
-func Test_Ping_Err_5XX(t *testing.T) {
+func Test_Ping_Err_5xx(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()

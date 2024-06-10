@@ -2,8 +2,12 @@ package redash_test
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
+	"strconv"
 	"testing"
+	"testing/iotest"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -42,6 +46,38 @@ func Test_GetAdminQueriesOutdated_OK(t *testing.T) {
 		Queries:   []redash.Query{},
 		UpdatedAt: "1676390846.0004709",
 	}, res)
+}
+
+func Test_GetAdminQueriesOutdated_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/admin/queries/outdated", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, `error`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetAdminQueriesOutdated(context.Background())
+	assert.ErrorContains(err, "GET /api/admin/queries/outdated failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetAdminQueriesOutdated_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/admin/queries/outdated", func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			Status:     strconv.Itoa(http.StatusOK),
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
+		}, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetAdminQueriesOutdated(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_GetAdminQueriesRqStatus_OK(t *testing.T) {
