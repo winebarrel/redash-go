@@ -101,6 +101,34 @@ func Test_GetSettingsOrganization_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_GetSettingsOrganization_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/settings/organization", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetSettingsOrganization(context.Background())
+	assert.ErrorContains(err, "GET api/settings/organization failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetSettingsOrganization_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/settings/organization", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetSettingsOrganization(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_UpdateSettingsOrganization_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -195,6 +223,38 @@ func Test_UpdateSettingsOrganization_OK(t *testing.T) {
 			TimeFormat:                        "HH:mm",
 		},
 	}, res)
+}
+
+func Test_UpdateSettingsOrganization_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/settings/organization", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
+		DateFormat: "YYYY/MM/DD",
+	})
+	assert.ErrorContains(err, "POST api/settings/organization failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_UpdateSettingsOrganization_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/settings/organization", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
+		DateFormat: "YYYY/MM/DD",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_Settings_Acc(t *testing.T) {
