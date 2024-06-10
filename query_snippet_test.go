@@ -60,6 +60,34 @@ func Test_ListQuerySnippets_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListQuerySnippets_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_snippets", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListQuerySnippets(context.Background())
+	assert.ErrorContains(err, "GET api/query_snippets failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListQuerySnippets_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_snippets", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListQuerySnippets(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_GetQuerySnippets_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -101,6 +129,34 @@ func Test_GetQuerySnippets_OK(t *testing.T) {
 		UpdatedAt:   dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 		User:        redash.User{},
 	}, res)
+}
+
+func Test_GetQuerySnippets_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_snippets/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQuerySnippet(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/query_snippets/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQuerySnippets_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_snippets/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQuerySnippet(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_CreateQuerySnippets_OK(t *testing.T) {
@@ -155,6 +211,42 @@ func Test_CreateQuerySnippets_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateQuerySnippets_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/query_snippets", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateQuerySnippet(context.Background(), &redash.CreateQuerySnippetInput{
+		Description: "description",
+		Snippet:     "select 1",
+		Trigger:     "my-snippet",
+	})
+	assert.ErrorContains(err, "POST api/query_snippets failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateQuerySnippets_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/query_snippets", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateQuerySnippet(context.Background(), &redash.CreateQuerySnippetInput{
+		Description: "description",
+		Snippet:     "select 1",
+		Trigger:     "my-snippet",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_UpdateQuerySnippets_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -207,6 +299,42 @@ func Test_UpdateQuerySnippets_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_UpdateQuerySnippets_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/query_snippets/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateQuerySnippet(context.Background(), 1, &redash.UpdateQuerySnippetInput{
+		Description: "description",
+		Snippet:     "select 1",
+		Trigger:     "my-snippet",
+	})
+	assert.ErrorContains(err, "POST api/query_snippets/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_UpdateQuerySnippets_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/query_snippets/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateQuerySnippet(context.Background(), 1, &redash.UpdateQuerySnippetInput{
+		Description: "description",
+		Snippet:     "select 1",
+		Trigger:     "my-snippet",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_DeleteQuerySnippets_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -239,6 +367,20 @@ func Test_DeleteQuerySnippets_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteQuerySnippet(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_DeleteQuerySnippets_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/query_snippets/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteQuerySnippet(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/query_snippets/1 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_QuerySnippet_Acc(t *testing.T) {
