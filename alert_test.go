@@ -2,9 +2,12 @@ package redash_test
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
+	"strconv"
 	"testing"
+	"testing/iotest"
 
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
@@ -76,6 +79,38 @@ func Test_ListAlerts_OK(t *testing.T) {
 			User:      redash.User{},
 		},
 	}, res)
+}
+
+func Test_ListAlerts_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListAlerts(context.Background())
+	assert.ErrorContains(err, "GET api/alerts failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListAlerts_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			Status:     strconv.Itoa(http.StatusOK),
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
+		}, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListAlerts(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_GetAlert_OK(t *testing.T) {
