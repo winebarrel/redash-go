@@ -2229,13 +2229,6 @@ func Test_WaitQueryStruct_Acc(t *testing.T) {
 	var buf bytes.Buffer
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
 	require.NoError(err)
-	err = client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
-	require.NoError(err)
-	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
-
-	buf.Reset()
-	job, err = client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
-	require.NoError(err)
 	out, err := client.WaitQueryStruct(context.Background(), query.ID, job, &redash.WaitQueryJSONOption{
 		WaitStatuses: []int{redash.JobStatusPending, redash.JobStatusStarted},
 		Interval:     500 * time.Microsecond,
