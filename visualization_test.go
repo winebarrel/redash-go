@@ -66,6 +66,42 @@ func Test_UpdateVisualization_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_UpdateVisualization_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/visualizations/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateVisualization(context.Background(), 1, &redash.UpdateVisualizationInput{
+		Description: "description",
+		Name:        "name",
+		Type:        "TABLE",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
+func Test_UpdateVisualization_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/visualizations/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateVisualization(context.Background(), 1, &redash.UpdateVisualizationInput{
+		Description: "description",
+		Name:        "name",
+		Type:        "TABLE",
+	})
+	assert.ErrorContains(err, "POST api/visualizations/1 failed: HTTP status code not OK: 503\nerror")
+}
+
 func Test_Visualization_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
