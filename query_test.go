@@ -1555,6 +1555,7 @@ func Test_ListRecentQueries_OK(t *testing.T) {
 		},
 	}, res)
 }
+
 func Test_Query_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()

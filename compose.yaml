@@ -1,5 +1,7 @@
 x-redash-image: &redash-image
+  # https://hub.docker.com/r/redash/preview/tags
   image: redash/preview:24.06.0-dev
+  platform: linux/amd64
 
 x-redash-environment: &redash-environment
   REDASH_LOG_LEVEL: "INFO"
