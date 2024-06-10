@@ -64,27 +64,10 @@ func main() {
 		panic(err)
 	}
 
-	if job != nil {
-		for {
-			job, err := client.GetJob(ctx, job.Job.ID)
+  err = client.WaitQueryJSON(ctx, query.ID, job, nil, &buf)
 
-			if err != nil {
-				panic(err)
-			}
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				buf = bytes.Buffer{}
-				err := client.GetQueryResultsJSON(ctx, query.ID, &buf)
-
-				if err != nil {
-					panic(err)
-				}
-
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
+	if err != nil {
+		panic(err)
 	}
 
 	fmt.Println(buf.String())
@@ -98,25 +81,19 @@ input := &redash.ExecQueryJSONInput{
   WithoutOmittingMaxAge: true,
 }
 
-// If `max_age=0`, no result is returned.
-// Results should be obtained with the GetQueryResultsXXX method.
 job, err := client.ExecQueryJSON(ctx, query.ID, input, nil)
 
 if err != nil {
   panic(err)
 }
 
-if job != nil {
-  // Waiting...
-}
-
-out, err := client.GetQueryResultsStruct(context.Background(), query.ID)
+err = client.WaitQueryJSON(ctx, query.ID, job, nil, &buf)
 
 if err != nil {
   panic(err)
 }
 
-fmt.Println(out)
+fmt.Println(buf.String())
 ```
 
 ### Set debug mode

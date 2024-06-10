@@ -1025,6 +1025,76 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 	}, job)
 }
 
+func Test_WaitQueryJSON(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"job": {"status": 1, "error": "", "id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51", "query_result_id": null,	"status": 1, "updated_at": 0}}`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"job": {
+					"error": "",
+					"id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51",
+					"query_result_id": 1,
+					"status": 3,
+					"updated_at": 0
+				}
+			}
+		`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
+	assert.NoError(err)
+	err = client.WaitQueryJSON(context.Background(), 1, job, nil, &buf)
+	assert.NoError(err)
+	assert.Equal(`{"foo":"bar"}`, buf.String())
+}
+
 func Test_GetQueryTags_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -1979,4 +2049,57 @@ func Test_Query_IgnoreCache_Acc(t *testing.T) {
 		require.True(ok)
 		assert.NotEqual(cachedNow, now)
 	}
+}
+
+func Test_WaitQueryJSON_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select 1",
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+	require.NoError(err)
+	err = client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	require.NoError(err)
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+
+	buf.Reset()
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+	require.NoError(err)
+	err = client.WaitQueryJSON(context.Background(), query.ID, job, &redash.WaitQueryJSONOption{
+		WaitStatuses: []int{redash.JobStatusPending, redash.JobStatusStarted},
+		Interval:     500 * time.Microsecond,
+	}, &buf)
+	require.NoError(err)
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
 }

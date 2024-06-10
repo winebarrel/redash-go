@@ -55,6 +55,10 @@ func (client *ClientWithoutContext) ExecQueryJSON(id int, input *ExecQueryJSONIn
 	return client.withCtx.ExecQueryJSON(context.Background(), id, input, out)
 }
 
+func (client *ClientWithoutContext) WaitQueryJSON(queryId int, job *JobResponse, option *WaitQueryJSONOption, out io.Writer) error {
+	return client.withCtx.WaitQueryJSON(context.Background(), queryId, job, option, out)
+}
+
 func (client *ClientWithoutContext) GetQueryTags() (*QueryTags, error) {
 	return client.withCtx.GetQueryTags(context.Background())
 }

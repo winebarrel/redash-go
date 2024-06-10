@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/winebarrel/redash-go/v2/internal/util"
@@ -342,6 +343,63 @@ func (client *Client) ExecQueryJSON(ctx context.Context, id int, input *ExecQuer
 	_, err = io.Copy(out, buf)
 
 	return nil, err
+}
+
+var (
+	defaultWaitQueryJSONOptionWaitStatuses = []int{
+		JobStatusPending,
+		JobStatusStarted,
+	}
+)
+
+const (
+	defaultWaitQueryJSONOptionInterval = 1 * time.Second
+)
+
+type WaitQueryJSONOption struct {
+	WaitStatuses []int
+	Interval     time.Duration
+}
+
+func (client *Client) WaitQueryJSON(ctx context.Context, queryId int, job *JobResponse, option *WaitQueryJSONOption, out io.Writer) error {
+	if job == nil || job.Job.ID == "" {
+		return nil
+	}
+
+	waitStatus := defaultWaitQueryJSONOptionWaitStatuses
+	interval := defaultWaitQueryJSONOptionInterval
+
+	if option != nil {
+		if len(option.WaitStatuses) > 0 {
+			waitStatus = option.WaitStatuses
+		}
+
+		if option.Interval > 0 {
+			interval = option.Interval
+		}
+	}
+
+	for {
+		job, err := client.GetJob(ctx, job.Job.ID)
+
+		if err != nil {
+			return err
+		}
+
+		if !slices.Contains(waitStatus, job.Job.Status) {
+			err := client.GetQueryResultsJSON(ctx, queryId, out)
+
+			if err != nil {
+				return err
+			}
+
+			break
+		}
+
+		time.Sleep(interval)
+	}
+
+	return nil
 }
 
 type QueryTags struct {
