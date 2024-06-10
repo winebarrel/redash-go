@@ -410,13 +410,7 @@ func (client *Client) WaitQueryStruct(ctx context.Context, queryId int, job *Job
 	}
 
 	var out *GetQueryResultsOutput
-	bs, err := io.ReadAll(buf)
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(bs, &out)
+	err = json.Unmarshal(buf.Bytes(), &out)
 
 	if err != nil {
 		return nil, err
