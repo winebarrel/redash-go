@@ -75,6 +75,50 @@ func Test_CreateWidget_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateWidget_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/widgets", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateWidget(context.Background(), &redash.CreateWidgetInput{
+		DashboardID: 1,
+		Options: map[string]any{
+			"isHidden": false,
+		},
+		Text:            "text",
+		VisualizationID: 1,
+		Width:           1,
+	})
+	assert.ErrorContains(err, "POST api/widgets failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateWidget_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/widgets", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateWidget(context.Background(), &redash.CreateWidgetInput{
+		DashboardID: 1,
+		Options: map[string]any{
+			"isHidden": false,
+		},
+		Text:            "text",
+		VisualizationID: 1,
+		Width:           1,
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_CreateWidget_Width0(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
