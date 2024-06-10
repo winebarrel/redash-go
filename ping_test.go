@@ -2,12 +2,8 @@ package redash_test
 
 import (
 	"context"
-	"errors"
-	"io"
 	"net/http"
-	"strconv"
 	"testing"
-	"testing/iotest"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -83,11 +79,7 @@ func Test_Ping_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/ping", func(req *http.Request) (*http.Response, error) {
-		return &http.Response{
-			Status:     strconv.Itoa(http.StatusOK),
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
-		}, nil
+		return ioErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)

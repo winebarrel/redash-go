@@ -2,12 +2,9 @@ package redash_test
 
 import (
 	"context"
-	"errors"
 	"io"
 	"net/http"
-	"strconv"
 	"testing"
-	"testing/iotest"
 
 	"github.com/araddon/dateparse"
 	"github.com/jarcoal/httpmock"
@@ -101,11 +98,7 @@ func Test_ListAlerts_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
-		return &http.Response{
-			Status:     strconv.Itoa(http.StatusOK),
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
-		}, nil
+		return ioErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
@@ -196,11 +189,7 @@ func Test_GetAlert_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
-		return &http.Response{
-			Status:     strconv.Itoa(http.StatusOK),
-			StatusCode: http.StatusOK,
-			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
-		}, nil
+		return ioErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
@@ -283,6 +272,56 @@ func Test_CreateAlert_OK(t *testing.T) {
 		UpdatedAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 		User:      redash.User{},
 	}, res)
+}
+
+func Test_CreateAlert_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
+		Name: "name",
+		Options: redash.CreateAlertOptions{
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
+		},
+		QueryId: 1,
+		Rearm:   1,
+	})
+	assert.ErrorContains(err, "POST api/alerts failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateAlert_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
+		return ioErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
+		Name: "name",
+		Options: redash.CreateAlertOptions{
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
+		},
+		QueryId: 1,
+		Rearm:   1,
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_UpdateAlert_OK(t *testing.T) {

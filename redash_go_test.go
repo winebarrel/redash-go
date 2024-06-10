@@ -1,12 +1,22 @@
 package redash_test
 
 import (
+	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strconv"
 	"testing"
+	"testing/iotest"
 )
 
 var (
-	testAcc = false
+	testAcc   = false
+	ioErrResp = &http.Response{
+		Status:     strconv.Itoa(http.StatusOK),
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
+	}
 )
 
 const (
