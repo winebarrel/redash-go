@@ -103,6 +103,34 @@ func Test_GetSession_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_GetSession_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/session", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetSession(context.Background())
+	assert.ErrorContains(err, "GET api/session failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetSession_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/session", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetSession(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_Session_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
