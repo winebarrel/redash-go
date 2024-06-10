@@ -64,27 +64,10 @@ func main() {
 		panic(err)
 	}
 
-	if job != nil {
-		for {
-			job, err := client.GetJob(ctx, job.Job.ID)
+  err = client.WaitQueryJSON(ctx, query.ID, job, nil, &buf)
 
-			if err != nil {
-				panic(err)
-			}
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				buf = bytes.Buffer{}
-				err := client.GetQueryResultsJSON(ctx, query.ID, &buf)
-
-				if err != nil {
-					panic(err)
-				}
-
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
+	if err != nil {
+		panic(err)
 	}
 
 	fmt.Println(buf.String())
@@ -106,8 +89,10 @@ if err != nil {
   panic(err)
 }
 
-if job != nil {
-  // Waiting...
+err = client.WaitQueryJSON(ctx, query.ID, job, nil, &buf)
+
+if err != nil {
+  panic(err)
 }
 
 out, err := client.GetQueryResultsStruct(context.Background(), query.ID)

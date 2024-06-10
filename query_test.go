@@ -1980,3 +1980,56 @@ func Test_Query_IgnoreCache_Acc(t *testing.T) {
 		assert.NotEqual(cachedNow, now)
 	}
 }
+
+func Test_WaitQueryJSON_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select 1",
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+	require.NoError(err)
+	err = client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	require.NoError(err)
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+
+	buf.Reset()
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+	require.NoError(err)
+	err = client.WaitQueryJSON(context.Background(), query.ID, job, &redash.WaitQueryJSONOption{
+		WaitStatuses: []int{redash.JobStatusPending, redash.JobStatusStarted},
+		Interval:     500 * time.Microsecond,
+	}, &buf)
+	require.NoError(err)
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+}
