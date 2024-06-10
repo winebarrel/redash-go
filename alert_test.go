@@ -98,7 +98,7 @@ func Test_ListAlerts_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
-		return ioErrResp, nil
+		return testIOErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
@@ -189,7 +189,7 @@ func Test_GetAlert_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
-		return ioErrResp, nil
+		return testIOErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
@@ -305,7 +305,7 @@ func Test_CreateAlert_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
-		return ioErrResp, nil
+		return testIOErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
@@ -432,7 +432,7 @@ func Test_UpdateAlert_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
-		return ioErrResp, nil
+		return testIOErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)

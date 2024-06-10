@@ -79,7 +79,7 @@ func Test_Ping_IOErr(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/ping", func(req *http.Request) (*http.Response, error) {
-		return ioErrResp, nil
+		return testIOErrResp, nil
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)

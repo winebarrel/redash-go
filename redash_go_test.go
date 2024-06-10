@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	testAcc   = false
-	ioErrResp = &http.Response{
+	testAcc       = false
+	testIOErrResp = &http.Response{
 		Status:     strconv.Itoa(http.StatusOK),
 		StatusCode: http.StatusOK,
 		Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
