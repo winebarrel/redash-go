@@ -1,11 +1,13 @@
 package util_test
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/winebarrel/redash-go/v2/internal/util"
@@ -22,6 +24,18 @@ func Test_UnmarshalBody_OK(t *testing.T) {
 	err := util.UnmarshalBody(res, &body)
 	assert.NoError(err)
 	assert.Equal(map[string]string{"foo": "bar"}, body)
+}
+
+func Test_UnmarshalBody_IOErr(t *testing.T) {
+	assert := assert.New(t)
+
+	res := &http.Response{
+		Body: io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
+	}
+
+	var body map[string]string
+	err := util.UnmarshalBody(res, &body)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_UnmarshalBody_Err(t *testing.T) {
@@ -133,4 +147,10 @@ func Test_ValuesFrom_Struct(t *testing.T) {
 	values, err := util.URLValuesFrom(params)
 	assert.NoError(err)
 	assert.Equal("bar=1&foo=foo", values.Encode())
+}
+
+func Test_ValuesFrom_Err(t *testing.T) {
+	assert := assert.New(t)
+	_, err := util.URLValuesFrom("xxx")
+	assert.ErrorContains(err, "query: Values() expects struct input. Got string")
 }
