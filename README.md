@@ -64,7 +64,7 @@ func main() {
 		panic(err)
 	}
 
-  err = client.WaitQueryJSON(ctx, query.ID, job, nil, &buf)
+	err = client.WaitQueryJSON(ctx, query.ID, job, nil, &buf)
 
 	if err != nil {
 		panic(err)
