@@ -108,6 +108,34 @@ func Test_GetStatus_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_GetStatus_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/status.json", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetStatus(context.Background())
+	assert.ErrorContains(err, "GET status.json failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetStatus_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/status.json", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetStatus(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_GetStatus_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
