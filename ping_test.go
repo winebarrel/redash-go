@@ -2,8 +2,12 @@ package redash_test
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net/http"
+	"strconv"
 	"testing"
+	"testing/iotest"
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -57,6 +61,38 @@ func Test_Ping_Err(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.Ping(context.Background())
 	assert.ErrorContains(err, "invalid ping response: <html></html>")
+}
+
+func Test_Ping_Err_5XX(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/ping", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, `error`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.Ping(context.Background())
+	assert.ErrorContains(err, "GET ping failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_Ping_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/ping", func(req *http.Request) (*http.Response, error) {
+		return &http.Response{
+			Status:     strconv.Itoa(http.StatusOK),
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(iotest.ErrReader(errors.New("IO error"))),
+		}, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.Ping(context.Background())
+	assert.ErrorContains(err, "IO error")
 }
 
 func Test_Ping_Acc(t *testing.T) {
