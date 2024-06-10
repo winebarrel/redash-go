@@ -100,7 +100,7 @@ input := &redash.ExecQueryJSONInput{
 
 // If `max_age=0`, no result is returned.
 // Results should be obtained with the GetQueryResultsXXX method.
-job, err := client.ExecQueryJSON(ctx, query.ID, nil, nil)
+job, err := client.ExecQueryJSON(ctx, query.ID, input, nil)
 
 if err != nil {
   panic(err)
