@@ -54,6 +54,34 @@ func Test_ListDestinations_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListDestinations_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/destinations", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListDestinations(context.Background())
+	assert.ErrorContains(err, "GET api/destinations failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListDestinations_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/destinations", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListDestinations(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_GetDestination_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -95,6 +123,34 @@ func Test_GetDestination_OK(t *testing.T) {
 		},
 		Type: "email",
 	}, res)
+}
+
+func Test_GetDestination_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/destinations/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDestination(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/destinations/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetDestination_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/destinations/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDestination(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_CreateDestination_OK(t *testing.T) {
