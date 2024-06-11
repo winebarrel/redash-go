@@ -207,6 +207,46 @@ func Test_CreateDestination_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateDestination_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/destinations", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateDestination(context.Background(), &redash.CreateDestinationInput{
+		Name: "alert@example.com",
+		Options: map[string]any{
+			"addresses": "alert@example.com",
+		},
+		Type: "email",
+	})
+	assert.ErrorContains(err, "POST api/destinations failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateDestination_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/destinations", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateDestination(context.Background(), &redash.CreateDestinationInput{
+		Name: "alert@example.com",
+		Options: map[string]any{
+			"addresses": "alert@example.com",
+		},
+		Type: "email",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_DeleteDestination_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -229,6 +269,20 @@ func Test_DeleteDestination_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteDestination(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_DeleteDestination_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/destinations/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteDestination(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/destinations/1 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_GetDestinationTypes_OK(t *testing.T) {
