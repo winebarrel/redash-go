@@ -101,6 +101,40 @@ func Test_ListUsers_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListUsers_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/users", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListUsers(context.Background(), &redash.ListUsersInput{
+		Page:     1,
+		PageSize: 25,
+	})
+	assert.ErrorContains(err, "GET api/users failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListUsers_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/users", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListUsers(context.Background(), &redash.ListUsersInput{
+		Page:     1,
+		PageSize: 25,
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_GetUser_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -159,6 +193,34 @@ func Test_GetUser_OK(t *testing.T) {
 		ProfileImageURL:     "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=40&d=identicon",
 		UpdatedAt:           dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 	}, res)
+}
+
+func Test_GetUser_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/users/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetUser(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/users/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetUser_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/users/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetUser(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_CreateUser_OK(t *testing.T) {
@@ -230,6 +292,42 @@ func Test_CreateUser_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateUser_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/users", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateUser(context.Background(), &redash.CreateUsersInput{
+		AuthType: "password",
+		Email:    "admin@example.com",
+		Name:     "admin",
+	})
+	assert.ErrorContains(err, "POST api/users failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateUser_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/users", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateUser(context.Background(), &redash.CreateUsersInput{
+		AuthType: "password",
+		Email:    "admin@example.com",
+		Name:     "admin",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_UpdateUser_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -298,6 +396,44 @@ func Test_UpdateUser_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_UpdateUser_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/users/1", func(req *http.Request) (*http.Response, error) {
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"email":"admin2@example.com","name":"admin2"}`, string(body))
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateUser(context.Background(), 1, &redash.UpdateUserInput{
+		Email: "admin2@example.com",
+		Name:  "admin2",
+	})
+	assert.ErrorContains(err, "POST api/users/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_UpdateUser_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/users/1", func(req *http.Request) (*http.Response, error) {
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"email":"admin2@example.com","name":"admin2"}`, string(body))
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateUser(context.Background(), 1, &redash.UpdateUserInput{
+		Email: "admin2@example.com",
+		Name:  "admin2",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_DeleteUser_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -320,6 +456,20 @@ func Test_DeleteUser_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteUser(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_DeleteUser_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/users/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteUser(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/users/1 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_DisableUser_OK(t *testing.T) {
@@ -382,6 +532,34 @@ func Test_DisableUser_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_DisableUser_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/users/1/disable", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.DisableUser(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/users/1/disable failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_DisableUser_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/users/1/disable", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.DisableUser(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_EnableUser_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -440,6 +618,34 @@ func Test_EnableUser_OK(t *testing.T) {
 		ProfileImageURL:     "https://www.gravatar.com/avatar/e64c7d89f26bd1972efa854d13d7dd61?s=40&d=identicon",
 		UpdatedAt:           dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 	}, res)
+}
+
+func Test_EnableUser_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/users/1/disable", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.EnableUser(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/users/1/disable failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_EnableUser_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/users/1/disable", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.EnableUser(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_User_Acc(t *testing.T) {
