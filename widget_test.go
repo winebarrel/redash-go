@@ -203,6 +203,20 @@ func Test_DeleteWidget_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_DeleteWidget_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/widgets/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteWidget(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/widgets/1 failed: HTTP status code not OK: 503\nerror")
+}
+
 func Test_Widget_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
