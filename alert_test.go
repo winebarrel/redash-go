@@ -475,6 +475,20 @@ func Test_DeleteAlert_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_DeleteAlert_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteAlert(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/alerts/1 failed: HTTP status code not OK: 503\nerror")
+}
+
 func Test_ListAlertSubscriptions_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -525,6 +539,34 @@ func Test_ListAlertSubscriptions_OK(t *testing.T) {
 			User: redash.User{},
 		},
 	}, res)
+}
+
+func Test_ListAlertSubscriptions_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts/1/subscriptions", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListAlertSubscriptions(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/alerts/1/subscriptions failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListAlertSubscriptions_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/alerts/1/subscriptions", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListAlertSubscriptions(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_AddAlertSubscription_OK(t *testing.T) {
