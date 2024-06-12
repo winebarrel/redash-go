@@ -923,6 +923,77 @@ func Test_UnshareDashboard_Err_5xx(t *testing.T) {
 	assert.ErrorContains(err, "DELETE api/dashboards/1/share failed: HTTP status code not OK: 503\nerror")
 }
 
+func Test_GetDashboardTags_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/tags", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+		  {
+		    "tags": [
+					{
+						"count": 1,
+						"name": "foo"
+					},
+					{
+						"count": 2,
+						"name": "bar"
+					}
+				]
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.GetDashboardTags(context.Background())
+	assert.NoError(err)
+	assert.Equal(&redash.DashboardTags{
+		Tags: []redash.DashboardTagsTag{
+			{Count: 1, Name: "foo"},
+			{Count: 2, Name: "bar"},
+		},
+	}, res)
+}
+
+func Test_GetDashboardTags_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/tags", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDashboardTags(context.Background())
+	assert.ErrorContains(err, "GET api/dashboards/tags failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetDashboardTags_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/tags", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDashboardTags(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_Dashboard_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
