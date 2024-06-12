@@ -92,6 +92,42 @@ func Test_ListDashboards_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListDashboards_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{
+		OnlyFavorites: false,
+		Page:          1,
+		PageSize:      25,
+	})
+	assert.ErrorContains(err, "GET api/dashboards failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListDashboards_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListDashboards(context.Background(), &redash.ListDashboardsInput{
+		OnlyFavorites: false,
+		Page:          1,
+		PageSize:      25,
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_ListDashboards_WithQ(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -233,7 +269,35 @@ func Test_GetDashboard_OK(t *testing.T) {
 	}, res)
 }
 
-func Test_CreatexDashboard_OK(t *testing.T) {
+func Test_GetDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/dashboards/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetDashboard_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
+func Test_CreateFavoriteDashboard_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
@@ -255,6 +319,20 @@ func Test_CreatexDashboard_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.CreateFavoriteDashboard(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_CreateFavoriteDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1/favorite", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.CreateFavoriteDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/dashboards/1/favorite failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_CreateDashboard_OK(t *testing.T) {
@@ -323,6 +401,38 @@ func Test_CreateDashboard_OK(t *testing.T) {
 		Version:                 2,
 		Widgets:                 []redash.Widget{},
 	}, res)
+}
+
+func Test_CreateDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
+		Name: "name",
+	})
+	assert.ErrorContains(err, "POST api/dashboards failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateDashboard_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
+		Name: "name",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_UpdateDashboard_OK(t *testing.T) {
@@ -400,6 +510,52 @@ func Test_UpdateDashboard_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_UpdateDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateDashboard(context.Background(), 1, &redash.UpdateDashboardInput{
+		DashboardFiltersEnabled: true,
+		IsArchived:              true,
+		IsDraft:                 true,
+		Layout:                  []any{},
+		Name:                    "name",
+		Options:                 nil,
+		Tags:                    &[]string{"foo", "bar"},
+		Version:                 1,
+	})
+	assert.ErrorContains(err, "POST api/dashboards/1 failed: HTTP status code not OK: 503")
+}
+
+func Test_UpdateDashboard_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateDashboard(context.Background(), 1, &redash.UpdateDashboardInput{
+		DashboardFiltersEnabled: true,
+		IsArchived:              true,
+		IsDraft:                 true,
+		Layout:                  []any{},
+		Name:                    "name",
+		Options:                 nil,
+		Tags:                    &[]string{"foo", "bar"},
+		Version:                 1,
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_ArchiveDashboard_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -422,6 +578,20 @@ func Test_ArchiveDashboard_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.ArchiveDashboard(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_ArchiveDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/dashboards/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.ArchiveDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/dashboards/1 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_ListMyDashboards_OK(t *testing.T) {
@@ -503,6 +673,42 @@ func Test_ListMyDashboards_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListMyDashboards_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/my", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListMyDashboards(context.Background(), &redash.ListMyDashboardsInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "name",
+	})
+	assert.ErrorContains(err, "GET api/dashboards/my failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListMyDashboards_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/my", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListMyDashboards(context.Background(), &redash.ListMyDashboardsInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "name",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_ListFavoriteDashboards_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -582,6 +788,42 @@ func Test_ListFavoriteDashboards_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListFavoriteDashboards_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/favorites", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListFavoriteDashboards(context.Background(), &redash.ListFavoriteDashboardsInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "name",
+	})
+	assert.ErrorContains(err, "GET api/dashboards/favorites failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListFavoriteDashboards_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/dashboards/favorites", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListFavoriteDashboards(context.Background(), &redash.ListFavoriteDashboardsInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "name",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_ShareDashboard_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -615,6 +857,34 @@ func Test_ShareDashboard_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ShareDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1/share", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ShareDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/dashboards/1/share failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ShareDashboard_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/dashboards/1/share", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ShareDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_UnshareDashboard_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -637,6 +907,20 @@ func Test_UnshareDashboard_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.UnshareDashboard(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_UnshareDashboard_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/dashboards/1/share", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.UnshareDashboard(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/dashboards/1/share failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_Dashboard_Acc(t *testing.T) {
