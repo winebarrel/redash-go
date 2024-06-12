@@ -63,6 +63,34 @@ func Test_ListDataSources_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListDataSources_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListDataSources(context.Background())
+	assert.ErrorContains(err, "GET api/data_sources failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListDataSources_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListDataSources(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_GetDataSource_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -123,6 +151,34 @@ func Test_GetDataSource_OK(t *testing.T) {
 		Type:               "pg",
 		ViewOnly:           false,
 	}, res)
+}
+
+func Test_GetDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/data_sources/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetDataSource_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "Unmarshal response body failed: Read response body failed: IO error")
 }
 
 func Test_CreateDataSource_OK(t *testing.T) {
@@ -201,6 +257,52 @@ func Test_CreateDataSource_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "postgres",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+		Type: "pg",
+	})
+	assert.ErrorContains(err, "POST api/data_sources failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateDataSource_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "postgres",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+		Type: "pg",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_UpdateDataSource_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -277,6 +379,52 @@ func Test_UpdateDataSource_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_UpdateDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateDataSource(context.Background(), 1, &redash.UpdateDataSourceInput{
+		Name: "postgres",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+		Type: "pg",
+	})
+	assert.ErrorContains(err, "POST api/data_sources/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_UpdateDataSource_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateDataSource(context.Background(), 1, &redash.UpdateDataSourceInput{
+		Name: "postgres",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+		Type: "pg",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_PauseDataSource_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -326,6 +474,38 @@ func Test_PauseDataSource_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_PauseDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1/pause", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.PauseDataSource(context.Background(), 1, &redash.PauseDataSourceInput{
+		Reason: "this is reason",
+	})
+	assert.ErrorContains(err, "POST api/data_sources/1/pause failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_PauseDataSource_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1/pause", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.PauseDataSource(context.Background(), 1, &redash.PauseDataSourceInput{
+		Reason: "this is reason",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_ResumeDataSource_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -368,6 +548,34 @@ func Test_ResumeDataSource_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ResumeDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/data_sources/1/pause", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ResumeDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/data_sources/1/pause failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ResumeDataSource_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/data_sources/1/pause", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ResumeDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_DeleteDataSource_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -390,6 +598,20 @@ func Test_DeleteDataSource_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteDataSource(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_DeleteDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/data_sources/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/data_sources/1 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_TestDataSource_OK(t *testing.T) {
@@ -423,6 +645,34 @@ func Test_TestDataSource_OK(t *testing.T) {
 		Message: "success",
 		Ok:      true,
 	}, res)
+}
+
+func Test_TestDataSource_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1/test", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.TestDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/data_sources/1/test failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_TestDataSource_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/data_sources/1/test", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.TestDataSource(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_GetDataSourceTypes_OK(t *testing.T) {
@@ -600,6 +850,34 @@ func Test_GetDataSourceTypes_OK(t *testing.T) {
 			Type: "athena",
 		},
 	}, res)
+}
+
+func Test_GetDataSourceTypes_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/types", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDataSourceTypes(context.Background())
+	assert.ErrorContains(err, "GET api/data_sources/types failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetDataSourceTypes_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/types", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDataSourceTypes(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_DataSource_Acc(t *testing.T) {
