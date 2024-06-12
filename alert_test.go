@@ -622,6 +622,34 @@ func Test_AddAlertSubscription_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_AddAlertSubscription_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts/1/subscriptions", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.AddAlertSubscription(context.Background(), 1, 1)
+	assert.ErrorContains(err, "POST api/alerts/1/subscriptions failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_AddAlertSubscription_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts/1/subscriptions", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.AddAlertSubscription(context.Background(), 1, 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_RemoveAlertSubscription_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -644,6 +672,20 @@ func Test_RemoveAlertSubscription_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.RemoveAlertSubscription(context.Background(), 1, 2)
 	assert.NoError(err)
+}
+
+func Test_RemoveAlertSubscription_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/alerts/1/subscriptions/2", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.RemoveAlertSubscription(context.Background(), 1, 2)
+	assert.ErrorContains(err, "DELETE api/alerts/1/subscriptions/2 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_MuteAlert_OK(t *testing.T) {
@@ -670,6 +712,20 @@ func Test_MuteAlert_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_MuteAlert_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts/1/mute", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.MuteAlert(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/alerts/1/mute failed: HTTP status code not OK: 503\nerror")
+}
+
 func Test_UnmuteAlert_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -692,6 +748,20 @@ func Test_UnmuteAlert_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.UnmuteAlert(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_UnmuteAlert_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/alerts/1/mute", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.UnmuteAlert(context.Background(), 1)
+	assert.ErrorContains(err, "DELETE api/alerts/1/mute failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_Alert_Acc(t *testing.T) {
