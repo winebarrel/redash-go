@@ -582,6 +582,60 @@ func Test_RemoveGroupDataSource_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_UpdateGroupDataSource_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/groups/1/data_sources/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"view_only":true}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"id": 1,
+				"name": "postgres",
+				"pause_reason": null,
+				"paused": 0,
+				"syntax": "sql",
+				"type": "pg",
+				"view_only": true
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.UpdateGroupDataSource(context.Background(), 1, 1, &redash.UpdateGroupDataSourceInput{
+		ViewOnly: true,
+	})
+	assert.NoError(err)
+	assert.Equal(&redash.DataSource{
+		Groups:             nil,
+		ID:                 1,
+		Name:               "postgres",
+		Options:            nil,
+		Paused:             0,
+		PauseReason:        "",
+		QueueName:          "",
+		ScheduledQueueName: "",
+		Syntax:             "sql",
+		Type:               "pg",
+		ViewOnly:           true,
+	}, res)
+}
+
 func Test_Group_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
