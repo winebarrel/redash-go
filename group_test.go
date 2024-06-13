@@ -63,6 +63,34 @@ func Test_ListGroups_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListGroups_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/groups", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListGroups(context.Background())
+	assert.ErrorContains(err, "GET api/groups failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListGroups_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/groups", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListGroups(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_GetGroup_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -106,6 +134,34 @@ func Test_GetGroup_OK(t *testing.T) {
 		},
 		Type: "builtin",
 	}, res)
+}
+
+func Test_GetGroup_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/groups/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetGroup(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/groups/1 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetGroup_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/groups/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetGroup(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_CreateGroup_OK(t *testing.T) {
@@ -180,6 +236,38 @@ func Test_CreateGroup_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateGroup_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/groups", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateGroup(context.Background(), &redash.CreateGroupInput{
+		Name: "my-group",
+	})
+	assert.ErrorContains(err, "POST api/groups failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_CreateGroup_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/groups", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateGroup(context.Background(), &redash.CreateGroupInput{
+		Name: "my-group",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_DeleteGroup_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -202,6 +290,20 @@ func Test_DeleteGroup_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteGroup(context.Background(), 2)
 	assert.NoError(err)
+}
+
+func Test_DeleteGroup_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodDelete, "https://redash.example.com/api/groups/2", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.DeleteGroup(context.Background(), 2)
+	assert.ErrorContains(err, "DELETE api/groups/2 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_ListGroupMembers_OK(t *testing.T) {
