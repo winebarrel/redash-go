@@ -1004,6 +1004,40 @@ func Test_GetQueryResultsJSON_IOErr(t *testing.T) {
 	assert.ErrorContains(err, "IO error")
 }
 
+func Test_JsonToGetQueryResultsOutput_OK(t *testing.T) {
+	assert := assert.New(t)
+	queryResult := `{"query_result": {"id": 73, "query_hash": "9c12398e42fb85a93a3b1c726f0844b4", "query": "select now()", "data": {"columns": [{"name": "now", "friendly_name": "now", "type": "datetime"}], "rows": [{"now": "2024-06-09T06:14:32.922Z"}]}, "data_source_id": 93, "runtime": 0.021225452423095703, "retrieved_at": "2024-06-09T06:14:32.930Z"}}`
+	out, err := redash.JsonToGetQueryResultsOutput([]byte(queryResult))
+	assert.NoError(err)
+	assert.Equal(
+		&redash.GetQueryResultsOutput{
+			QueryResult: redash.GetQueryResultsOutputQueryResult{
+				ID:        73,
+				QueryHash: "9c12398e42fb85a93a3b1c726f0844b4",
+				Query:     "select now()",
+				Data: redash.GetQueryResultsOutputQueryResultData{
+					Columns: []redash.GetQueryResultsOutputQueryResultDataColumn{
+						{Name: "now", FriendlyName: "now", Type: "datetime"},
+					},
+					Rows: []map[string]interface{}{
+						{"now": "2024-06-09T06:14:32.922Z"},
+					},
+				},
+				DataSourceID: 93,
+				Runtime:      0.021225452423095703,
+				RetrievedAt:  time.Date(2024, time.June, 9, 6, 14, 32, 930000000, time.UTC),
+			},
+		},
+		out,
+	)
+}
+
+func Test_JsonToGetQueryResultsOutput_Err(t *testing.T) {
+	assert := assert.New(t)
+	_, err := redash.JsonToGetQueryResultsOutput([]byte(`}{`))
+	assert.ErrorContains(err, "invalid character '}' looking for beginning of value")
+}
+
 func Test_GetQueryResultsStruct_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
