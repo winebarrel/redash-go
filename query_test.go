@@ -797,6 +797,20 @@ func Test_CreateFavoriteQuery_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_CreateFavoriteQuery_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/favorite", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusInternalServerError, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.CreateFavoriteQuery(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/queries/1/favorite failed: HTTP status code not OK: 500\nerror")
+}
+
 func Test_ForkQuery_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -904,6 +918,34 @@ func Test_ForkQuery_OK(t *testing.T) {
 			},
 		},
 	}, res)
+}
+
+func Test_ForkQuery_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/fork", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ForkQuery(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/queries/1/fork failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ForkQuery_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/fork", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ForkQuery(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_GetQueryResultsJSON_OK(t *testing.T) {
