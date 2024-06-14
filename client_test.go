@@ -8,6 +8,7 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/winebarrel/redash-go/v2"
 )
 
@@ -61,6 +62,7 @@ func Test_MustNewClientWithHTTPClient_Err(t *testing.T) {
 
 func Test_Get_OK(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -84,9 +86,7 @@ func Test_Get_OK(t *testing.T) {
 	defer close()
 	assert.NoError(err)
 	assert.Equal("200", res.Status)
-	if res.Body == nil {
-		assert.FailNow("res.Body is nil")
-	}
+	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
 }
@@ -102,6 +102,7 @@ func (t *testRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) 
 
 func Test_Get_WithTransport(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -133,9 +134,7 @@ func Test_Get_WithTransport(t *testing.T) {
 	defer close()
 	assert.NoError(err)
 	assert.Equal("200", res.Status)
-	if res.Body == nil {
-		assert.FailNow("res.Body is nil")
-	}
+	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
 }
@@ -157,6 +156,7 @@ func Test_Get_Err(t *testing.T) {
 
 func Test_Post_OK(t *testing.T) {
 	assert := assert.New(t)
+	require := require.New(t)
 	httpmock.Activate()
 	defer httpmock.DeactivateAndReset()
 
@@ -184,9 +184,7 @@ func Test_Post_OK(t *testing.T) {
 	defer close()
 	assert.NoError(err)
 	assert.Equal("200", res.Status)
-	if res.Body == nil {
-		assert.FailNow("res.Body is nil")
-	}
+	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
 }
