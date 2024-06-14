@@ -1439,7 +1439,7 @@ func Test_ExecQueryJSON_ReturnJob(t *testing.T) {
 	}, job)
 }
 
-func Test_WaitQueryJSON_Ok(t *testing.T) {
+func Test_WaitQueryJSON_OK(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 	httpmock.Activate()
@@ -1603,7 +1603,7 @@ func Test_WaitQueryJSON_Err_GetQueryResultsJSON(t *testing.T) {
 	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
 }
 
-func Test_WaitQueryStruct_Ok(t *testing.T) {
+func Test_WaitQueryStruct_OK(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
 	httpmock.Activate()
@@ -1688,6 +1688,110 @@ func Test_WaitQueryStruct_Ok(t *testing.T) {
 			RetrievedAt:  time.Date(2024, time.June, 9, 6, 14, 32, 930000000, time.UTC),
 		},
 	}, out)
+}
+
+func Test_WaitQueryStruct_Err_WaitQueryJSON(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"job": {"status": 1, "error": "", "id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51", "query_result_id": null,	"status": 1, "updated_at": 0}}`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
+	assert.NoError(err)
+	_, err = client.WaitQueryStruct(context.Background(), 1, job, nil, &buf)
+	assert.ErrorContains(err, "GET api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51 failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_WaitQueryStruct_JsonToGetQueryResultsOutput(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"job": {"status": 1, "error": "", "id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51", "query_result_id": null,	"status": 1, "updated_at": 0}}`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"job": {
+					"error": "",
+					"id": "623b290a-7fd9-4ea6-a2a6-96f9c9101f51",
+					"query_result_id": 1,
+					"status": 3,
+					"updated_at": 0
+				}
+			}
+		`), nil
+	})
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `}{`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
+	assert.NoError(err)
+	_, err = client.WaitQueryStruct(context.Background(), 1, job, nil, &buf)
+	assert.ErrorContains(err, "invalid character '}' looking for beginning of value")
 }
 
 func Test_GetQueryTags_OK(t *testing.T) {
