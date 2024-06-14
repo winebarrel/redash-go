@@ -19,6 +19,10 @@ const (
 	UserAgent = "redash-go"
 )
 
+var (
+	_debugOut io.Writer = os.Stderr
+)
+
 type Client struct {
 	httpCli  *http.Client
 	endpoint string
@@ -161,7 +165,7 @@ func (client *Client) sendRequest(ctx context.Context, method string, path strin
 
 	if client.Debug {
 		b, _ := httputil.DumpRequest(req, true)
-		fmt.Fprintf(os.Stderr, "---request begin---\n%s\n---request end---\n", b)
+		fmt.Fprintf(_debugOut, "---request begin---\n%s\n---request end---\n", b)
 	}
 
 	res, err := client.httpCli.Do(req)
@@ -172,7 +176,7 @@ func (client *Client) sendRequest(ctx context.Context, method string, path strin
 
 	if client.Debug {
 		b, _ := httputil.DumpResponse(res, true)
-		fmt.Fprintf(os.Stderr, "---response begin---\n%s\n---response end---\n", b)
+		fmt.Fprintf(_debugOut, "---response begin---\n%s\n---response end---\n", b)
 	}
 
 	if err := util.CheckStatus(res); err != nil {

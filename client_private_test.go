@@ -1,6 +1,7 @@
 package redash
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"math"
@@ -91,4 +92,28 @@ func Test_sendRequest_Err_HTTPRequest(t *testing.T) {
 	client.endpoint = "x"
 	_, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
 	assert.ErrorContains(err, `Get "x/api/queries/1?foo=bar": unsupported protocol scheme ""`)
+}
+
+func Test_sendRequest_Debug(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+
+	origDebugOut := _debugOut
+	var buf bytes.Buffer
+	_debugOut = &buf
+	defer func() { _debugOut = origDebugOut }()
+
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusOK, `{"zoo":"baz"}`), nil
+	})
+
+	client, _ := NewClient("https://redash.example.com", "<secret>")
+	client.SetDebug(true)
+	res, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
+	require.NoError(err)
+	assert.Equal("200", res.Status)
+	assert.Equal("---request begin---\nGET /api/queries/1?foo=bar HTTP/1.1\r\nHost: redash.example.com\r\nAuthorization: Key <secret>\r\nContent-Type: application/json\r\nUser-Agent: redash-go\r\n\r\n\n---request end---\n---response begin---\nHTTP/0.0 200 200\r\n\r\n{\"zoo\":\"baz\"}\n---response end---\n", buf.String())
 }
