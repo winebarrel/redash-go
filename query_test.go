@@ -974,6 +974,36 @@ func Test_GetQueryResultsJSON_OK(t *testing.T) {
 	assert.Equal(`{"foo":"bar"}`, buf.String())
 }
 
+func Test_GetQueryResultsJSON_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultsJSON(context.Background(), 1, &buf)
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQueryResultsJSON_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultsJSON(context.Background(), 1, &buf)
+	assert.ErrorContains(err, "IO error")
+}
+
 func Test_GetQueryResultsStruct_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -1019,6 +1049,34 @@ func Test_GetQueryResultsStruct_OK(t *testing.T) {
 	)
 }
 
+func Test_GetQueryResultsStruct_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQueryResultsStruct(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQueryResultsStruct_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQueryResultsStruct(context.Background(), 1)
+	assert.ErrorContains(err, "IO error")
+}
+
 func Test_GetQueryResultsCSV_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -1045,6 +1103,36 @@ func Test_GetQueryResultsCSV_OK(t *testing.T) {
 	assert.Equal(`foo,bar`, buf.String())
 }
 
+func Test_GetQueryResultsCSV_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.csv", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultsCSV(context.Background(), 1, &buf)
+	assert.ErrorContains(err, "GET api/queries/1/results.csv failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQueryResultsCSV_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.csv", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultsCSV(context.Background(), 1, &buf)
+	assert.ErrorContains(err, "IO error")
+}
+
 func Test_GetQueryResults_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -1069,6 +1157,36 @@ func Test_GetQueryResults_OK(t *testing.T) {
 	err := client.GetQueryResults(context.Background(), 1, "json", &buf)
 	assert.NoError(err)
 	assert.Equal(`{"foo":"bar"}`, buf.String())
+}
+
+func Test_GetQueryResults_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResults(context.Background(), 1, "json", &buf)
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQueryResults_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResults(context.Background(), 1, "json", &buf)
+	assert.ErrorContains(err, "IO error")
 }
 
 func Test_GetQueryResults_OK_WithNil(t *testing.T) {
