@@ -44,9 +44,6 @@ func Test_sendRequest_OK(t *testing.T) {
 
 func Test_sendRequest_Err_JoinPath(t *testing.T) {
 	assert := assert.New(t)
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
 	client, _ := NewClient("https://redash.example.com", "<secret>")
 	client.endpoint = "\b"
 	_, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
@@ -55,9 +52,6 @@ func Test_sendRequest_Err_JoinPath(t *testing.T) {
 
 func Test_sendRequest_Err_Marshal(t *testing.T) {
 	assert := assert.New(t)
-	httpmock.Activate()
-	defer httpmock.DeactivateAndReset()
-
 	client, _ := NewClient("https://redash.example.com", "<secret>")
 	_, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, math.NaN())
 	assert.ErrorContains(err, "json: unsupported value: NaN")
