@@ -1835,6 +1835,34 @@ func Test_GetQueryTags_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_GetQueryTags_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/tags", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQueryTags(context.Background())
+	assert.ErrorContains(err, "GET api/queries/tags failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQueryTags_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/tags", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQueryTags(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_RefreshQuery_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -1877,6 +1905,34 @@ func Test_RefreshQuery_OK(t *testing.T) {
 			UpdatedAt:     float64(0),
 		},
 	}, job)
+}
+
+func Test_RefreshQuery_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/refresh", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.RefreshQuery(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/queries/1/refresh failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_RefreshQuery_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/refresh", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.RefreshQuery(context.Background(), 1)
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_SearchQueries_OK(t *testing.T) {
@@ -1982,6 +2038,38 @@ func Test_SearchQueries_OK(t *testing.T) {
 			},
 		},
 	}, res)
+}
+
+func Test_SearchQueries_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/search", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.SearchQueries(context.Background(), &redash.SearchQueriesInput{
+		Q: "my-query",
+	})
+	assert.ErrorContains(err, "GET api/queries/search failed: HTTP status code not OK: 503")
+}
+
+func Test_SearchQueries_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/search", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.SearchQueries(context.Background(), &redash.SearchQueriesInput{
+		Q: "my-query",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_ListMyQueries_OK(t *testing.T) {
@@ -2091,6 +2179,42 @@ func Test_ListMyQueries_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListMyQueries_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/my", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListMyQueries(context.Background(), &redash.ListMyQueriesInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "my-query",
+	})
+	assert.ErrorContains(err, "GET api/queries/my failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListMyQueries_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/my", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListMyQueries(context.Background(), &redash.ListMyQueriesInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "my-query",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_ListFavoriteQueries_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -2198,6 +2322,42 @@ func Test_ListFavoriteQueries_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_ListFavoriteQueries_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/favorites", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListFavoriteQueries(context.Background(), &redash.ListFavoriteQueriesInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "my-query",
+	})
+	assert.ErrorContains(err, "GET api/queries/favorites failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListFavoriteQueries_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/favorites", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListFavoriteQueries(context.Background(), &redash.ListFavoriteQueriesInput{
+		Page:     1,
+		PageSize: 25,
+		Q:        "my-query",
+	})
+	assert.ErrorContains(err, "Read response body failed: IO error")
+}
+
 func Test_FormatQuery_OK(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -2231,6 +2391,34 @@ func Test_FormatQuery_OK(t *testing.T) {
 	assert.Equal(&redash.FormatQueryOutput{
 		Query: "SELECT 1\nFROM dual",
 	}, res)
+}
+
+func Test_FormatQuery_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/format", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.FormatQuery(context.Background(), "select 1 from dual")
+	assert.ErrorContains(err, "POST api/queries/format failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_FormatQuery_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/format", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.FormatQuery(context.Background(), "select 1 from dual")
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_ListRecentQueries_OK(t *testing.T) {
@@ -2323,6 +2511,34 @@ func Test_ListRecentQueries_OK(t *testing.T) {
 			Visualizations: nil,
 		},
 	}, res)
+}
+
+func Test_ListRecentQueries_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/recent", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListRecentQueries(context.Background())
+	assert.ErrorContains(err, "GET api/queries/recent failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_ListRecentQueries_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/recent", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.ListRecentQueries(context.Background())
+	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
 func Test_Query_Acc(t *testing.T) {
