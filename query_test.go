@@ -1083,6 +1083,30 @@ func Test_GetQueryResultsStruct_OK(t *testing.T) {
 	)
 }
 
+func Test_GetQueryResultsStruct_Err(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/queries/1/results.json", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `}{`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetQueryResultsStruct(context.Background(), 1)
+	assert.ErrorContains(err, "invalid character '}' looking for beginning of value")
+}
+
 func Test_GetQueryResultsStruct_Err_5xx(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
