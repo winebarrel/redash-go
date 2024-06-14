@@ -50,6 +50,13 @@ func Test_sendRequest_Err_JoinPath(t *testing.T) {
 	assert.ErrorContains(err, "parse \"\\b\": net/url: invalid control character in URL")
 }
 
+func Test_sendRequest_Err_NewRequestWithContext(t *testing.T) {
+	assert := assert.New(t)
+	client, _ := NewClient("https://redash.example.com", "<secret>")
+	_, err := client.sendRequest(context.Background(), "あいうえお", "api/queries/1", map[string]string{"foo": "bar"}, nil)
+	assert.ErrorContains(err, "net/http: invalid method \"あいうえお\"")
+}
+
 func Test_sendRequest_Err_Marshal(t *testing.T) {
 	assert := assert.New(t)
 	client, _ := NewClient("https://redash.example.com", "<secret>")
@@ -76,4 +83,12 @@ func Test_sendRequest_Err_params(t *testing.T) {
 	client, _ := NewClient("https://redash.example.com", "<secret>")
 	_, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", "bad params", nil)
 	assert.ErrorContains(err, "query: Values() expects struct input. Got string")
+}
+
+func Test_sendRequest_Err_HTTPRequest(t *testing.T) {
+	assert := assert.New(t)
+	client, _ := NewClient("https://redash.example.com", "<secret>")
+	client.endpoint = "x"
+	_, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
+	assert.ErrorContains(err, `Get "x/api/queries/1?foo=bar": unsupported protocol scheme ""`)
 }
