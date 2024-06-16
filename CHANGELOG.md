@@ -4,9 +4,39 @@
 
 * N/A
 
+## [2.3.1] - 2024-06-14
+
+### Changed
+
+* chore: Add `redash._debugOut` var for testing.
+
+## [2.3.0] - 2024-06-10
+
+### Added
+
+* Add `WaitQueryXXX()` methods.
+
+## [2.2.0] - 2024-06-9
+
+### Changed
+
+* `ExecQueryJSONInput()` supports `max_age=0`. (https://github.com/winebarrel/redash-go/issues/136)
+
+## [2.1.0] - 2023-10-23
+
+### Added
+
+* Add `ExecQueryJSONInput` struct.
+
+## [2.1.0] - 2023-10-23
+
+### Added
+
+* Add `ExecQueryJSONInput` struct.
+
 ## [2.0.1] - 2023-10-14
 
-### Change
+### Changed
 
 * Update doc.go description.
 
