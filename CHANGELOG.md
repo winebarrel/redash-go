@@ -20,7 +20,7 @@
 
 ### Changed
 
-* `ExecQueryJSONInput()` supports `max_age=0`.
+* `ExecQueryJSONInput()` supports `max_age=0`. (https://github.com/winebarrel/redash-go/issues/136)
 
 ## [2.1.0] - 2023-10-23
 
