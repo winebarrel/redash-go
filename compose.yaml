@@ -11,7 +11,7 @@ x-redash-environment: &redash-environment
 
 services:
   server:
-    image: redash/preview:24.06.0-dev
+    image: redash/preview:24.11.0-dev
     platform: linux/amd64
     depends_on:
       postgres:
@@ -25,7 +25,7 @@ services:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   scheduler:
-    image: redash/preview:24.06.0-dev
+    image: redash/preview:24.11.0-dev
     platform: linux/amd64
     command: scheduler
     depends_on:
@@ -33,7 +33,7 @@ services:
     environment:
       <<: *redash-environment
   worker:
-    image: redash/preview:24.06.0-dev
+    image: redash/preview:24.11.0-dev
     platform: linux/amd64
     command: worker
     depends_on:
