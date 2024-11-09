@@ -3,5 +3,8 @@
   "extends": [
     "config:recommended",
     ":disableDependencyDashboard"
+  ],
+  "postUpdateOptions": [
+    "gomodTidy"
   ]
 }
