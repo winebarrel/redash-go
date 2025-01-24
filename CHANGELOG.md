@@ -4,7 +4,7 @@
 
 ### Changed
 
-* `ExecQueryJSON()` upports `apply_auto_limit`.
+* `ExecQueryJSON()` supports `apply_auto_limit`.
 * `RefreshQuery()` supports `apply_auto_limit`. (**breaking change**)
 
 ## [2.3.1] - 2024-06-14
