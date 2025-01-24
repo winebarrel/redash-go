@@ -68,8 +68,8 @@ func (client *ClientWithoutContext) GetQueryTags() (*QueryTags, error) {
 	return client.withCtx.GetQueryTags(context.Background())
 }
 
-func (client *ClientWithoutContext) RefreshQuery(id int) (*JobResponse, error) {
-	return client.withCtx.RefreshQuery(context.Background(), id)
+func (client *ClientWithoutContext) RefreshQuery(id int, input *RefreshQueryInput) (*JobResponse, error) {
+	return client.withCtx.RefreshQuery(context.Background(), id, input)
 }
 
 func (client *ClientWithoutContext) SearchQueries(input *SearchQueriesInput) (*QueryPage, error) {

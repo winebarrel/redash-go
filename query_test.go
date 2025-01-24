@@ -1894,7 +1894,55 @@ func Test_RefreshQuery_OK(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	job, err := client.RefreshQuery(context.Background(), 1)
+	job, err := client.RefreshQuery(context.Background(), 1, nil)
+	assert.NoError(err)
+	assert.Equal(&redash.JobResponse{
+		Job: redash.Job{
+			Error:         "",
+			ID:            "baaf5b97-6419-4db3-a60c-ef8b4e290376",
+			QueryResultID: 0,
+			Status:        1,
+			UpdatedAt:     float64(0),
+		},
+	}, job)
+}
+
+func Test_RefreshQuery_OK_WithInput(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/refresh", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"apply_auto_limit":true}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"job": {
+					"error": "",
+					"id": "baaf5b97-6419-4db3-a60c-ef8b4e290376",
+					"query_result_id": null,
+					"result": null,
+					"status": 1,
+					"updated_at": 0
+				}
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	job, err := client.RefreshQuery(context.Background(), 1, &redash.RefreshQueryInput{
+		ApplyAutoLimit: true,
+	})
 	assert.NoError(err)
 	assert.Equal(&redash.JobResponse{
 		Job: redash.Job{
@@ -1917,7 +1965,7 @@ func Test_RefreshQuery_Err_5xx(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	_, err := client.RefreshQuery(context.Background(), 1)
+	_, err := client.RefreshQuery(context.Background(), 1, nil)
 	assert.ErrorContains(err, "POST api/queries/1/refresh failed: HTTP status code not OK: 503\nerror")
 }
 
@@ -1931,7 +1979,7 @@ func Test_RefreshQuery_IOErr(t *testing.T) {
 	})
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
-	_, err := client.RefreshQuery(context.Background(), 1)
+	_, err := client.RefreshQuery(context.Background(), 1, nil)
 	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
@@ -2681,7 +2729,31 @@ func Test_Query_Acc(t *testing.T) {
 	require.NoError(err)
 	assert.Equal("?column?\r\n1\r\n", buf.String())
 
-	job, err = client.RefreshQuery(context.Background(), query.ID)
+	job, err = client.RefreshQuery(context.Background(), query.ID, nil)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				buf = bytes.Buffer{}
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, nil, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+
+	job, err = client.RefreshQuery(context.Background(), query.ID, &redash.RefreshQueryInput{
+		ApplyAutoLimit: true,
+	})
 	require.NoError(err)
 
 	if job != nil && job.Job.ID != "" {
