@@ -1380,7 +1380,7 @@ func Test_ExecQueryJSON_OK_WithParams(t *testing.T) {
 		)
 		require.NotNil(req.Body)
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"parameters":{"date_param":"2020-01-01","date_range_param":{"end":"2020-12-31","start":"2020-01-01"},"number_param":100},"max_age":1800}`, string(body))
+		assert.Equal(`{"parameters":{"date_param":"2020-01-01","date_range_param":{"end":"2020-12-31","start":"2020-01-01"},"number_param":100},"apply_auto_limit":true,"max_age":1800}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
 	})
 
@@ -1395,7 +1395,50 @@ func Test_ExecQueryJSON_OK_WithParams(t *testing.T) {
 				"end":   "2020-12-31",
 			},
 		},
-		MaxAge: 1800,
+		ApplyAutoLimit: true,
+		MaxAge:         1800,
+	}, &buf)
+	assert.NoError(err)
+	assert.Equal(`{"foo":"bar"}`, buf.String())
+	assert.Empty(jobId)
+}
+
+func Test_ExecQueryJSON_OK_WithMaxAgeZero(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1/results", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"parameters":{"date_param":"2020-01-01","date_range_param":{"end":"2020-12-31","start":"2020-01-01"},"number_param":100},"apply_auto_limit":true,"max_age":0}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	jobId, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"number_param": 100,
+			"date_param":   "2020-01-01",
+			"date_range_param": map[string]string{
+				"start": "2020-01-01",
+				"end":   "2020-12-31",
+			},
+		},
+		ApplyAutoLimit:        true,
+		WithoutOmittingMaxAge: true,
 	}, &buf)
 	assert.NoError(err)
 	assert.Equal(`{"foo":"bar"}`, buf.String())
@@ -2885,6 +2928,35 @@ func Test_Query_WithParams_Acc(t *testing.T) {
 	}
 
 	assert.Contains(buf.String(), `"query": "select 999"`)
+
+	buf = bytes.Buffer{}
+	input = &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"num": 999,
+		},
+		ApplyAutoLimit: true,
+		MaxAge:         1800,
+	}
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select 999 LIMIT 1000"`)
 }
 
 func Test_Query_IgnoreCache_Acc(t *testing.T) {
