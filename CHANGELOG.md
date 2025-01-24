@@ -1,8 +1,11 @@
 # Changelog
 
-## [Unreleased]
+## [2.4.0] - 2025-01-25
 
-* N/A
+### Changed
+
+* `ExecQueryJSON()` supports `apply_auto_limit`.
+* `RefreshQuery()` supports `apply_auto_limit`. (**breaking change**)
 
 ## [2.3.1] - 2024-06-14
 
