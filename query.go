@@ -304,13 +304,15 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, o
 
 type ExecQueryJSONInput struct {
 	Parameters            map[string]any `json:"parameters,omitempty"`
+	ApplyAutoLimit        bool           `json:"apply_auto_limit,omitempty"`
 	MaxAge                int            `json:"max_age,omitempty"`
 	WithoutOmittingMaxAge bool           `json:"-"`
 }
 
 type execQueryJSONInputWithMaxAge struct {
-	Parameters map[string]any `json:"parameters,omitempty"`
-	MaxAge     int            `json:"max_age"`
+	Parameters     map[string]any `json:"parameters,omitempty"`
+	ApplyAutoLimit bool           `json:"apply_auto_limit,omitempty"`
+	MaxAge         int            `json:"max_age"`
 }
 
 func (client *Client) ExecQueryJSON(ctx context.Context, id int, input *ExecQueryJSONInput, out io.Writer) (*JobResponse, error) {
@@ -322,8 +324,9 @@ func (client *Client) ExecQueryJSON(ctx context.Context, id int, input *ExecQuer
 
 	if input != nil && input.WithoutOmittingMaxAge {
 		body = &execQueryJSONInputWithMaxAge{
-			Parameters: input.Parameters,
-			MaxAge:     input.MaxAge,
+			Parameters:     input.Parameters,
+			ApplyAutoLimit: input.ApplyAutoLimit,
+			MaxAge:         input.MaxAge,
 		}
 	}
 
