@@ -9,7 +9,7 @@ x-redash-environment: &redash-environment
   REDASH_ENFORCE_CSRF: "true"
   REDASH_GUNICORN_TIMEOUT: 60
   REDASH_COOKIE_SECRET: secret
-  REDASH_HOST: "http://localhost:5001/"
+  REDASH_HOST: "http://localhost:5001"
   # REDASH_FEATURE_SHOW_PERMISSIONS_CONTROL: true
 
 services:
