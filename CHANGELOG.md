@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.1] - 2025-01-25
+
+### Added
+
+* Add `GetQueryResultByID()` methods.
+
 ## [2.4.0] - 2025-01-25
 
 ### Changed
