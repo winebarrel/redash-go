@@ -1354,6 +1354,13 @@ func Test_GetQueryResultByID_IOErr(t *testing.T) {
 	assert.ErrorContains(err, "IO error")
 }
 
+func Test_GetQueryResultByID_ArgErr(t *testing.T) {
+	assert := assert.New(t)
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.GetQueryResultByID(context.Background(), 1, "", nil)
+	assert.ErrorContains(err, "out(io.Writer) is nil")
+}
+
 func Test_ExecQueryJSON_OK(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
