@@ -52,6 +52,10 @@ func (client *ClientWithoutContext) GetQueryResults(id int, ext string, out io.W
 	return client.withCtx.GetQueryResults(context.Background(), id, ext, out)
 }
 
+func (client *ClientWithoutContext) GetQueryResultByID(queryResultId int, ext string, out *bytes.Buffer) error {
+	return client.withCtx.GetQueryResultByID(context.Background(), queryResultId, ext, out)
+}
+
 func (client *ClientWithoutContext) ExecQueryJSON(id int, input *ExecQueryJSONInput, out io.Writer) (*JobResponse, error) {
 	return client.withCtx.ExecQueryJSON(context.Background(), id, input, out)
 }

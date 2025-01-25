@@ -302,6 +302,29 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, o
 	return err
 }
 
+func (client *Client) GetQueryResultByID(ctx context.Context, queryResultId int, ext string, out *bytes.Buffer) error {
+	if out == nil {
+		return errors.New("out(io.Writer) is nil")
+	}
+
+	path := fmt.Sprintf("api/query_results/%d", queryResultId)
+
+	if ext != "" {
+		path += "." + ext
+	}
+
+	res, close, err := client.Get(ctx, path, nil)
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(out, res.Body)
+
+	return err
+}
+
 type ExecQueryJSONInput struct {
 	Parameters            map[string]any `json:"parameters,omitempty"`
 	ApplyAutoLimit        bool           `json:"apply_auto_limit,omitempty"`

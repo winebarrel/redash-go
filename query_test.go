@@ -3,6 +3,7 @@ package redash_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"regexp"
@@ -1269,6 +1270,88 @@ func Test_GetQueryResults_OK_WithNil(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.GetQueryResults(context.Background(), 1, "json", nil)
 	assert.ErrorContains(err, "out(io.Writer) is nil")
+}
+
+func Test_GetQueryResultByID_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_results/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultByID(context.Background(), 1, "", &buf)
+	assert.NoError(err)
+	assert.Equal(`{"foo":"bar"}`, buf.String())
+}
+
+func Test_GetQueryResultByID_OK_WithExt(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_results/1.xlsx", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `{"foo":"bar"}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultByID(context.Background(), 1, "xlsx", &buf)
+	assert.NoError(err)
+	assert.Equal(`{"foo":"bar"}`, buf.String())
+}
+
+func Test_GetQueryResultByID_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_results/1.json", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultByID(context.Background(), 1, "json", &buf)
+	assert.ErrorContains(err, "GET api/query_results/1.json failed: HTTP status code not OK: 503\nerror")
+}
+
+func Test_GetQueryResultByID_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/query_results/1", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	var buf bytes.Buffer
+	err := client.GetQueryResultByID(context.Background(), 1, "", &buf)
+	assert.ErrorContains(err, "IO error")
 }
 
 func Test_ExecQueryJSON_OK(t *testing.T) {
@@ -2763,6 +2846,16 @@ func Test_Query_Acc(t *testing.T) {
 	}
 
 	assert.True(strings.HasPrefix(buf.String(), `{"query_result"`))
+
+	{
+		var rs map[string]map[string]any
+		err := json.Unmarshal(buf.Bytes(), &rs)
+		require.NoError(err)
+		qeuryResultID := rs["query_result"]["id"].(float64)
+		var buf bytes.Buffer
+		client.GetQueryResultByID(context.Background(), int(qeuryResultID), "csv", &buf)
+		assert.Equal("?column?\r\n1\r\n", buf.String())
+	}
 
 	_, err = client.ExecQueryJSON(context.Background(), query.ID, nil, nil)
 	require.NoError(err)
