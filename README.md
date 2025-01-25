@@ -146,13 +146,13 @@ client.GetStatus()
 client, err := redash.NewClient("https://redash.example.com", "<secret>")
 ```
 
-## Tests
+## Test
 
 ```sh
 make test
 ```
 
-### Acceptance Tests
+### Acceptance Test
 
 ```sh
 docker compose up -d
