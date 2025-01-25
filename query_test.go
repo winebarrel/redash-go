@@ -2853,7 +2853,8 @@ func Test_Query_Acc(t *testing.T) {
 		require.NoError(err)
 		qeuryResultID := rs["query_result"]["id"].(float64)
 		var buf bytes.Buffer
-		client.GetQueryResultByID(context.Background(), int(qeuryResultID), "csv", &buf)
+		err = client.GetQueryResultByID(context.Background(), int(qeuryResultID), "csv", &buf)
+		require.NoError(err)
 		assert.Equal("?column?\r\n1\r\n", buf.String())
 	}
 
