@@ -31,6 +31,7 @@ func main() {
 	ds, err := client.CreateDataSource(ctx, &redash.CreateDataSourceInput{
 		Name: "postgres",
 		Type: "pg",
+		// see https://github.com/getredash/redash/blob/v25.1/redash/query_runner/pg.py#L149-L153
 		Options: map[string]any{
 			"dbname": "postgres",
 			"host":   "postgres",
