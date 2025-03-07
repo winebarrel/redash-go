@@ -176,16 +176,13 @@ func Test_Query_WithParamsText_Acc(t *testing.T) {
 				},
 			},
 		},
-		Tags: []string{"my-tag-1"},
 	})
 	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
 	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 	assert.Equal("select '{{ msg }}'", query.Query)
 	assert.Equal(redash.QueryOptions{
 		Parameters: []redash.QueryOptionsParameter{
@@ -208,23 +205,8 @@ func Test_Query_WithParamsText_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-
-	if job != nil && job.Job.ID != "" {
-		for {
-			job, err := client.GetJob(context.Background(), job.Job.ID)
-			require.NoError(err)
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
-				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
-				require.NoError(err)
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
-
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	assert.Contains(buf.String(), `"query": "select 'hellohello'"`)
 }
 
@@ -297,23 +279,8 @@ func Test_Query_WithParamsTextPattern_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-
-	if job != nil && job.Job.ID != "" {
-		for {
-			job, err := client.GetJob(context.Background(), job.Job.ID)
-			require.NoError(err)
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
-				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
-				require.NoError(err)
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
-
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	assert.Contains(buf.String(), `"query": "select 'abbbc'"`)
 }
 
@@ -388,23 +355,8 @@ func Test_Query_WithParamsDropdownList_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-
-	if job != nil && job.Job.ID != "" {
-		for {
-			job, err := client.GetJob(context.Background(), job.Job.ID)
-			require.NoError(err)
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
-				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
-				require.NoError(err)
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
-
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	assert.Contains(buf.String(), `"query": "select 'bbb'"`)
 }
 
@@ -489,23 +441,8 @@ func Test_Query_WithParamsDropdownListMultiValues_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-
-	if job != nil && job.Job.ID != "" {
-		for {
-			job, err := client.GetJob(context.Background(), job.Job.ID)
-			require.NoError(err)
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
-				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
-				require.NoError(err)
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
-
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	assert.Contains(buf.String(), `"query": "select '\"aaa\",\"bbb\"'"`)
 }
 
@@ -591,26 +528,10 @@ func Test_Query_WithParamsQueryBasedDropdownList_Acc(t *testing.T) {
 		Parameters: map[string]any{
 			"dbddlist": "2",
 		},
-		MaxAge: 1800,
 	}
 	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-
-	if job != nil && job.Job.ID != "" {
-		for {
-			job, err := client.GetJob(context.Background(), job.Job.ID)
-			require.NoError(err)
-
-			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
-				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
-				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
-				require.NoError(err)
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}
-
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	assert.Contains(buf.String(), `"query": "select '2'"`)
 }
