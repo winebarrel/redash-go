@@ -1,0 +1,323 @@
+package redash_test
+
+import (
+	"bytes"
+	"context"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/winebarrel/redash-go/v2"
+)
+
+func Test_Query_WithParamsNum_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select {{ num }}",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "number",
+					Name:   "num",
+					Value:  123,
+					Title:  "my-number",
+				},
+			},
+		},
+		Tags: []string{"my-tag-1"},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+	assert.Equal("select {{ num }}", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "number",
+				Name:   "num",
+				Value:  float64(123),
+				Title:  "my-number",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"num": 999,
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select 999"`)
+
+	buf = bytes.Buffer{}
+	input = &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"num": 999,
+		},
+		ApplyAutoLimit: true,
+		MaxAge:         1800,
+	}
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select 999 LIMIT 1000"`)
+}
+
+func Test_Query_WithParamsText_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ msg }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "text",
+					Name:   "msg",
+					Value:  "hello",
+					Title:  "my-text",
+				},
+			},
+		},
+		Tags: []string{"my-tag-1"},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+	assert.Equal("select '{{ msg }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "text",
+				Name:   "msg",
+				Value:  "hello",
+				Title:  "my-text",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"msg": "hellohello",
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select 'hellohello'"`)
+}
+
+func Test_Query_WithParamsTextPattern_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ textp }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "text-pattern",
+					Name:   "textp",
+					Title:  "my-textp",
+					Regex:  "ab+c",
+				},
+			},
+		},
+		Tags: []string{"my-tag-1"},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+	assert.Equal("select '{{ textp }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "text-pattern",
+				Name:   "textp",
+				Title:  "my-textp",
+				Regex:  "ab+c",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"textp": "abbbc",
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select 'abbbc'"`)
+}

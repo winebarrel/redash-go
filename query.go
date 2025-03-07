@@ -57,8 +57,9 @@ type QueryOptionsParameter struct {
 	Global bool   `json:"global"`
 	Type   string `json:"type"`
 	Name   string `json:"name"`
-	Value  any    `json:"value"`
+	Value  any    `json:"value,omitempty"`
 	Title  string `json:"title"`
+	Regex  string `json:"regex,omitempty"`
 }
 
 type QueueSchedule struct {
