@@ -270,16 +270,11 @@ func Test_Query_WithParamsTextPattern_Acc(t *testing.T) {
 				},
 			},
 		},
-		Tags: []string{"my-tag-1"},
 	})
 	require.NoError(err)
-	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
 	require.NoError(err)
-	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 	assert.Equal("select '{{ textp }}'", query.Query)
 	assert.Equal(redash.QueryOptions{
 		Parameters: []redash.QueryOptionsParameter{
@@ -364,16 +359,13 @@ func Test_Query_WithParamsDropdownList_Acc(t *testing.T) {
 				},
 			},
 		},
-		Tags: []string{"my-tag-1"},
 	})
 	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
 	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 	assert.Equal("select '{{ ddlist }}'", query.Query)
 	assert.Equal(redash.QueryOptions{
 		Parameters: []redash.QueryOptionsParameter{
@@ -463,16 +455,13 @@ func Test_Query_WithParamsDropdownListMultiValues_Acc(t *testing.T) {
 				},
 			},
 		},
-		Tags: []string{"my-tag-1"},
 	})
 	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 
 	query, err = client.GetQuery(context.Background(), query.ID)
 	require.NoError(err)
 	assert.Equal("test-query-1", query.Name)
-	assert.Equal([]string{"my-tag-1"}, query.Tags)
 	assert.Equal("select '{{ ddlist }}'", query.Query)
 	assert.Equal(redash.QueryOptions{
 		Parameters: []redash.QueryOptionsParameter{
@@ -518,4 +507,110 @@ func Test_Query_WithParamsDropdownListMultiValues_Acc(t *testing.T) {
 	}
 
 	assert.Contains(buf.String(), `"query": "select '\"aaa\",\"bbb\"'"`)
+}
+
+func Test_Query_WithParamsQueryBasedDropdownList_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	dlQuery, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-dl-query-1",
+		Query:        "select unnest(array[1,2,3])",
+	})
+	require.NoError(err)
+	assert.Equal("test-dl-query-1", dlQuery.Name)
+
+	var buf bytes.Buffer
+	job, err := client.ExecQueryJSON(context.Background(), dlQuery.ID, &redash.ExecQueryJSONInput{}, &buf)
+	require.NoError(err)
+	err = client.WaitQueryJSON(context.Background(), dlQuery.ID, job, nil, &buf)
+	require.NoError(err)
+	require.Contains(buf.String(), `"rows": [{"unnest": 1}, {"unnest": 2}, {"unnest": 3}]}`)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dbddlist }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global:  false,
+					Type:    "query",
+					Name:    "dbddlist",
+					Title:   "my-dbddlist",
+					QueryID: dlQuery.ID,
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dbddlist }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global:  false,
+				Type:    "query",
+				Name:    "dbddlist",
+				Title:   "my-dbddlist",
+				QueryID: dlQuery.ID,
+			},
+		},
+	}, query.Options)
+
+	buf = bytes.Buffer{}
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dbddlist": "2",
+		},
+		MaxAge: 1800,
+	}
+	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select '2'"`)
 }

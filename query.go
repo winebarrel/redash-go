@@ -62,6 +62,7 @@ type QueryOptionsParameter struct {
 	Regex              string                                   `json:"regex,omitempty"`
 	EnumOptions        string                                   `json:"enumOptions,omitempty"`
 	MultiValuesOptions *QueryOptionsParameterMultiValuesOptions `json:"multiValuesOptions,omitempty"`
+	QueryID            int                                      `json:"queryId,omitempty"`
 }
 
 type QueryOptionsParameterMultiValuesOptions struct {
