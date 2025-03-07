@@ -765,3 +765,237 @@ func Test_Query_WithParamsDateTimeSec_Acc(t *testing.T) {
 	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select '2025-03-08 12:34:56'"`)
 }
+
+func Test_Query_WithParamsDateRange_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dtr.start }}','{{ dtr.end }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "date-range",
+					Name:   "dtr",
+					Title:  "my-date-range",
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dtr.start }}','{{ dtr.end }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "date-range",
+				Name:   "dtr",
+				Title:  "my-date-range",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dtr": map[string]string{
+				"start": "2025-03-08",
+				"end":   "2025-03-09",
+			},
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	assert.Contains(buf.String(), `"query": "select '2025-03-08','2025-03-09'"`)
+}
+
+func Test_Query_WithParamsDateTimeRange_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dttmr.start }}','{{ dttmr.end }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "datetime-range",
+					Name:   "dttmr",
+					Title:  "my-datetime-range",
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dttmr.start }}','{{ dttmr.end }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "datetime-range",
+				Name:   "dttmr",
+				Title:  "my-datetime-range",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dttmr": map[string]string{
+				"start": "2025-03-08 01:02",
+				"end":   "2025-03-09 03:04",
+			},
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	assert.Contains(buf.String(), `"query": "select '2025-03-08 01:02','2025-03-09 03:04'"`)
+}
+
+func Test_Query_WithParamsDateTimeSecRange_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dttmsr.start }}','{{ dttmsr.end }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "datetime-range-with-seconds",
+					Name:   "dttmsr",
+					Title:  "my-datetimesec-range",
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dttmsr.start }}','{{ dttmsr.end }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "datetime-range-with-seconds",
+				Name:   "dttmsr",
+				Title:  "my-datetimesec-range",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dttmsr": map[string]string{
+				"start": "2025-03-08 01:02:03",
+				"end":   "2025-03-09 03:04:05",
+			},
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	assert.Contains(buf.String(), `"query": "select '2025-03-08 01:02:03','2025-03-09 03:04:05'"`)
+}
