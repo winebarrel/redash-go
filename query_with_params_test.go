@@ -540,3 +540,228 @@ func Test_Query_WithParamsQueryBasedDropdownList_Acc(t *testing.T) {
 	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select '2'"`)
 }
+
+func Test_Query_WithParamsDate_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dt }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "date",
+					Name:   "dt",
+					Title:  "my-date",
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dt }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "date",
+				Name:   "dt",
+				Title:  "my-date",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dt": "2025-03-08",
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	assert.Contains(buf.String(), `"query": "select '2025-03-08'"`)
+}
+
+func Test_Query_WithParamsDateTime_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dttm }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "datetime-local",
+					Name:   "dttm",
+					Title:  "my-datetime",
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dttm }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "datetime-local",
+				Name:   "dttm",
+				Title:  "my-datetime",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dttm": "2025-03-08 12:34",
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	assert.Contains(buf.String(), `"query": "select '2025-03-08 12:34'"`)
+}
+
+func Test_Query_WithParamsDateTimeSec_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ dttmc }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global: false,
+					Type:   "datetime-with-seconds",
+					Name:   "dttmc",
+					Title:  "my-datetimesec",
+				},
+			},
+		},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal("select '{{ dttmc }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global: false,
+				Type:   "datetime-with-seconds",
+				Name:   "dttmc",
+				Title:  "my-datetimesec",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"dttmc": "2025-03-08 12:34:56",
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+	assert.Contains(buf.String(), `"query": "select '2025-03-08 12:34:56'"`)
+}
