@@ -54,12 +54,20 @@ type QueryOptions struct {
 }
 
 type QueryOptionsParameter struct {
-	Global bool   `json:"global"`
-	Type   string `json:"type"`
-	Name   string `json:"name"`
-	Value  any    `json:"value,omitempty"`
-	Title  string `json:"title"`
-	Regex  string `json:"regex,omitempty"`
+	Global             bool                                     `json:"global"`
+	Type               string                                   `json:"type"`
+	Name               string                                   `json:"name"`
+	Value              any                                      `json:"value,omitempty"`
+	Title              string                                   `json:"title"`
+	Regex              string                                   `json:"regex,omitempty"`
+	EnumOptions        string                                   `json:"enumOptions,omitempty"`
+	MultiValuesOptions *QueryOptionsParameterMultiValuesOptions `json:"multiValuesOptions,omitempty"`
+}
+
+type QueryOptionsParameterMultiValuesOptions struct {
+	Prefix    string `json:"prefix"`
+	Suffix    string `json:"suffix"`
+	Separator string `json:"separator"`
 }
 
 type QueueSchedule struct {

@@ -321,3 +321,201 @@ func Test_Query_WithParamsTextPattern_Acc(t *testing.T) {
 
 	assert.Contains(buf.String(), `"query": "select 'abbbc'"`)
 }
+
+func Test_Query_WithParamsDropdownList_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ ddlist }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global:      false,
+					Type:        "enum",
+					Name:        "ddlist",
+					Title:       "my-ddlist",
+					EnumOptions: "aaa\nbbb\nccc",
+				},
+			},
+		},
+		Tags: []string{"my-tag-1"},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+	assert.Equal("select '{{ ddlist }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global:      false,
+				Type:        "enum",
+				Name:        "ddlist",
+				Title:       "my-ddlist",
+				EnumOptions: "aaa\nbbb\nccc",
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"ddlist": "bbb",
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select 'bbb'"`)
+}
+
+func Test_Query_WithParamsDropdownListMultiValues_Acc(t *testing.T) {
+	if !testAcc {
+		t.Skip()
+	}
+
+	assert := assert.New(t)
+	require := require.New(t)
+	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
+	ds, err := client.CreateDataSource(context.Background(), &redash.CreateDataSourceInput{
+		Name: "test-postgres-1",
+		Type: "pg",
+		Options: map[string]any{
+			"dbname": "postgres",
+			"host":   "postgres",
+			"port":   5432,
+			"user":   "postgres",
+		},
+	})
+	require.NoError(err)
+
+	defer func() {
+		client.DeleteDataSource(context.Background(), ds.ID) //nolint:errcheck
+	}()
+
+	_, err = client.ListQueries(context.Background(), nil)
+	require.NoError(err)
+
+	query, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID: ds.ID,
+		Name:         "test-query-1",
+		Query:        "select '{{ ddlist }}'",
+		Options: &redash.CreateQueryInputOptions{
+			Parameters: []redash.QueryOptionsParameter{
+				{
+					Global:      false,
+					Type:        "enum",
+					Name:        "ddlist",
+					Title:       "my-ddlist",
+					EnumOptions: "aaa\nbbb\nccc",
+					MultiValuesOptions: &redash.QueryOptionsParameterMultiValuesOptions{
+						Prefix:    `"`,
+						Suffix:    `"`,
+						Separator: ",",
+					},
+				},
+			},
+		},
+		Tags: []string{"my-tag-1"},
+	})
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.Equal([]string{"my-tag-1"}, query.Tags)
+	assert.Equal("select '{{ ddlist }}'", query.Query)
+	assert.Equal(redash.QueryOptions{
+		Parameters: []redash.QueryOptionsParameter{
+			{
+				Global:      false,
+				Type:        "enum",
+				Name:        "ddlist",
+				Title:       "my-ddlist",
+				EnumOptions: "aaa\nbbb\nccc",
+				MultiValuesOptions: &redash.QueryOptionsParameterMultiValuesOptions{
+					Prefix:    `"`,
+					Suffix:    `"`,
+					Separator: ",",
+				},
+			},
+		},
+	}, query.Options)
+
+	var buf bytes.Buffer
+	input := &redash.ExecQueryJSONInput{
+		Parameters: map[string]any{
+			"ddlist": []string{"aaa", "bbb"},
+		},
+		MaxAge: 1800,
+	}
+	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
+
+	if job != nil && job.Job.ID != "" {
+		for {
+			job, err := client.GetJob(context.Background(), job.Job.ID)
+			require.NoError(err)
+
+			if job.Job.Status != redash.JobStatusPending && job.Job.Status != redash.JobStatusStarted {
+				assert.Equal(redash.JobStatusSuccess, job.Job.Status)
+				_, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+				require.NoError(err)
+				break
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}
+
+	assert.Contains(buf.String(), `"query": "select '\"aaa\",\"bbb\"'"`)
+}
