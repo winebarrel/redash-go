@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.5.0] - 2025-03-08
+
+### Added
+
+* Support regex/enum/query parameter type.
+
 ## [2.4.1] - 2025-01-25
 
 ### Added
