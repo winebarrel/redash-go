@@ -205,8 +205,9 @@ func Test_Query_WithParamsText_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
-	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select 'hellohello'"`)
 }
 
@@ -279,8 +280,9 @@ func Test_Query_WithParamsTextPattern_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
-	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select 'abbbc'"`)
 }
 
@@ -355,8 +357,9 @@ func Test_Query_WithParamsDropdownList_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
-	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select 'bbb'"`)
 }
 
@@ -441,8 +444,9 @@ func Test_Query_WithParamsDropdownListMultiValues_Acc(t *testing.T) {
 	}
 	job, err := client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
-	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select '\"aaa\",\"bbb\"'"`)
 }
 
@@ -531,7 +535,8 @@ func Test_Query_WithParamsQueryBasedDropdownList_Acc(t *testing.T) {
 	}
 	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
 	require.NoError(err)
-	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf)
-	job, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	client.WaitQueryJSON(context.Background(), query.ID, job, nil, &buf) //nolint:errcheck
+	_, err = client.ExecQueryJSON(context.Background(), query.ID, input, &buf)
+	require.NoError(err)
 	assert.Contains(buf.String(), `"query": "select '2'"`)
 }
