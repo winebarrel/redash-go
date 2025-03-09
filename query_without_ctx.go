@@ -32,6 +32,14 @@ func (client *ClientWithoutContext) UpdateQuery(id int, input *UpdateQueryInput)
 	return client.withCtx.UpdateQuery(context.Background(), id, input)
 }
 
+func (client *ClientWithoutContext) PublishQuery(id int) error {
+	return client.withCtx.PublishQuery(context.Background(), id)
+}
+
+func (client *ClientWithoutContext) UnpublishQuery(id int) error {
+	return client.withCtx.UnpublishQuery(context.Background(), id)
+}
+
 func (client *ClientWithoutContext) ArchiveQuery(id int) error {
 	return client.withCtx.ArchiveQuery(context.Background(), id)
 }
