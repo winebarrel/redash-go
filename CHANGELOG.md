@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.6.1] - 2025-03-09
+
+### Changed
+
+* Add `IsDraft` to `UpdateQueryInput` struct.
+
 ## [2.6.0] - 2025-03-09
 
 ### Added
