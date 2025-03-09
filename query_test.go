@@ -764,6 +764,20 @@ func Test_PublishQuery_OK(t *testing.T) {
 	assert.NoError(err)
 }
 
+func Test_PublishQuery_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.PublishQuery(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503\nerror")
+}
+
 func Test_UnpublishQuery_OK(t *testing.T) {
 	assert := assert.New(t)
 	require := require.New(t)
@@ -790,6 +804,20 @@ func Test_UnpublishQuery_OK(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.UnpublishQuery(context.Background(), 1)
 	assert.NoError(err)
+}
+
+func Test_UnpublishQuery_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.UnpublishQuery(context.Background(), 1)
+	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503\nerror")
 }
 
 func Test_ArchiveQuery_OK(t *testing.T) {
