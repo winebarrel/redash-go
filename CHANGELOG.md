@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.6.2] - 2025-03-１０
+
+### Changed
+
+* Deprecated `Debug` field.
+
 ## [2.6.1] - 2025-03-09
 
 ### Changed
