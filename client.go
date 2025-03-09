@@ -27,7 +27,8 @@ type Client struct {
 	httpCli  *http.Client
 	endpoint string
 	apiKey   string
-	Debug    bool
+	// Deprecated: Use SetDebug() instead
+	Debug bool
 }
 
 type ClientWithoutContext struct {
