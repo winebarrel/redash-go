@@ -218,6 +218,7 @@ type UpdateQueryInput struct {
 	Query        string                    `json:"query,omitempty"`
 	Schedule     *UpdateQueryInputSchedule `json:"schedule,omitempty"`
 	Tags         *[]string                 `json:"tags,omitempty"`
+	IsDraft      *bool                     `json:"is_draft,omitempty"`
 }
 
 type UpdateQueryInputOptions struct {
