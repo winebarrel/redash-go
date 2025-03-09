@@ -170,3 +170,4 @@ make testacc
 ## Related Links
 
 * https://redash.io/help/user-guide/integrations-and-api/api
+* https://github.com/winebarrel/terraform-provider-redash
