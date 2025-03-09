@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.6.0] - 2025-03-09
+
+### Added
+
+* Add `PublishQuery()/UnpublishQuery()` methods.
+
 ## [2.5.0] - 2025-03-08
 
 ### Added
