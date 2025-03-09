@@ -6,5 +6,16 @@
   ],
   "postUpdateOptions": [
     "gomodTidy"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "pgautoupgrade/pgautoupgrade"
+      ],
+      "matchManagers": [
+        "docker-compose"
+      ],
+      "enabled": false
+    }
   ]
 }
