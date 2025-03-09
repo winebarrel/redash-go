@@ -736,6 +736,62 @@ func Test_UpdateQuery_IOErr(t *testing.T) {
 	assert.ErrorContains(err, "Read response body failed: IO error")
 }
 
+func Test_PublishQuery_OK(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"is_draft":false}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, ``), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.PublishQuery(context.Background(), 1)
+	assert.NoError(err)
+}
+
+func Test_UnpublishQuery_OK(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"is_draft":true}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, ``), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	err := client.UnpublishQuery(context.Background(), 1)
+	assert.NoError(err)
+}
+
 func Test_ArchiveQuery_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -2922,6 +2978,22 @@ func Test_Query_Acc(t *testing.T) {
 	queries, err := client.ListRecentQueries(context.Background())
 	require.NoError(err)
 	assert.GreaterOrEqual(len(queries), 1)
+
+	err = client.PublishQuery(context.Background(), query.ID)
+	require.NoError(err)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.False(query.IsDraft)
+
+	err = client.UnpublishQuery(context.Background(), query.ID)
+	require.NoError(err)
+
+	query, err = client.GetQuery(context.Background(), query.ID)
+	require.NoError(err)
+	assert.Equal("test-query-1", query.Name)
+	assert.True(query.IsDraft)
 
 	err = client.ArchiveQuery(context.Background(), query.ID)
 	require.NoError(err)

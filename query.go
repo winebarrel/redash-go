@@ -248,6 +248,40 @@ func (client *Client) UpdateQuery(ctx context.Context, id int, input *UpdateQuer
 	return query, nil
 }
 
+type PublishQueryInput struct {
+	IsDraft bool `json:"is_draft"`
+}
+
+func (client *Client) PublishQuery(ctx context.Context, id int) error {
+	input := &PublishQueryInput{
+		IsDraft: false,
+	}
+
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (client *Client) UnpublishQuery(ctx context.Context, id int) error {
+	input := &PublishQueryInput{
+		IsDraft: true,
+	}
+
+	_, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
+	defer close()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (client *Client) ArchiveQuery(ctx context.Context, id int) error {
 	_, close, err := client.Delete(ctx, fmt.Sprintf("api/queries/%d", id))
 	defer close()

@@ -15,6 +15,7 @@ const (
 
 func main() {
 	client := redash.MustNewClient(testRedashEndpoint, testRedashAPIKey)
+	// client.Debug = true
 	ctx := context.Background()
 
 	ds, err := client.CreateDataSource(ctx, &redash.CreateDataSourceInput{
