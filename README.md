@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/winebarrel/redash-go/actions/workflows/ci.yml/badge.svg)](https://github.com/winebarrel/redash-go/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/winebarrel/redash-go/v2.svg)](https://pkg.go.dev/github.com/winebarrel/redash-go/v2)
-[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/winebarrel/redash-go)](https://github.com/winebarrel/redash-go/tags)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/winebarrel/redash-go)](https://pkg.go.dev/github.com/winebarrel/redash-go/v2?tab=versions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/winebarrel/redash-go/v2)](https://goreportcard.com/report/github.com/winebarrel/redash-go/v2)
 [![codecov](https://codecov.io/gh/winebarrel/redash-go/graph/badge.svg?token=9E21C7D54I)](https://codecov.io/gh/winebarrel/redash-go)
 
