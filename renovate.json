@@ -16,6 +16,15 @@
         "docker-compose"
       ],
       "enabled": false
+    },
+    {
+      "matchPackageNames": [
+        "github.com/winebarrel/redash-go/*"
+      ],
+      "matchManagers": [
+        "gomod"
+      ],
+      "enabled": false
     }
   ]
 }
