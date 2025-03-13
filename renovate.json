@@ -7,6 +7,9 @@
   "postUpdateOptions": [
     "gomodTidy"
   ],
+  "vulnerabilityAlerts": {
+    "enabled": "true"
+  },
   "packageRules": [
     {
       "matchPackageNames": [
