@@ -15,13 +15,13 @@ func UnmarshalBody(res *http.Response, v any) error {
 	body, err := io.ReadAll(res.Body)
 
 	if err != nil {
-		return fmt.Errorf("Read response body failed: %w", err)
+		return fmt.Errorf("read response body failed: %w", err)
 	}
 
 	err = json.Unmarshal(body, v)
 
 	if err != nil {
-		return fmt.Errorf("Unmarshal response body failed: %w", err)
+		return fmt.Errorf("unmarshal response body failed: %w", err)
 	}
 
 	return nil

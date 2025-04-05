@@ -267,11 +267,11 @@ func Test_Settings_Acc(t *testing.T) {
 	client, _ := redash.NewClient(testRedashEndpoint, testRedashAPIKey)
 	settings, err := client.GetSettingsOrganization(context.Background())
 	require.NoError(err)
-	assert.NotEmpty(settings.SettingsOrganizationSettings.DateFormat)
+	assert.NotEmpty(settings.DateFormat)
 
 	settings, err = client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
 		DateFormat: "YYYY/MM/DD",
 	})
 	require.NoError(err)
-	assert.Equal("YYYY/MM/DD", settings.SettingsOrganizationSettings.DateFormat)
+	assert.Equal("YYYY/MM/DD", settings.DateFormat)
 }
