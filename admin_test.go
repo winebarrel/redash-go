@@ -69,7 +69,7 @@ func Test_GetAdminQueriesOutdated_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetAdminQueriesOutdated(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetAdminQueriesRqStatus_OK(t *testing.T) {
@@ -266,7 +266,7 @@ func Test_GetAdminQueriesRqStatus_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetAdminQueriesRqStatus(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Admin_Acc(t *testing.T) {

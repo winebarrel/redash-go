@@ -79,7 +79,7 @@ func Test_ListDestinations_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListDestinations(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetDestination_OK(t *testing.T) {
@@ -150,7 +150,7 @@ func Test_GetDestination_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDestination(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateDestination_OK(t *testing.T) {
@@ -244,7 +244,7 @@ func Test_CreateDestination_IOErr(t *testing.T) {
 		},
 		Type: "email",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DeleteDestination_OK(t *testing.T) {
@@ -403,7 +403,7 @@ func Test_GetDestinationTypes_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDestinationTypes(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Destination_Acc(t *testing.T) {

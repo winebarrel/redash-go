@@ -50,7 +50,7 @@ func (client *Client) GetDataSource(ctx context.Context, id int) (*DataSource, e
 	dataSource := &DataSource{}
 
 	if err := util.UnmarshalBody(res, &dataSource); err != nil {
-		return nil, fmt.Errorf("Unmarshal response body failed: %w", err)
+		return nil, fmt.Errorf("unmarshal response body failed: %w", err)
 	}
 
 	return dataSource, nil

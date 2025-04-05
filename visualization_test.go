@@ -81,7 +81,7 @@ func Test_UpdateVisualization_IOErr(t *testing.T) {
 		Name:        "name",
 		Type:        "TABLE",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateVisualization_Err_5xx(t *testing.T) {
