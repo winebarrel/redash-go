@@ -35,7 +35,7 @@ func Test_UnmarshalBody_IOErr(t *testing.T) {
 
 	var body map[string]string
 	err := util.UnmarshalBody(res, &body)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UnmarshalBody_Err(t *testing.T) {

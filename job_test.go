@@ -78,5 +78,5 @@ func Test_GetJob_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetJob(context.Background(), "623b290a-7fd9-4ea6-a2a6-96f9c9101f51")
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }

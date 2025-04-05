@@ -132,7 +132,7 @@ func Test_ListUsers_IOErr(t *testing.T) {
 		Page:     1,
 		PageSize: 25,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetUser_OK(t *testing.T) {
@@ -220,7 +220,7 @@ func Test_GetUser_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetUser(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateUser_OK(t *testing.T) {
@@ -325,7 +325,7 @@ func Test_CreateUser_IOErr(t *testing.T) {
 		Email:    "admin@example.com",
 		Name:     "admin",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateUser_OK(t *testing.T) {
@@ -431,7 +431,7 @@ func Test_UpdateUser_IOErr(t *testing.T) {
 		Email: "admin2@example.com",
 		Name:  "admin2",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DeleteUser_OK(t *testing.T) {
@@ -557,7 +557,7 @@ func Test_DisableUser_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.DisableUser(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_EnableUser_OK(t *testing.T) {
@@ -645,7 +645,7 @@ func Test_EnableUser_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.EnableUser(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_User_Acc(t *testing.T) {

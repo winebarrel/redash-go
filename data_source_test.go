@@ -88,7 +88,7 @@ func Test_ListDataSources_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListDataSources(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetDataSource_OK(t *testing.T) {
@@ -178,7 +178,7 @@ func Test_GetDataSource_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "Unmarshal response body failed: Read response body failed: IO error")
+	assert.ErrorContains(err, "unmarshal response body failed: read response body failed: IO error")
 }
 
 func Test_CreateDataSource_OK(t *testing.T) {
@@ -300,7 +300,7 @@ func Test_CreateDataSource_IOErr(t *testing.T) {
 		},
 		Type: "pg",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateDataSource_OK(t *testing.T) {
@@ -422,7 +422,7 @@ func Test_UpdateDataSource_IOErr(t *testing.T) {
 		},
 		Type: "pg",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_PauseDataSource_OK(t *testing.T) {
@@ -503,7 +503,7 @@ func Test_PauseDataSource_IOErr(t *testing.T) {
 	_, err := client.PauseDataSource(context.Background(), 1, &redash.PauseDataSourceInput{
 		Reason: "this is reason",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ResumeDataSource_OK(t *testing.T) {
@@ -573,7 +573,7 @@ func Test_ResumeDataSource_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ResumeDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DeleteDataSource_OK(t *testing.T) {
@@ -672,7 +672,7 @@ func Test_TestDataSource_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.TestDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetDataSourceTypes_OK(t *testing.T) {
@@ -877,7 +877,7 @@ func Test_GetDataSourceTypes_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDataSourceTypes(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DataSource_Acc(t *testing.T) {

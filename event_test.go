@@ -116,7 +116,7 @@ func Test_ListEvents_IOErr(t *testing.T) {
 		Page:     1,
 		PageSize: 25,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Event_Acc(t *testing.T) {

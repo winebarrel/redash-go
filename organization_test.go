@@ -79,7 +79,7 @@ func Test_GetOrganizationStatus_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetOrganizationStatus(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetOrganizationStatus_Acc(t *testing.T) {

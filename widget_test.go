@@ -116,7 +116,7 @@ func Test_CreateWidget_IOErr(t *testing.T) {
 		VisualizationID: 1,
 		Width:           1,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateWidget_Width0(t *testing.T) {

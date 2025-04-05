@@ -103,7 +103,7 @@ func Test_ListAlerts_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListAlerts(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetAlert_OK(t *testing.T) {
@@ -194,7 +194,7 @@ func Test_GetAlert_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetAlert(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateAlert_OK(t *testing.T) {
@@ -321,7 +321,7 @@ func Test_CreateAlert_IOErr(t *testing.T) {
 		QueryId: 1,
 		Rearm:   1,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateAlert_OK(t *testing.T) {
@@ -448,7 +448,7 @@ func Test_UpdateAlert_IOErr(t *testing.T) {
 		QueryId: 1,
 		Rearm:   1,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DeleteAlert_OK(t *testing.T) {
@@ -566,7 +566,7 @@ func Test_ListAlertSubscriptions_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListAlertSubscriptions(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_AddAlertSubscription_OK(t *testing.T) {
@@ -647,7 +647,7 @@ func Test_AddAlertSubscription_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.AddAlertSubscription(context.Background(), 1, 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_RemoveAlertSubscription_OK(t *testing.T) {

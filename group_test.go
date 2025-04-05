@@ -88,7 +88,7 @@ func Test_ListGroups_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListGroups(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetGroup_OK(t *testing.T) {
@@ -161,7 +161,7 @@ func Test_GetGroup_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetGroup(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateGroup_OK(t *testing.T) {
@@ -265,7 +265,7 @@ func Test_CreateGroup_IOErr(t *testing.T) {
 	_, err := client.CreateGroup(context.Background(), &redash.CreateGroupInput{
 		Name: "my-group",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DeleteGroup_OK(t *testing.T) {
@@ -393,7 +393,7 @@ func Test_ListGroupMembers_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListGroupMembers(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_AddGroupMember_OK(t *testing.T) {
@@ -484,7 +484,7 @@ func Test_AddGroupMember_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.AddGroupMember(context.Background(), 1, 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_RemoveGroupMember_OK(t *testing.T) {
@@ -601,7 +601,7 @@ func Test_ListGroupDataSources_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListGroupDataSources(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_AddGroupDataSource_OK(t *testing.T) {
@@ -681,7 +681,7 @@ func Test_AddGroupDataSource_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.AddGroupDataSource(context.Background(), 1, 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_RemoveGroupDataSource_OK(t *testing.T) {
@@ -805,7 +805,7 @@ func Test_UpdateGroupDataSource_IOErr(t *testing.T) {
 	_, err := client.UpdateGroupDataSource(context.Background(), 1, 1, &redash.UpdateGroupDataSourceInput{
 		ViewOnly: true,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Group_Acc(t *testing.T) {

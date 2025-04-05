@@ -158,7 +158,7 @@ func Test_ListQueries_IOErr(t *testing.T) {
 		Page:          1,
 		PageSize:      25,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ListQueries_WithQ(t *testing.T) {
@@ -403,7 +403,7 @@ func Test_GetQuery_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQuery(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateQuery_OK(t *testing.T) {
@@ -568,7 +568,7 @@ func Test_CreateQuery_IOErr(t *testing.T) {
 			Interval: 60,
 		},
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateQuery_OK(t *testing.T) {
@@ -857,7 +857,7 @@ func Test_UpdateQuery_IOErr(t *testing.T) {
 			Interval: 60,
 		},
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_PublishQuery_OK(t *testing.T) {
@@ -1154,7 +1154,7 @@ func Test_ForkQuery_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ForkQuery(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetQueryResultsJSON_OK(t *testing.T) {
@@ -2201,7 +2201,7 @@ func Test_GetQueryTags_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQueryTags(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_RefreshQuery_OK(t *testing.T) {
@@ -2321,7 +2321,7 @@ func Test_RefreshQuery_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.RefreshQuery(context.Background(), 1, nil)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_SearchQueries_OK(t *testing.T) {
@@ -2458,7 +2458,7 @@ func Test_SearchQueries_IOErr(t *testing.T) {
 	_, err := client.SearchQueries(context.Background(), &redash.SearchQueriesInput{
 		Q: "my-query",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ListMyQueries_OK(t *testing.T) {
@@ -2601,7 +2601,7 @@ func Test_ListMyQueries_IOErr(t *testing.T) {
 		PageSize: 25,
 		Q:        "my-query",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ListFavoriteQueries_OK(t *testing.T) {
@@ -2744,7 +2744,7 @@ func Test_ListFavoriteQueries_IOErr(t *testing.T) {
 		PageSize: 25,
 		Q:        "my-query",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_FormatQuery_OK(t *testing.T) {
@@ -2807,7 +2807,7 @@ func Test_FormatQuery_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.FormatQuery(context.Background(), "select 1 from dual")
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ListRecentQueries_OK(t *testing.T) {
@@ -2927,7 +2927,7 @@ func Test_ListRecentQueries_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListRecentQueries(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Query_Acc(t *testing.T) {

@@ -85,7 +85,7 @@ func Test_ListQuerySnippets_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListQuerySnippets(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_GetQuerySnippets_OK(t *testing.T) {
@@ -156,7 +156,7 @@ func Test_GetQuerySnippets_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQuerySnippet(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateQuerySnippets_OK(t *testing.T) {
@@ -244,7 +244,7 @@ func Test_CreateQuerySnippets_IOErr(t *testing.T) {
 		Snippet:     "select 1",
 		Trigger:     "my-snippet",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateQuerySnippets_OK(t *testing.T) {
@@ -332,7 +332,7 @@ func Test_UpdateQuerySnippets_IOErr(t *testing.T) {
 		Snippet:     "select 1",
 		Trigger:     "my-snippet",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_DeleteQuerySnippets_OK(t *testing.T) {

@@ -125,7 +125,7 @@ func Test_ListDashboards_IOErr(t *testing.T) {
 		Page:          1,
 		PageSize:      25,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ListDashboards_WithQ(t *testing.T) {
@@ -294,7 +294,7 @@ func Test_GetDashboard_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateFavoriteDashboard_OK(t *testing.T) {
@@ -432,7 +432,7 @@ func Test_CreateDashboard_IOErr(t *testing.T) {
 	_, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
 		Name: "name",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateDashboard_OK(t *testing.T) {
@@ -553,7 +553,7 @@ func Test_UpdateDashboard_IOErr(t *testing.T) {
 		Tags:                    &[]string{"foo", "bar"},
 		Version:                 1,
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ArchiveDashboard_OK(t *testing.T) {
@@ -706,7 +706,7 @@ func Test_ListMyDashboards_IOErr(t *testing.T) {
 		PageSize: 25,
 		Q:        "name",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ListFavoriteDashboards_OK(t *testing.T) {
@@ -821,7 +821,7 @@ func Test_ListFavoriteDashboards_IOErr(t *testing.T) {
 		PageSize: 25,
 		Q:        "name",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_ShareDashboard_OK(t *testing.T) {
@@ -882,7 +882,7 @@ func Test_ShareDashboard_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ShareDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UnshareDashboard_OK(t *testing.T) {
@@ -991,7 +991,7 @@ func Test_GetDashboardTags_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDashboardTags(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Dashboard_Acc(t *testing.T) {

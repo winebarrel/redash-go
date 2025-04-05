@@ -126,7 +126,7 @@ func Test_GetSettingsOrganization_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetSettingsOrganization(context.Background())
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_UpdateSettingsOrganization_OK(t *testing.T) {
@@ -254,7 +254,7 @@ func Test_UpdateSettingsOrganization_IOErr(t *testing.T) {
 	_, err := client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
 		DateFormat: "YYYY/MM/DD",
 	})
-	assert.ErrorContains(err, "Read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_Settings_Acc(t *testing.T) {
