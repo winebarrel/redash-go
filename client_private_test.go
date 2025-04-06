@@ -37,7 +37,7 @@ func Test_sendRequest_OK(t *testing.T) {
 	client, _ := NewClient("https://redash.example.com", "<secret>")
 	res, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
 	assert.NoError(err)
-	assert.Equal("200", res.Status)
+	assert.Equal("200 OK", res.Status)
 	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
@@ -76,7 +76,7 @@ func Test_sendRequest_Err_5xx(t *testing.T) {
 
 	client, _ := NewClient("https://redash.example.com", "<secret>")
 	_, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
-	assert.ErrorContains(err, "HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_sendRequest_Err_params(t *testing.T) {
@@ -114,6 +114,6 @@ func Test_sendRequest_Debug(t *testing.T) {
 	client.SetDebug(true)
 	res, err := client.sendRequest(context.Background(), http.MethodGet, "api/queries/1", map[string]string{"foo": "bar"}, nil)
 	require.NoError(err)
-	assert.Equal("200", res.Status)
-	assert.Equal("---request begin---\nGET /api/queries/1?foo=bar HTTP/1.1\r\nHost: redash.example.com\r\nAuthorization: Key <secret>\r\nContent-Type: application/json\r\nUser-Agent: redash-go\r\n\r\n\n---request end---\n---response begin---\nHTTP/0.0 200 200\r\n\r\n{\"zoo\":\"baz\"}\n---response end---\n", buf.String())
+	assert.Equal("200 OK", res.Status)
+	assert.Equal("---request begin---\nGET /api/queries/1?foo=bar HTTP/1.1\r\nHost: redash.example.com\r\nAuthorization: Key <secret>\r\nContent-Type: application/json\r\nUser-Agent: redash-go\r\n\r\n\n---request end---\n---response begin---\nHTTP/0.0 200 OK\r\n\r\n{\"zoo\":\"baz\"}\n---response end---\n", buf.String())
 }

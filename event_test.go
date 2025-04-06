@@ -99,7 +99,7 @@ func Test_ListEvents_Err_5xx(t *testing.T) {
 		Page:     1,
 		PageSize: 25,
 	})
-	assert.ErrorContains(err, "GET api/events failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/events failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListEvents_IOErr(t *testing.T) {

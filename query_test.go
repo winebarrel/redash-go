@@ -140,7 +140,7 @@ func Test_ListQueries_Err_5xx(t *testing.T) {
 		Page:          1,
 		PageSize:      25,
 	})
-	assert.ErrorContains(err, "GET api/queries failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListQueries_IOErr(t *testing.T) {
@@ -389,7 +389,7 @@ func Test_GetQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQuery(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/queries/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQuery_IOErr(t *testing.T) {
@@ -546,7 +546,7 @@ func Test_CreateQuery_Err_5xx(t *testing.T) {
 			Interval: 60,
 		},
 	})
-	assert.ErrorContains(err, "POST api/queries failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateQuery_IOErr(t *testing.T) {
@@ -835,7 +835,7 @@ func Test_UpdateQuery_Err_5xx(t *testing.T) {
 			Interval: 60,
 		},
 	})
-	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateQuery_IOErr(t *testing.T) {
@@ -899,7 +899,7 @@ func Test_PublishQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.PublishQuery(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UnpublishQuery_OK(t *testing.T) {
@@ -941,7 +941,7 @@ func Test_UnpublishQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.UnpublishQuery(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ArchiveQuery_OK(t *testing.T) {
@@ -979,7 +979,7 @@ func Test_ArchiveQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.ArchiveQuery(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/queries/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/queries/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateFavoriteQuery_OK(t *testing.T) {
@@ -1017,7 +1017,7 @@ func Test_CreateFavoriteQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.CreateFavoriteQuery(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/queries/1/favorite failed: HTTP status code not OK: 500\nerror")
+	assert.ErrorContains(err, "POST api/queries/1/favorite failed: HTTP status code not OK: 500 Internal Server Error\nerror")
 }
 
 func Test_ForkQuery_OK(t *testing.T) {
@@ -1140,7 +1140,7 @@ func Test_ForkQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ForkQuery(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/queries/1/fork failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/1/fork failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ForkQuery_IOErr(t *testing.T) {
@@ -1195,7 +1195,7 @@ func Test_GetQueryResultsJSON_Err_5xx(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	var buf bytes.Buffer
 	err := client.GetQueryResultsJSON(context.Background(), 1, &buf)
-	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQueryResultsJSON_IOErr(t *testing.T) {
@@ -1327,7 +1327,7 @@ func Test_GetQueryResultsStruct_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQueryResultsStruct(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQueryResultsStruct_IOErr(t *testing.T) {
@@ -1382,7 +1382,7 @@ func Test_GetQueryResultsCSV_Err_5xx(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	var buf bytes.Buffer
 	err := client.GetQueryResultsCSV(context.Background(), 1, &buf)
-	assert.ErrorContains(err, "GET api/queries/1/results.csv failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/1/results.csv failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQueryResultsCSV_IOErr(t *testing.T) {
@@ -1438,7 +1438,7 @@ func Test_GetQueryResults_Err_5xx(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	var buf bytes.Buffer
 	err := client.GetQueryResults(context.Background(), 1, "json", &buf)
-	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQueryResults_IOErr(t *testing.T) {
@@ -1544,7 +1544,7 @@ func Test_GetQueryResultByID_Err_5xx(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	var buf bytes.Buffer
 	err := client.GetQueryResultByID(context.Background(), 1, "json", &buf)
-	assert.ErrorContains(err, "GET api/query_results/1.json failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/query_results/1.json failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQueryResultByID_IOErr(t *testing.T) {
@@ -1612,7 +1612,7 @@ func Test_ExecQueryJSON_Err_5xx(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	var buf bytes.Buffer
 	_, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
-	assert.ErrorContains(err, "POST api/queries/1/results failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/1/results failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ExecQueryJSON_IOErr(t *testing.T) {
@@ -1882,7 +1882,7 @@ func Test_WaitQueryJSON_Err_GetJob(t *testing.T) {
 	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
 	assert.NoError(err)
 	err = client.WaitQueryJSON(context.Background(), 1, job, nil, &buf)
-	assert.ErrorContains(err, "GET api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_WaitQueryJSON_Err_GetQueryResultsJSON(t *testing.T) {
@@ -1941,7 +1941,7 @@ func Test_WaitQueryJSON_Err_GetQueryResultsJSON(t *testing.T) {
 	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
 	assert.NoError(err)
 	err = client.WaitQueryJSON(context.Background(), 1, job, nil, &buf)
-	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/1/results.json failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_WaitQueryStruct_OK(t *testing.T) {
@@ -2063,7 +2063,7 @@ func Test_WaitQueryStruct_Err_WaitQueryJSON(t *testing.T) {
 	job, err := client.ExecQueryJSON(context.Background(), 1, &redash.ExecQueryJSONInput{}, &buf)
 	assert.NoError(err)
 	_, err = client.WaitQueryStruct(context.Background(), 1, job, nil, &buf)
-	assert.ErrorContains(err, "GET api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/jobs/623b290a-7fd9-4ea6-a2a6-96f9c9101f51 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_WaitQueryStruct_JsonToGetQueryResultsOutput(t *testing.T) {
@@ -2187,7 +2187,7 @@ func Test_GetQueryTags_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQueryTags(context.Background())
-	assert.ErrorContains(err, "GET api/queries/tags failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/tags failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQueryTags_IOErr(t *testing.T) {
@@ -2307,7 +2307,7 @@ func Test_RefreshQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.RefreshQuery(context.Background(), 1, nil)
-	assert.ErrorContains(err, "POST api/queries/1/refresh failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/1/refresh failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_RefreshQuery_IOErr(t *testing.T) {
@@ -2583,7 +2583,7 @@ func Test_ListMyQueries_Err_5xx(t *testing.T) {
 		PageSize: 25,
 		Q:        "my-query",
 	})
-	assert.ErrorContains(err, "GET api/queries/my failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/my failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListMyQueries_IOErr(t *testing.T) {
@@ -2726,7 +2726,7 @@ func Test_ListFavoriteQueries_Err_5xx(t *testing.T) {
 		PageSize: 25,
 		Q:        "my-query",
 	})
-	assert.ErrorContains(err, "GET api/queries/favorites failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/favorites failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListFavoriteQueries_IOErr(t *testing.T) {
@@ -2793,7 +2793,7 @@ func Test_FormatQuery_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.FormatQuery(context.Background(), "select 1 from dual")
-	assert.ErrorContains(err, "POST api/queries/format failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/queries/format failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_FormatQuery_IOErr(t *testing.T) {
@@ -2913,7 +2913,7 @@ func Test_ListRecentQueries_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListRecentQueries(context.Background())
-	assert.ErrorContains(err, "GET api/queries/recent failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/queries/recent failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListRecentQueries_IOErr(t *testing.T) {

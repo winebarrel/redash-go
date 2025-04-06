@@ -55,7 +55,7 @@ func Test_GetAdminQueriesOutdated_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetAdminQueriesOutdated(context.Background())
-	assert.ErrorContains(err, "GET /api/admin/queries/outdated failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET /api/admin/queries/outdated failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetAdminQueriesOutdated_IOErr(t *testing.T) {
@@ -252,7 +252,7 @@ func Test_GetAdminQueriesRqStatus_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetAdminQueriesRqStatus(context.Background())
-	assert.ErrorContains(err, "GET /api/admin/queries/rq_status failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET /api/admin/queries/rq_status failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetAdminQueriesRqStatus_IOErr(t *testing.T) {

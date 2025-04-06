@@ -65,7 +65,7 @@ func Test_ListDestinations_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListDestinations(context.Background())
-	assert.ErrorContains(err, "GET api/destinations failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/destinations failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListDestinations_IOErr(t *testing.T) {
@@ -136,7 +136,7 @@ func Test_GetDestination_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDestination(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/destinations/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/destinations/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDestination_IOErr(t *testing.T) {
@@ -224,7 +224,7 @@ func Test_CreateDestination_Err_5xx(t *testing.T) {
 		},
 		Type: "email",
 	})
-	assert.ErrorContains(err, "POST api/destinations failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/destinations failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateDestination_IOErr(t *testing.T) {
@@ -282,7 +282,7 @@ func Test_DeleteDestination_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteDestination(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/destinations/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/destinations/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDestinationTypes_OK(t *testing.T) {
@@ -389,7 +389,7 @@ func Test_GetDestinationTypes_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDestinationTypes(context.Background())
-	assert.ErrorContains(err, "GET api/destinations/types failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/destinations/types failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDestinationTypes_IOErr(t *testing.T) {

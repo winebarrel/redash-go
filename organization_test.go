@@ -65,7 +65,7 @@ func Test_GetOrganizationStatus_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetOrganizationStatus(context.Background())
-	assert.ErrorContains(err, "GET api/organization/status failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/organization/status failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetOrganizationStatus_IOErr(t *testing.T) {

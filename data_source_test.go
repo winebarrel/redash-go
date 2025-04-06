@@ -74,7 +74,7 @@ func Test_ListDataSources_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListDataSources(context.Background())
-	assert.ErrorContains(err, "GET api/data_sources failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/data_sources failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListDataSources_IOErr(t *testing.T) {
@@ -164,7 +164,7 @@ func Test_GetDataSource_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/data_sources/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/data_sources/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDataSource_IOErr(t *testing.T) {
@@ -277,7 +277,7 @@ func Test_CreateDataSource_Err_5xx(t *testing.T) {
 		},
 		Type: "pg",
 	})
-	assert.ErrorContains(err, "POST api/data_sources failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/data_sources failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateDataSource_IOErr(t *testing.T) {
@@ -399,7 +399,7 @@ func Test_UpdateDataSource_Err_5xx(t *testing.T) {
 		},
 		Type: "pg",
 	})
-	assert.ErrorContains(err, "POST api/data_sources/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/data_sources/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateDataSource_IOErr(t *testing.T) {
@@ -487,7 +487,7 @@ func Test_PauseDataSource_Err_5xx(t *testing.T) {
 	_, err := client.PauseDataSource(context.Background(), 1, &redash.PauseDataSourceInput{
 		Reason: "this is reason",
 	})
-	assert.ErrorContains(err, "POST api/data_sources/1/pause failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/data_sources/1/pause failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_PauseDataSource_IOErr(t *testing.T) {
@@ -559,7 +559,7 @@ func Test_ResumeDataSource_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ResumeDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/data_sources/1/pause failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/data_sources/1/pause failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ResumeDataSource_IOErr(t *testing.T) {
@@ -611,7 +611,7 @@ func Test_DeleteDataSource_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/data_sources/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/data_sources/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_TestDataSource_OK(t *testing.T) {
@@ -658,7 +658,7 @@ func Test_TestDataSource_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.TestDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/data_sources/1/test failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/data_sources/1/test failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_TestDataSource_IOErr(t *testing.T) {
@@ -863,7 +863,7 @@ func Test_GetDataSourceTypes_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDataSourceTypes(context.Background())
-	assert.ErrorContains(err, "GET api/data_sources/types failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/data_sources/types failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDataSourceTypes_IOErr(t *testing.T) {

@@ -115,7 +115,7 @@ func Test_ListUsers_Err_5xx(t *testing.T) {
 		Page:     1,
 		PageSize: 25,
 	})
-	assert.ErrorContains(err, "GET api/users failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/users failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListUsers_IOErr(t *testing.T) {
@@ -206,7 +206,7 @@ func Test_GetUser_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetUser(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/users/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/users/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetUser_IOErr(t *testing.T) {
@@ -307,7 +307,7 @@ func Test_CreateUser_Err_5xx(t *testing.T) {
 		Email:    "admin@example.com",
 		Name:     "admin",
 	})
-	assert.ErrorContains(err, "POST api/users failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/users failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateUser_IOErr(t *testing.T) {
@@ -412,7 +412,7 @@ func Test_UpdateUser_Err_5xx(t *testing.T) {
 		Email: "admin2@example.com",
 		Name:  "admin2",
 	})
-	assert.ErrorContains(err, "POST api/users/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/users/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateUser_IOErr(t *testing.T) {
@@ -469,7 +469,7 @@ func Test_DeleteUser_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteUser(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/users/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/users/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_DisableUser_OK(t *testing.T) {
@@ -543,7 +543,7 @@ func Test_DisableUser_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.DisableUser(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/users/1/disable failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/users/1/disable failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_DisableUser_IOErr(t *testing.T) {
@@ -631,7 +631,7 @@ func Test_EnableUser_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.EnableUser(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/users/1/disable failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/users/1/disable failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_EnableUser_IOErr(t *testing.T) {

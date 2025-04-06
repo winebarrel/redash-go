@@ -85,7 +85,7 @@ func Test_Get_OK(t *testing.T) {
 	res, close, err := client.Get(context.Background(), "api/queries/1", map[string]string{"foo": "bar"})
 	defer close()
 	assert.NoError(err)
-	assert.Equal("200", res.Status)
+	assert.Equal("200 OK", res.Status)
 	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
@@ -133,7 +133,7 @@ func Test_Get_WithTransport(t *testing.T) {
 	res, close, err := client.Get(context.Background(), "api/queries/1", map[string]string{"foo": "bar"})
 	defer close()
 	assert.NoError(err)
-	assert.Equal("200", res.Status)
+	assert.Equal("200 OK", res.Status)
 	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
@@ -151,7 +151,7 @@ func Test_Get_Err(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, close, err := client.Get(context.Background(), "api/queries/1", map[string]string{"foo": "bar"})
 	defer close()
-	assert.ErrorContains(err, "GET api/queries/1 failed: HTTP status code not OK: 404")
+	assert.ErrorContains(err, "GET api/queries/1 failed: HTTP status code not OK: 404 Not Found")
 }
 
 func Test_Post_OK(t *testing.T) {
@@ -183,7 +183,7 @@ func Test_Post_OK(t *testing.T) {
 	res, close, err := client.Post(context.Background(), "api/queries/1", map[string]string{"foo": "bar"})
 	defer close()
 	assert.NoError(err)
-	assert.Equal("200", res.Status)
+	assert.Equal("200 OK", res.Status)
 	require.NotNil(res.Body)
 	body, _ := io.ReadAll(res.Body)
 	assert.Equal(`{"zoo":"baz"}`, string(body))
@@ -201,7 +201,7 @@ func Test_Post_Err(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, close, err := client.Post(context.Background(), "api/queries/1", map[string]string{"foo": "bar"})
 	defer close()
-	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 404")
+	assert.ErrorContains(err, "POST api/queries/1 failed: HTTP status code not OK: 404 Not Found")
 }
 
 func Test_Delete_OK(t *testing.T) {
@@ -227,7 +227,7 @@ func Test_Delete_OK(t *testing.T) {
 	res, close, err := client.Delete(context.Background(), "api/queries/1")
 	defer close()
 	assert.NoError(err)
-	assert.Equal("200", res.Status)
+	assert.Equal("200 OK", res.Status)
 }
 
 func Test_Delete_Err(t *testing.T) {
@@ -242,7 +242,7 @@ func Test_Delete_Err(t *testing.T) {
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, close, err := client.Delete(context.Background(), "api/queries/1")
 	defer close()
-	assert.ErrorContains(err, "DELETE api/queries/1 failed: HTTP status code not OK: 404")
+	assert.ErrorContains(err, "DELETE api/queries/1 failed: HTTP status code not OK: 404 Not Found")
 }
 
 func Test_SetDebug(t *testing.T) {

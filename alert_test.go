@@ -89,7 +89,7 @@ func Test_ListAlerts_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListAlerts(context.Background())
-	assert.ErrorContains(err, "GET api/alerts failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/alerts failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListAlerts_IOErr(t *testing.T) {
@@ -180,7 +180,7 @@ func Test_GetAlert_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetAlert(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/alerts/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/alerts/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetAlert_IOErr(t *testing.T) {
@@ -296,7 +296,7 @@ func Test_CreateAlert_Err_5xx(t *testing.T) {
 		QueryId: 1,
 		Rearm:   1,
 	})
-	assert.ErrorContains(err, "POST api/alerts failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/alerts failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateAlert_IOErr(t *testing.T) {
@@ -423,7 +423,7 @@ func Test_UpdateAlert_Err_5xx(t *testing.T) {
 		QueryId: 1,
 		Rearm:   1,
 	})
-	assert.ErrorContains(err, "POST api/alerts/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/alerts/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateAlert_IOErr(t *testing.T) {
@@ -486,7 +486,7 @@ func Test_DeleteAlert_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteAlert(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/alerts/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/alerts/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListAlertSubscriptions_OK(t *testing.T) {
@@ -552,7 +552,7 @@ func Test_ListAlertSubscriptions_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListAlertSubscriptions(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/alerts/1/subscriptions failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/alerts/1/subscriptions failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListAlertSubscriptions_IOErr(t *testing.T) {
@@ -633,7 +633,7 @@ func Test_AddAlertSubscription_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.AddAlertSubscription(context.Background(), 1, 1)
-	assert.ErrorContains(err, "POST api/alerts/1/subscriptions failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/alerts/1/subscriptions failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_AddAlertSubscription_IOErr(t *testing.T) {
@@ -685,7 +685,7 @@ func Test_RemoveAlertSubscription_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.RemoveAlertSubscription(context.Background(), 1, 2)
-	assert.ErrorContains(err, "DELETE api/alerts/1/subscriptions/2 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/alerts/1/subscriptions/2 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_MuteAlert_OK(t *testing.T) {
@@ -723,7 +723,7 @@ func Test_MuteAlert_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.MuteAlert(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/alerts/1/mute failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/alerts/1/mute failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UnmuteAlert_OK(t *testing.T) {
@@ -761,7 +761,7 @@ func Test_UnmuteAlert_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.UnmuteAlert(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/alerts/1/mute failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/alerts/1/mute failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_Alert_Acc(t *testing.T) {
