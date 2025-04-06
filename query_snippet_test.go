@@ -71,7 +71,7 @@ func Test_ListQuerySnippets_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListQuerySnippets(context.Background())
-	assert.ErrorContains(err, "GET api/query_snippets failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/query_snippets failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListQuerySnippets_IOErr(t *testing.T) {
@@ -142,7 +142,7 @@ func Test_GetQuerySnippets_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetQuerySnippet(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/query_snippets/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/query_snippets/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetQuerySnippets_IOErr(t *testing.T) {
@@ -226,7 +226,7 @@ func Test_CreateQuerySnippets_Err_5xx(t *testing.T) {
 		Snippet:     "select 1",
 		Trigger:     "my-snippet",
 	})
-	assert.ErrorContains(err, "POST api/query_snippets failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/query_snippets failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateQuerySnippets_IOErr(t *testing.T) {
@@ -314,7 +314,7 @@ func Test_UpdateQuerySnippets_Err_5xx(t *testing.T) {
 		Snippet:     "select 1",
 		Trigger:     "my-snippet",
 	})
-	assert.ErrorContains(err, "POST api/query_snippets/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/query_snippets/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateQuerySnippets_IOErr(t *testing.T) {
@@ -380,7 +380,7 @@ func Test_DeleteQuerySnippets_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteQuerySnippet(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/query_snippets/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/query_snippets/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_QuerySnippet_Acc(t *testing.T) {

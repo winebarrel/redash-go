@@ -74,7 +74,7 @@ func Test_ListGroups_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListGroups(context.Background())
-	assert.ErrorContains(err, "GET api/groups failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/groups failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListGroups_IOErr(t *testing.T) {
@@ -147,7 +147,7 @@ func Test_GetGroup_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetGroup(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/groups/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/groups/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetGroup_IOErr(t *testing.T) {
@@ -249,7 +249,7 @@ func Test_CreateGroup_Err_5xx(t *testing.T) {
 	_, err := client.CreateGroup(context.Background(), &redash.CreateGroupInput{
 		Name: "my-group",
 	})
-	assert.ErrorContains(err, "POST api/groups failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/groups failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateGroup_IOErr(t *testing.T) {
@@ -303,7 +303,7 @@ func Test_DeleteGroup_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteGroup(context.Background(), 2)
-	assert.ErrorContains(err, "DELETE api/groups/2 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/groups/2 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListGroupMembers_OK(t *testing.T) {
@@ -379,7 +379,7 @@ func Test_ListGroupMembers_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListGroupMembers(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/groups/1/members failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/groups/1/members failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListGroupMembers_IOErr(t *testing.T) {
@@ -470,7 +470,7 @@ func Test_AddGroupMember_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.AddGroupMember(context.Background(), 1, 1)
-	assert.ErrorContains(err, "POST api/groups/1/members failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/groups/1/members failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_AddGroupMember_IOErr(t *testing.T) {
@@ -522,7 +522,7 @@ func Test_RemoveGroupMember_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.RemoveGroupMember(context.Background(), 1, 2)
-	assert.ErrorContains(err, "DELETE api/groups/1/members/2 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/groups/1/members/2 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListGroupDataSources_OK(t *testing.T) {
@@ -587,7 +587,7 @@ func Test_ListGroupDataSources_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ListGroupDataSources(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/groups/1/data_sources failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/groups/1/data_sources failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListGroupDataSources_IOErr(t *testing.T) {
@@ -667,7 +667,7 @@ func Test_AddGroupDataSource_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.AddGroupDataSource(context.Background(), 1, 1)
-	assert.ErrorContains(err, "POST api/groups/1/data_sources failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/groups/1/data_sources failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_AddGroupDataSource_IOErr(t *testing.T) {
@@ -719,7 +719,7 @@ func Test_RemoveGroupDataSource_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.RemoveGroupDataSource(context.Background(), 1, 2)
-	assert.ErrorContains(err, "DELETE api/groups/1/data_sources/2 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/groups/1/data_sources/2 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateGroupDataSource_OK(t *testing.T) {
@@ -789,7 +789,7 @@ func Test_UpdateGroupDataSource_Err_5xx(t *testing.T) {
 	_, err := client.UpdateGroupDataSource(context.Background(), 1, 1, &redash.UpdateGroupDataSourceInput{
 		ViewOnly: true,
 	})
-	assert.ErrorContains(err, "POST api/groups/1/data_sources/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/groups/1/data_sources/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateGroupDataSource_IOErr(t *testing.T) {

@@ -70,7 +70,7 @@ func Test_Ping_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.Ping(context.Background())
-	assert.ErrorContains(err, "GET ping failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET ping failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_Ping_IOErr(t *testing.T) {

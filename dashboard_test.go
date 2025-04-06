@@ -107,7 +107,7 @@ func Test_ListDashboards_Err_5xx(t *testing.T) {
 		Page:          1,
 		PageSize:      25,
 	})
-	assert.ErrorContains(err, "GET api/dashboards failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/dashboards failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListDashboards_IOErr(t *testing.T) {
@@ -280,7 +280,7 @@ func Test_GetDashboard_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "GET api/dashboards/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/dashboards/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDashboard_IOErr(t *testing.T) {
@@ -332,7 +332,7 @@ func Test_CreateFavoriteDashboard_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.CreateFavoriteDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/dashboards/1/favorite failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/dashboards/1/favorite failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateDashboard_OK(t *testing.T) {
@@ -416,7 +416,7 @@ func Test_CreateDashboard_Err_5xx(t *testing.T) {
 	_, err := client.CreateDashboard(context.Background(), &redash.CreateDashboardInput{
 		Name: "name",
 	})
-	assert.ErrorContains(err, "POST api/dashboards failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/dashboards failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateDashboard_IOErr(t *testing.T) {
@@ -591,7 +591,7 @@ func Test_ArchiveDashboard_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.ArchiveDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/dashboards/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/dashboards/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListMyDashboards_OK(t *testing.T) {
@@ -688,7 +688,7 @@ func Test_ListMyDashboards_Err_5xx(t *testing.T) {
 		PageSize: 25,
 		Q:        "name",
 	})
-	assert.ErrorContains(err, "GET api/dashboards/my failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/dashboards/my failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListMyDashboards_IOErr(t *testing.T) {
@@ -803,7 +803,7 @@ func Test_ListFavoriteDashboards_Err_5xx(t *testing.T) {
 		PageSize: 25,
 		Q:        "name",
 	})
-	assert.ErrorContains(err, "GET api/dashboards/favorites failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/dashboards/favorites failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ListFavoriteDashboards_IOErr(t *testing.T) {
@@ -868,7 +868,7 @@ func Test_ShareDashboard_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.ShareDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "POST api/dashboards/1/share failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/dashboards/1/share failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_ShareDashboard_IOErr(t *testing.T) {
@@ -920,7 +920,7 @@ func Test_UnshareDashboard_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.UnshareDashboard(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/dashboards/1/share failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/dashboards/1/share failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDashboardTags_OK(t *testing.T) {
@@ -977,7 +977,7 @@ func Test_GetDashboardTags_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDashboardTags(context.Background())
-	assert.ErrorContains(err, "GET api/dashboards/tags failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/dashboards/tags failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetDashboardTags_IOErr(t *testing.T) {

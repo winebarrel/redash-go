@@ -99,7 +99,7 @@ func Test_UpdateVisualization_Err_5xx(t *testing.T) {
 		Name:        "name",
 		Type:        "TABLE",
 	})
-	assert.ErrorContains(err, "POST api/visualizations/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/visualizations/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_Visualization_Acc(t *testing.T) {

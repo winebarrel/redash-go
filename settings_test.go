@@ -112,7 +112,7 @@ func Test_GetSettingsOrganization_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetSettingsOrganization(context.Background())
-	assert.ErrorContains(err, "GET api/settings/organization failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "GET api/settings/organization failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_GetSettingsOrganization_IOErr(t *testing.T) {
@@ -238,7 +238,7 @@ func Test_UpdateSettingsOrganization_Err_5xx(t *testing.T) {
 	_, err := client.UpdateSettingsOrganization(context.Background(), &redash.UpdateSettingsOrganizationInput{
 		DateFormat: "YYYY/MM/DD",
 	})
-	assert.ErrorContains(err, "POST api/settings/organization failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/settings/organization failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_UpdateSettingsOrganization_IOErr(t *testing.T) {

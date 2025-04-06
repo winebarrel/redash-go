@@ -94,7 +94,7 @@ func Test_CreateWidget_Err_5xx(t *testing.T) {
 		VisualizationID: 1,
 		Width:           1,
 	})
-	assert.ErrorContains(err, "POST api/widgets failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "POST api/widgets failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_CreateWidget_IOErr(t *testing.T) {
@@ -214,7 +214,7 @@ func Test_DeleteWidget_Err_5xx(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	err := client.DeleteWidget(context.Background(), 1)
-	assert.ErrorContains(err, "DELETE api/widgets/1 failed: HTTP status code not OK: 503\nerror")
+	assert.ErrorContains(err, "DELETE api/widgets/1 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
 }
 
 func Test_Widget_Acc(t *testing.T) {
