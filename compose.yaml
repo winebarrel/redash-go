@@ -45,7 +45,7 @@ services:
       <<: *redash-environment
       PYTHONUNBUFFERED: 0
   redis:
-    image: redis:7-alpine
+    image: redis:8-alpine
     restart: unless-stopped
   postgres:
     image: pgautoupgrade/pgautoupgrade:16-alpine
