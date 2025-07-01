@@ -8,7 +8,7 @@
     "gomodTidy"
   ],
   "vulnerabilityAlerts": {
-    "enabled": "true"
+    "enabled": true
   },
   "packageRules": [
     {
