@@ -1,6 +1,8 @@
 module github.com/winebarrel/redash-go/v2
 
-go 1.23.0
+go 1.24.0
+
+toolchain go1.24.5
 
 require (
 	github.com/jarcoal/httpmock v1.4.1
@@ -12,11 +14,11 @@ require (
 	golang.org/x/tools v0.37.0
 )
 
-require golang.org/x/sync v0.16.0 // indirect
+require golang.org/x/sync v0.17.0 // indirect
 
 require (
 	github.com/google/go-querystring v1.1.0
-	golang.org/x/mod v0.27.0 // indirect
+	golang.org/x/mod v0.28.0 // indirect
 )
 
 require (
