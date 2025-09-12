@@ -39,3 +39,7 @@ func (client *ClientWithoutContext) TestDataSource(id int) (*TestDataSourceOutpu
 func (client *ClientWithoutContext) GetDataSourceTypes() ([]DataSourceType, error) {
 	return client.withCtx.GetDataSourceTypes(context.Background())
 }
+
+func (client *ClientWithoutContext) GetDataSourceSchema(id int) (*DataSourceSchemaOutput, error) {
+	return client.withCtx.GetDataSourceSchema(context.Background(), id)
+}

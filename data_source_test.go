@@ -178,7 +178,7 @@ func Test_GetDataSource_IOErr(t *testing.T) {
 
 	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
 	_, err := client.GetDataSource(context.Background(), 1)
-	assert.ErrorContains(err, "unmarshal response body failed: read response body failed: IO error")
+	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
 func Test_CreateDataSource_OK(t *testing.T) {
@@ -880,6 +880,119 @@ func Test_GetDataSourceTypes_IOErr(t *testing.T) {
 	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
+func Test_GetDataSourceSchema_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/1/schema", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"schema": [
+					{
+						"name": "foo",
+						"columns": [
+							{
+								"name": "id",
+								"type": "int"
+							},
+							{
+								"name": "name",
+								"type": "string"
+							}
+						]
+					},
+					{
+						"name": "bar",
+						"columns": [
+							{
+								"name": "id",
+								"type": "int"
+							},
+							{
+								"name": "author",
+								"type": "string"
+							}
+						]
+					}
+				]
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.GetDataSourceSchema(context.Background(), 1)
+	assert.NoError(err)
+	assert.Equal(&redash.DataSourceSchemaOutput{
+		Schema: []redash.DataSourceSchema{
+			{
+				Name: "foo",
+				Columns: []redash.DataSourceSchemaColumn{
+					{
+						Name: "id",
+						Type: "int",
+					},
+					{
+						Name: "name",
+						Type: "string",
+					},
+				},
+			},
+			{
+				Name: "bar",
+				Columns: []redash.DataSourceSchemaColumn{
+					{
+						Name: "id",
+						Type: "int",
+					},
+					{
+						Name: "author",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}, res)
+}
+
+func Test_GetDataSourceSchema_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/1/schema", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDataSourceSchema(context.Background(), 1)
+	assert.ErrorContains(err, "GET api/data_sources/1/schema failed: HTTP status code not OK: 503 Service Unavailable\nerror")
+}
+
+func Test_GetDataSourceSchema_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodGet, "https://redash.example.com/api/data_sources/1/schema", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.GetDataSourceSchema(context.Background(), 1)
+	assert.ErrorContains(err, "read response body failed: IO error")
+}
+
 func Test_DataSource_Acc(t *testing.T) {
 	if !testAcc {
 		t.Skip()
@@ -937,6 +1050,10 @@ func Test_DataSource_Acc(t *testing.T) {
 	require.NoError(err)
 	assert.Equal(0, ds.Paused)
 	assert.Equal("", ds.PauseReason)
+
+	schema, err := client.GetDataSourceSchema(context.Background(), ds.ID)
+	require.NoError(err)
+	assert.Equal(&redash.DataSourceSchemaOutput{}, schema)
 
 	err = client.DeleteDataSource(context.Background(), ds.ID)
 	require.NoError(err)
