@@ -50,7 +50,7 @@ func (client *Client) GetDataSource(ctx context.Context, id int) (*DataSource, e
 	dataSource := &DataSource{}
 
 	if err := util.UnmarshalBody(res, &dataSource); err != nil {
-		return nil, fmt.Errorf("unmarshal response body failed: %w", err)
+		return nil, err
 	}
 
 	return dataSource, nil
@@ -209,4 +209,35 @@ func (client *Client) GetDataSourceTypes(ctx context.Context) ([]DataSourceType,
 	}
 
 	return types, nil
+}
+
+type DataSourceSchemaOutput struct {
+	Schema []DataSourceSchema `json:"schema"`
+}
+
+type DataSourceSchema struct {
+	Name    string                   `json:"name"`
+	Columns []DataSourceSchemaColumn `json:"columns"`
+}
+
+type DataSourceSchemaColumn struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+func (client *Client) GetDataSourceSchema(ctx context.Context, id int) (*DataSourceSchemaOutput, error) {
+	res, close, err := client.Get(ctx, fmt.Sprintf("api/data_sources/%d/schema", id), nil)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	output := &DataSourceSchemaOutput{}
+
+	if err := util.UnmarshalBody(res, &output); err != nil {
+		return nil, err
+	}
+
+	return output, nil
 }
