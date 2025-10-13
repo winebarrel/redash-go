@@ -12,6 +12,9 @@
   },
   "packageRules": [
     {
+      "minimumReleaseAge": "3 days"
+    },
+    {
       "matchPackageNames": [
         "pgautoupgrade/pgautoupgrade"
       ],
