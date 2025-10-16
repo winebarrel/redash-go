@@ -2,7 +2,7 @@ module github.com/winebarrel/redash-go/v2
 
 go 1.24.0
 
-toolchain go1.25.2
+toolchain go1.25.3
 
 require (
 	github.com/jarcoal/httpmock v1.4.1
