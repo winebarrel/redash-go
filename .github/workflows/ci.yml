@@ -19,7 +19,7 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - uses: golangci/golangci-lint-action@v8
+      - uses: golangci/golangci-lint-action@v9
       - run: make gen && git diff --exit-code
       - name: Start services
         run: |
