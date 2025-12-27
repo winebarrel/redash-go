@@ -347,7 +347,7 @@ func (client *Client) GetQueryResults(ctx context.Context, id int, ext string, o
 	return err
 }
 
-func (client *Client) GetQueryResultByID(ctx context.Context, queryResultId int, ext string, out *bytes.Buffer) error {
+func (client *Client) GetQueryResultByID(ctx context.Context, queryResultId int, ext string, out io.Writer) error {
 	if out == nil {
 		return errors.New("out(io.Writer) is nil")
 	}
