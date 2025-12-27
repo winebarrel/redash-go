@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.8.0] - 2025-12-27
+
+### Changed
+
+* Fix `GetQueryResultByID()` argument. Use `io.Writer`. [issue#315](https://github.com/winebarrel/redash-go/issues/315)
+
+## [2.7.0] - 2025-09-12
+
+### Added
+
+* Add `GetDataSourceSchema()` methods.
+
+### Changed
+
 ## [2.6.2] - 2025-03-１０
 
 ### Changed
