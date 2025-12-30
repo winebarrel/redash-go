@@ -1,3 +1,5 @@
+SHELL = /bin/bash -o pipefail
+
 .PHONY: all
 all: vet test
 
@@ -12,6 +14,11 @@ test:
 .PHONY: testacc
 testacc:
 	$(MAKE) test TEST_ACC=1
+
+.PHONY: testacc-report
+testacc-report:
+	$(MAKE) testacc | tee test.log
+	cat test.log | go tool go-junit-report -set-exit-code > junit.xml
 
 .PHONY: lint
 lint:
