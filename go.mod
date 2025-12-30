@@ -17,7 +17,7 @@ require (
 require golang.org/x/sync v0.19.0 // indirect
 
 require (
-	github.com/google/go-querystring v1.1.0
+	github.com/google/go-querystring v1.2.0
 	golang.org/x/mod v0.31.0 // indirect
 )
 
