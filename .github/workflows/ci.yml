@@ -27,7 +27,9 @@ jobs:
           for i in {1..60}; do pg_isready -U postgres -h 127.0.0.1 -p 15432 && break; sleep 1; done
       - run: make redash-setup
       - run: make vet
-      - run: make testacc-report TEST_OPTS='-coverprofile=coverage.out'
+      - run: |
+          make testacc-report TEST_OPTS='-coverprofile=coverage.out'
+          cat junit.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
         with:
