@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.9.0] - 2026-02-25
+
+### Changed
+
+Change `AlertOptions.Value` type from `int` to `float64`. (**breaking change**) [pull#325](https://github.com/winebarrel/redash-go/pull/325)
+
 ## [2.8.0] - 2025-12-27
 
 ### Changed
