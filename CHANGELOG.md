@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.9.0] - 2026-02-25
+
+### Changed
+
+* Change alert Value type from int to float64. [issue#325](https://github.com/winebarrel/redash-go/issues/325)
+
 ## [2.8.0] - 2025-12-27
 
 ### Changed
