@@ -25,9 +25,9 @@ type Alert struct {
 type AlertOptions struct {
 	Column        string `json:"column"`
 	Op            string `json:"op"`
-	Value         int    `json:"value"`
-	CustomSubject string `json:"custom_subject"`
-	CustomBody    string `json:"custom_body"`
+	Value         float64 `json:"value"`
+	CustomSubject string  `json:"custom_subject"`
+	CustomBody    string  `json:"custom_body"`
 	// Deprecated: for backward compatibility
 	Template string `json:"template"`
 	Muted    bool   `json:"muted"`
@@ -82,9 +82,9 @@ type CreateAlertInput struct {
 }
 
 type CreateAlertOptions struct {
-	Column        string `json:"column"`
-	Op            string `json:"op"`
-	Value         int    `json:"value"`
+	Column        string  `json:"column"`
+	Op            string  `json:"op"`
+	Value         float64 `json:"value"`
 	CustomSubject string `json:"custom_subject,omitempty"`
 	CustomBody    string `json:"custom_body,omitempty"`
 	// Deprecated: for backward compatibility
@@ -116,9 +116,9 @@ type UpdateAlertInput struct {
 }
 
 type UpdateAlertOptions struct {
-	Column        string `json:"column"`
-	Value         int    `json:"value"`
-	Op            string `json:"op"`
+	Column        string  `json:"column"`
+	Value         float64 `json:"value"`
+	Op            string  `json:"op"`
 	CustomSubject string `json:"custom_subject,omitempty"`
 	CustomBody    string `json:"custom_body,omitempty"`
 	// Deprecated: for backward compatibility
