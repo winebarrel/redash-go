@@ -822,7 +822,7 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal(0, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
-	assert.Equal(1, alert.Options.Value)
+	assert.Equal(float64(1), alert.Options.Value)
 	assert.Equal("custom_subject", alert.Options.CustomSubject)
 	assert.Equal("custom_body", alert.Options.CustomBody)
 	assert.False(alert.Options.Muted)
@@ -835,7 +835,7 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal(0, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
-	assert.Equal(1, alert.Options.Value)
+	assert.Equal(float64(1), alert.Options.Value)
 	assert.Equal("custom_subject", alert.Options.CustomSubject)
 	assert.Equal("custom_body", alert.Options.CustomBody)
 
@@ -853,7 +853,7 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal(300, alert.Rearm)
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
-	assert.Equal(2, alert.Options.Value)
+	assert.Equal(float64(2), alert.Options.Value)
 	assert.Empty(alert.Options.CustomSubject)
 	assert.Empty(alert.Options.CustomBody)
 
