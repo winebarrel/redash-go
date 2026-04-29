@@ -527,6 +527,40 @@ func Test_CreateQuery_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateQuery_OK_WithoutOmittingSchedule(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"data_source_id":1,"description":"description","name":"my-query","query":"select 1","schedule":null}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"id":1}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateQuery(context.Background(), &redash.CreateQueryInput{
+		DataSourceID:            1,
+		Description:             "description",
+		Name:                    "my-query",
+		Query:                   "select 1",
+		WithoutOmittingSchedule: true,
+	})
+	assert.NoError(err)
+}
+
 func Test_CreateQuery_Err_5xx(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -814,6 +848,37 @@ func Test_UpdateQuery_OK_Publish(t *testing.T) {
 			},
 		},
 	}, res)
+}
+
+func Test_UpdateQuery_OK_WithoutOmittingSchedule(t *testing.T) {
+	assert := assert.New(t)
+	require := require.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/queries/1", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		require.NotNil(req.Body)
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"name":"my-query","schedule":null}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"id":1}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateQuery(context.Background(), 1, &redash.UpdateQueryInput{
+		Name:                    "my-query",
+		WithoutOmittingSchedule: true,
+	})
+	assert.NoError(err)
 }
 
 func Test_UpdateQuery_Err_5xx(t *testing.T) {

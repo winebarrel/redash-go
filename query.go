@@ -156,13 +156,14 @@ func (client *Client) CreateFavoriteQuery(ctx context.Context, id int) error {
 }
 
 type CreateQueryInput struct {
-	DataSourceID int                       `json:"data_source_id"`
-	Description  string                    `json:"description,omitempty"`
-	Name         string                    `json:"name"`
-	Options      *CreateQueryInputOptions  `json:"options,omitempty"`
-	Query        string                    `json:"query"`
-	Schedule     *CreateQueryInputSchedule `json:"schedule,omitempty"`
-	Tags         []string                  `json:"tags,omitempty"`
+	DataSourceID            int                       `json:"data_source_id"`
+	Description             string                    `json:"description,omitempty"`
+	Name                    string                    `json:"name"`
+	Options                 *CreateQueryInputOptions  `json:"options,omitempty"`
+	Query                   string                    `json:"query"`
+	Schedule                *CreateQueryInputSchedule `json:"schedule,omitempty"`
+	WithoutOmittingSchedule bool                      `json:"-"`
+	Tags                    []string                  `json:"tags,omitempty"`
 }
 
 type CreateQueryInputOptions struct {
@@ -176,8 +177,32 @@ type CreateQueryInputSchedule struct {
 	DayOfWeek *string `json:"day_of_week"`
 }
 
+type createQueryInputWithSchedule struct {
+	DataSourceID int                       `json:"data_source_id"`
+	Description  string                    `json:"description,omitempty"`
+	Name         string                    `json:"name"`
+	Options      *CreateQueryInputOptions  `json:"options,omitempty"`
+	Query        string                    `json:"query"`
+	Schedule     *CreateQueryInputSchedule `json:"schedule"`
+	Tags         []string                  `json:"tags,omitempty"`
+}
+
 func (client *Client) CreateQuery(ctx context.Context, input *CreateQueryInput) (*Query, error) {
-	res, close, err := client.Post(ctx, "api/queries", input)
+	var body any = input
+
+	if input != nil && input.WithoutOmittingSchedule {
+		body = &createQueryInputWithSchedule{
+			DataSourceID: input.DataSourceID,
+			Description:  input.Description,
+			Name:         input.Name,
+			Options:      input.Options,
+			Query:        input.Query,
+			Schedule:     input.Schedule,
+			Tags:         input.Tags,
+		}
+	}
+
+	res, close, err := client.Post(ctx, "api/queries", body)
 	defer close()
 
 	if err != nil {
@@ -211,14 +236,15 @@ func (client *Client) ForkQuery(ctx context.Context, id int) (*Query, error) {
 }
 
 type UpdateQueryInput struct {
-	DataSourceID int                       `json:"data_source_id,omitempty"`
-	Description  string                    `json:"description,omitempty"`
-	Name         string                    `json:"name,omitempty"`
-	Options      *UpdateQueryInputOptions  `json:"options,omitempty"`
-	Query        string                    `json:"query,omitempty"`
-	Schedule     *UpdateQueryInputSchedule `json:"schedule,omitempty"`
-	Tags         *[]string                 `json:"tags,omitempty"`
-	IsDraft      *bool                     `json:"is_draft,omitempty"`
+	DataSourceID            int                       `json:"data_source_id,omitempty"`
+	Description             string                    `json:"description,omitempty"`
+	Name                    string                    `json:"name,omitempty"`
+	Options                 *UpdateQueryInputOptions  `json:"options,omitempty"`
+	Query                   string                    `json:"query,omitempty"`
+	Schedule                *UpdateQueryInputSchedule `json:"schedule,omitempty"`
+	WithoutOmittingSchedule bool                      `json:"-"`
+	Tags                    *[]string                 `json:"tags,omitempty"`
+	IsDraft                 *bool                     `json:"is_draft,omitempty"`
 }
 
 type UpdateQueryInputOptions struct {
@@ -232,8 +258,34 @@ type UpdateQueryInputSchedule struct {
 	DayOfWeek *string `json:"day_of_week"`
 }
 
+type updateQueryInputWithSchedule struct {
+	DataSourceID int                       `json:"data_source_id,omitempty"`
+	Description  string                    `json:"description,omitempty"`
+	Name         string                    `json:"name,omitempty"`
+	Options      *UpdateQueryInputOptions  `json:"options,omitempty"`
+	Query        string                    `json:"query,omitempty"`
+	Schedule     *UpdateQueryInputSchedule `json:"schedule"`
+	Tags         *[]string                 `json:"tags,omitempty"`
+	IsDraft      *bool                     `json:"is_draft,omitempty"`
+}
+
 func (client *Client) UpdateQuery(ctx context.Context, id int, input *UpdateQueryInput) (*Query, error) {
-	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), input)
+	var body any = input
+
+	if input != nil && input.WithoutOmittingSchedule {
+		body = &updateQueryInputWithSchedule{
+			DataSourceID: input.DataSourceID,
+			Description:  input.Description,
+			Name:         input.Name,
+			Options:      input.Options,
+			Query:        input.Query,
+			Schedule:     input.Schedule,
+			Tags:         input.Tags,
+			IsDraft:      input.IsDraft,
+		}
+	}
+
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/queries/%d", id), body)
 	defer close()
 
 	if err != nil {
