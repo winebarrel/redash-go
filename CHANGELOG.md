@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.10.0] - 2026-04-29
+
+### Changed
+
+Add `WithoutOmittingSchedule` flag to `CreateQueryInput`/`UpdateQueryInput`. [pull#328](https://github.com/winebarrel/redash-go/pull/328)
+
 ## [2.9.0] - 2026-02-25
 
 ### Changed
