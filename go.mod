@@ -1,6 +1,6 @@
 module github.com/winebarrel/redash-go/v2
 
-go 1.24.0
+go 1.25.0
 
 toolchain go1.26.3
 
@@ -11,17 +11,17 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0
-	golang.org/x/tools v0.41.0
+	golang.org/x/tools v0.45.0
 )
 
 require (
 	github.com/jstemmer/go-junit-report/v2 v2.1.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 )
 
 require (
 	github.com/google/go-querystring v1.2.0
-	golang.org/x/mod v0.32.0 // indirect
+	golang.org/x/mod v0.36.0 // indirect
 )
 
 require (
