@@ -23,9 +23,10 @@ type Alert struct {
 }
 
 type AlertOptions struct {
-	Column        string `json:"column"`
-	Op            string `json:"op"`
+	Column        string  `json:"column"`
+	Op            string  `json:"op"`
 	Value         float64 `json:"value"`
+	Selector      string  `json:"selector"`
 	CustomSubject string  `json:"custom_subject"`
 	CustomBody    string  `json:"custom_body"`
 	// Deprecated: for backward compatibility
@@ -85,8 +86,9 @@ type CreateAlertOptions struct {
 	Column        string  `json:"column"`
 	Op            string  `json:"op"`
 	Value         float64 `json:"value"`
-	CustomSubject string `json:"custom_subject,omitempty"`
-	CustomBody    string `json:"custom_body,omitempty"`
+	Selector      string  `json:"selector,omitempty"`
+	CustomSubject string  `json:"custom_subject,omitempty"`
+	CustomBody    string  `json:"custom_body,omitempty"`
 	// Deprecated: for backward compatibility
 	Template string `json:"template,omitempty"`
 }
@@ -119,8 +121,9 @@ type UpdateAlertOptions struct {
 	Column        string  `json:"column"`
 	Value         float64 `json:"value"`
 	Op            string  `json:"op"`
-	CustomSubject string `json:"custom_subject,omitempty"`
-	CustomBody    string `json:"custom_body,omitempty"`
+	Selector      string  `json:"selector,omitempty"`
+	CustomSubject string  `json:"custom_subject,omitempty"`
+	CustomBody    string  `json:"custom_body,omitempty"`
 	// Deprecated: for backward compatibility
 	Template string `json:"template,omitempty"`
 }

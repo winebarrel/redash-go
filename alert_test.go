@@ -45,6 +45,7 @@ func Test_ListAlerts_OK(t *testing.T) {
 						"column": "col",
 						"value": 0,
 						"op": "greater than",
+						"selector": "first",
 						"custom_subject": "custom_subject",
 						"custom_body": "custom_body"
 					}
@@ -66,6 +67,7 @@ func Test_ListAlerts_OK(t *testing.T) {
 				Column:        "col",
 				Value:         0,
 				Op:            "greater than",
+				Selector:      "first",
 				CustomSubject: "custom_subject",
 				CustomBody:    "custom_body",
 			},
@@ -137,6 +139,7 @@ func Test_GetAlert_OK(t *testing.T) {
 					"column": "col",
 					"value": 0,
 					"op": "greater than",
+					"selector": "first",
 					"custom_subject": "custom_subject",
 					"custom_body": "custom_body",
 					"muted": true
@@ -157,6 +160,7 @@ func Test_GetAlert_OK(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 			Muted:         true,
@@ -217,7 +221,7 @@ func Test_CreateAlert_OK(t *testing.T) {
 			assert.FailNow("req.Body is nil")
 		}
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"name":"name","options":{"column":"col","op":"greater than","value":0,"custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
+		assert.Equal(`{"name":"name","options":{"column":"col","op":"greater than","value":0,"selector":"first","custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
   		{
 				"user": {},
@@ -233,6 +237,7 @@ func Test_CreateAlert_OK(t *testing.T) {
 					"column": "col",
 					"value": 0,
 					"op": "greater than",
+					"selector": "first",
 					"custom_subject": "custom_subject",
 					"custom_body": "custom_body"
 				}
@@ -247,6 +252,7 @@ func Test_CreateAlert_OK(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -263,6 +269,7 @@ func Test_CreateAlert_OK(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -290,6 +297,7 @@ func Test_CreateAlert_Err_5xx(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -315,6 +323,7 @@ func Test_CreateAlert_IOErr(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -344,7 +353,7 @@ func Test_UpdateAlert_OK(t *testing.T) {
 			assert.FailNow("req.Body is nil")
 		}
 		body, _ := io.ReadAll(req.Body)
-		assert.Equal(`{"name":"name","options":{"column":"col","value":0,"op":"greater than","custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
+		assert.Equal(`{"name":"name","options":{"column":"col","value":0,"op":"greater than","selector":"first","custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
 		return httpmock.NewStringResponse(http.StatusOK, `
   		{
 				"user": {},
@@ -360,6 +369,7 @@ func Test_UpdateAlert_OK(t *testing.T) {
 					"column": "col",
 					"value": 0,
 					"op": "greater than",
+					"selector": "first",
 					"custom_subject": "custom_subject",
 					"custom_body": "custom_body"
 				}
@@ -374,6 +384,7 @@ func Test_UpdateAlert_OK(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -390,6 +401,7 @@ func Test_UpdateAlert_OK(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -417,6 +429,7 @@ func Test_UpdateAlert_Err_5xx(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -442,6 +455,7 @@ func Test_UpdateAlert_IOErr(t *testing.T) {
 			Column:        "col",
 			Value:         0,
 			Op:            "greater than",
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -807,6 +821,7 @@ func Test_Alert_Acc(t *testing.T) {
 			Column:        "col",
 			Op:            "greater than",
 			Value:         1,
+			Selector:      "first",
 			CustomSubject: "custom_subject",
 			CustomBody:    "custom_body",
 		},
@@ -823,6 +838,7 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
 	assert.Equal(float64(1), alert.Options.Value)
+	assert.Equal("first", alert.Options.Selector)
 	assert.Equal("custom_subject", alert.Options.CustomSubject)
 	assert.Equal("custom_body", alert.Options.CustomBody)
 	assert.False(alert.Options.Muted)
@@ -836,6 +852,7 @@ func Test_Alert_Acc(t *testing.T) {
 	assert.Equal("col", alert.Options.Column)
 	assert.Equal("greater than", alert.Options.Op)
 	assert.Equal(float64(1), alert.Options.Value)
+	assert.Equal("first", alert.Options.Selector)
 	assert.Equal("custom_subject", alert.Options.CustomSubject)
 	assert.Equal("custom_body", alert.Options.CustomBody)
 
