@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.11.0] - 2026-09-17
+
+### Changed
+
+Add `Selector` to alert options. [pull#354](https://github.com/winebarrel/redash-go/pull/354)
+
 ## [2.10.0] - 2026-04-29
 
 ### Changed
