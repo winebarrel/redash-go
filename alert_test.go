@@ -281,6 +281,36 @@ func Test_CreateAlert_OK(t *testing.T) {
 	}, res)
 }
 
+func Test_CreateAlert_OK_WithoutSelector(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts", func(req *http.Request) (*http.Response, error) {
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"name":"name","options":{"column":"col","op":"greater than","value":0,"custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"id":1}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.CreateAlert(context.Background(), &redash.CreateAlertInput{
+		Name: "name",
+		Options: redash.CreateAlertOptions{
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
+		},
+		QueryId: 1,
+		Rearm:   1,
+	})
+	assert.NoError(err)
+}
+
 func Test_CreateAlert_Err_5xx(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -411,6 +441,36 @@ func Test_UpdateAlert_OK(t *testing.T) {
 		UpdatedAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
 		User:      redash.User{},
 	}, res)
+}
+
+func Test_UpdateAlert_OK_WithoutSelector(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/alerts/1", func(req *http.Request) (*http.Response, error) {
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"name":"name","options":{"column":"col","value":0,"op":"greater than","custom_subject":"custom_subject","custom_body":"custom_body"},"query_id":1,"rearm":1}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `{"id":1}`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateAlert(context.Background(), 1, &redash.UpdateAlertInput{
+		Name: "name",
+		Options: &redash.UpdateAlertOptions{
+			Column:        "col",
+			Value:         0,
+			Op:            "greater than",
+			CustomSubject: "custom_subject",
+			CustomBody:    "custom_body",
+		},
+		QueryId: 1,
+		Rearm:   1,
+	})
+	assert.NoError(err)
 }
 
 func Test_UpdateAlert_Err_5xx(t *testing.T) {
