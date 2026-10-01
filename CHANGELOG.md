@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.12.0] - 2026-10-02
+
+### Added
+
+* Add `UpdateGroup()` methods. [pull#360](https://github.com/winebarrel/redash-go/pull/360)
+
 ## [2.11.0] - 2026-09-17
 
 ### Changed
