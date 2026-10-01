@@ -72,6 +72,27 @@ func (client *Client) CreateGroup(ctx context.Context, input *CreateGroupInput) 
 	return group, nil
 }
 
+type UpdateGroupInput struct {
+	Name string `json:"name"`
+}
+
+func (client *Client) UpdateGroup(ctx context.Context, id int, input *UpdateGroupInput) (*Group, error) {
+	res, close, err := client.Post(ctx, fmt.Sprintf("api/groups/%d", id), input)
+	defer close()
+
+	if err != nil {
+		return nil, err
+	}
+
+	group := &Group{}
+
+	if err := util.UnmarshalBody(res, &group); err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}
+
 func (client *Client) DeleteGroup(ctx context.Context, id int) error {
 	_, close, err := client.Delete(ctx, fmt.Sprintf("api/groups/%d", id))
 	defer close()

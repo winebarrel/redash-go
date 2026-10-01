@@ -16,6 +16,10 @@ func (client *ClientWithoutContext) CreateGroup(input *CreateGroupInput) (*Group
 	return client.withCtx.CreateGroup(context.Background(), input)
 }
 
+func (client *ClientWithoutContext) UpdateGroup(id int, input *UpdateGroupInput) (*Group, error) {
+	return client.withCtx.UpdateGroup(context.Background(), id, input)
+}
+
 func (client *ClientWithoutContext) DeleteGroup(id int) error {
 	return client.withCtx.DeleteGroup(context.Background(), id)
 }
