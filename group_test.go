@@ -268,6 +268,110 @@ func Test_CreateGroup_IOErr(t *testing.T) {
 	assert.ErrorContains(err, "read response body failed: IO error")
 }
 
+func Test_UpdateGroup_OK(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/groups/2", func(req *http.Request) (*http.Response, error) {
+		assert.Equal(
+			http.Header(
+				http.Header{
+					"Authorization": []string{"Key " + testRedashAPIKey},
+					"Content-Type":  []string{"application/json"},
+					"User-Agent":    []string{"redash-go"},
+				},
+			),
+			req.Header,
+		)
+		if req.Body == nil {
+			assert.FailNow("req.Body is nil")
+		}
+		body, _ := io.ReadAll(req.Body)
+		assert.Equal(`{"name":"my-group2"}`, string(body))
+		return httpmock.NewStringResponse(http.StatusOK, `
+			{
+				"created_at": "2023-02-10T01:23:45.000Z",
+				"id": 2,
+				"name": "my-group2",
+				"permissions": [
+					"create_dashboard",
+					"create_query",
+					"edit_dashboard",
+					"edit_query",
+					"view_query",
+					"view_source",
+					"execute_query",
+					"list_users",
+					"schedule_query",
+					"list_dashboards",
+					"list_alerts",
+					"list_data_sources"
+				],
+				"type": "regular"
+			}
+		`), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	res, err := client.UpdateGroup(context.Background(), 2, &redash.UpdateGroupInput{
+		Name: "my-group2",
+	})
+	assert.NoError(err)
+	assert.Equal(&redash.Group{
+		CreatedAt: dateparse.MustParse("2023-02-10T01:23:45.000Z"),
+		ID:        2,
+		Name:      "my-group2",
+		Permissions: []string{
+			"create_dashboard",
+			"create_query",
+			"edit_dashboard",
+			"edit_query",
+			"view_query",
+			"view_source",
+			"execute_query",
+			"list_users",
+			"schedule_query",
+			"list_dashboards",
+			"list_alerts",
+			"list_data_sources",
+		},
+		Type: "regular",
+	}, res)
+}
+
+func Test_UpdateGroup_Err_5xx(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/groups/2", func(req *http.Request) (*http.Response, error) {
+		return httpmock.NewStringResponse(http.StatusServiceUnavailable, "error"), nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateGroup(context.Background(), 2, &redash.UpdateGroupInput{
+		Name: "my-group2",
+	})
+	assert.ErrorContains(err, "POST api/groups/2 failed: HTTP status code not OK: 503 Service Unavailable\nerror")
+}
+
+func Test_UpdateGroup_IOErr(t *testing.T) {
+	assert := assert.New(t)
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	httpmock.RegisterResponder(http.MethodPost, "https://redash.example.com/api/groups/2", func(req *http.Request) (*http.Response, error) {
+		return testIOErrResp, nil
+	})
+
+	client, _ := redash.NewClient("https://redash.example.com", testRedashAPIKey)
+	_, err := client.UpdateGroup(context.Background(), 2, &redash.UpdateGroupInput{
+		Name: "my-group2",
+	})
+	assert.ErrorContains(err, "read response body failed: IO error")
+}
+
 func Test_DeleteGroup_OK(t *testing.T) {
 	assert := assert.New(t)
 	httpmock.Activate()
@@ -829,6 +933,16 @@ func Test_Group_Acc(t *testing.T) {
 	group, err = client.GetGroup(context.Background(), group.ID)
 	require.NoError(err)
 	assert.Equal("test-group-1", group.Name)
+
+	group, err = client.UpdateGroup(context.Background(), group.ID, &redash.UpdateGroupInput{
+		Name: "test-group-2",
+	})
+	require.NoError(err)
+	assert.Equal("test-group-2", group.Name)
+
+	group, err = client.GetGroup(context.Background(), group.ID)
+	require.NoError(err)
+	assert.Equal("test-group-2", group.Name)
 
 	_, err = client.ListGroupMembers(context.Background(), group.ID)
 	require.NoError(err)
