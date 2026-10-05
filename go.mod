@@ -11,7 +11,7 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0
-	golang.org/x/tools v0.50.0
+	golang.org/x/tools v0.51.0
 )
 
 require (
