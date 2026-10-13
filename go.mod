@@ -11,18 +11,18 @@ require (
 
 require (
 	github.com/google/uuid v1.6.0
-	golang.org/x/tools v0.51.0
+	golang.org/x/tools v0.52.0
 )
 
 require (
 	github.com/jstemmer/go-junit-report/v2 v2.1.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
 )
 
 require (
 	github.com/google/go-querystring v1.2.0
-	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/mod v0.42.0 // indirect
 )
 
 require github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
